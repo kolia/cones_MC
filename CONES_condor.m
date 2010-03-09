@@ -2,8 +2,8 @@ function ticket = CONES_condor( GC_stas , cone_params , type , min_overlap , s )
 % ticket = CONES_condor( GC_stas , cone_params , type , min_overlap , s )
 % launches condor cone finding job
 
-if nargin<5 ,  s = 16 ; end
-if nargin<4 ,  min_overlap  = 8 ; end
+if nargin<5 ,  s = 10 ; end
+if nargin<4 ,  min_overlap  = 5 ; end
 if nargin<3 ,  type         = 'MCMC' ; end
 
 % make sure agricola is present on the current path
@@ -41,10 +41,10 @@ cone_maps = cone_maps(:) ;
 % launch cluster of jobs
 switch type
     case 'MCMC'
-        ticket = sow('MCMC_cone20' , @(conemap)MCMC_cones(GC_stas,cone_params,conemap) , cone_maps) ;
+        ticket = sow(sprintf('cones_%d_%d_MC_%d',s,min_overlap,cone_params.supersample) , @(conemap)MCMC_cones(GC_stas,cone_params,conemap) , cone_maps) ;
         return
     case 'greedy'
-        ticket = sow('GREEDY_cones' , @(conemap)greedy_cones(GC_stas,cone_params,conemap) , cone_maps) ;
+        ticket = sow(sprintf('cones_%d_%d_GREEDY_%d',s,min_overlap,cone_params.supersample) , @(conemap)greedy_cones(GC_stas,cone_params,conemap) , cone_maps) ;
         return
     otherwise
         error('CONES_condor( GC_stas , cone_params , type ) : type must be ''MCMC'' or ''greedy''')

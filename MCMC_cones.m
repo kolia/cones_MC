@@ -4,17 +4,21 @@ function cone_map = MCMC_cones( GC_stas , cone_params , cone_map )
 %  Assumes existence of ../resource folder, where STA_W
 
 addpath(genpath(pwd))
+if nargin<3
+    cone_map = struct ;
+end
 
 % size of region of interest
   [M0,M1,N_colors] = size(GC_stas(1).spatial) ;
   M2 = M0*M1 ;
 
 % supersampling factor
-  SS          = cone_params.supersample ;
+  SS            = cone_params.supersample ;
+  
   
 %% PARAMETERS FOR MCMC
-  TOTAL_trials  = 20 * M2 * SS ;
-  burn_in       = 10 * M2 * SS ;
+  TOTAL_trials  = 200 * M2 * SS ;
+  burn_in       = 100 * M2 * SS ;
 
 % these params shouldn't need tweaking unless the problem setup changes
 %        
@@ -47,13 +51,16 @@ addpath(genpath(pwd))
 
 % set up Region of Interest
 if isfield(cone_map,'ROI')
-    ROI  = zeros(M0*SS,M1*SS,N_colors) ;
+    ROI = zeros(M0*SS,M1*SS,N_colors) ;
     for c=1:N_colors
         ROI(:,:,c) = kron(cone_map.ROI(:,:,c),ones(SS,SS)) ;
     end
 else
-    ROI  = ones(M0*SS,M1*SS,N_colors) ;
+    ROI = ones(M0*SS,M1*SS,N_colors) ;
 end
+ROIndex = find(ROI) ;
+[I,J,dummy]   = ind2sub([M0*SS M1*SS N_colors],ROIndex) ;
+sizeROI = [max(I)-min(I) max(J)-min(J)] + 1 ; 
 
 % stereotyped cone receptive field
 s = cone_params.sigma ;
@@ -61,7 +68,8 @@ r = cone_params.support_radius ;
 cone_RF = exp(-0.5 * ((-SS*r:SS*r)/(SS*s)).^2)' * exp(-0.5 * ((-SS*r:SS*r)/(SS*s)).^2) ;
 cone_RF = cone_RF / sum(cone_RF(:)) ; clear r s
 
-N = M2*(SS^2)*N_colors ;
+N       = M2*(SS^2)*N_colors ;
+NROI    = sum(ROI(:)) ;
 
 % Unpacking GC_stas into: STA, norms of STAs and N_spikes
 N_GC = length(GC_stas) ;
@@ -88,23 +96,22 @@ cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
 % try load(file) ; fprintf('\nloaded %s\n',file) 
 % catch
     % W = matrix representing all M2 possible cone receptive fields
-    STA_W = zeros(N,N_GC) ;
-    fprintf('Calculating STA_W  --  counting up to %d:\n',M0*SS)
-    for i=1:M0*SS
-        fprintf('%d ',i)
-        for j=1:M1*SS
-            for c=1:N_colors
-                BW      = zeros(M0*SS,M1*SS) ;
-                BW(i,j) = 1 ;
-                BW      = imfilter(BW,cone_RF) ;
-                
-                filter  = kron(cone_params.colors(c,:),BW(:)') ;
-                
-                STA_W((c-1)*M0*M1*SS^2 + (j-1)*M0*SS + i , :) = filter * STA ;
-            end
+    STA_W = zeros(NROI,N_GC) ;
+    fprintf('Calculating STA_W...\n')
+    for ii=1:NROI/N_colors
+        i = I(i) ;
+        j = J(i) ;
+        BW      = zeros(M0*SS,M1*SS) ;
+        BW(i,j) = 1 ;
+        BW      = imfilter(BW,cone_RF) ;
+        
+        for c=1:N_colors
+            filter  = kron(cone_params.colors(c,:),BW(:)') ;            
+
+            STA_W((c-1)*NROI/N_colors + ii , :) = filter * STA ;
         end
     end
-    STA_W = STA_W .* repmat( (N_spikes ./ cell_consts)' ,N,1) ;
+    STA_W = STA_W .* repmat( (N_spikes ./ cell_consts)' ,NROI,1) ;
     
 %     save(file,'STA_W')
 % end
@@ -122,7 +129,7 @@ fprintf('\n\nSTARTING %d MCMC instances with different inverse temperatures beta
 fprintf('%.2f   ',betas)
 
 % initializing variables
-flat_probs      = ROI / sum(ROI(:)) ;
+flat_probs      = ones(NROI,1) / NROI ;
 flip_LL         = cell( N_instances , 1 ) ;
 accumulated     = cell( N_instances , 1 ) ;
 accumulator     = cell( N_instances , 1 ) ;
@@ -131,13 +138,13 @@ X               = cell( N_instances , 1 ) ;
 prior_LL        = @(X)-1e12*sum(sum( triu(X.overlaps,1) > max_overlap*0.1 )) ;
 
 for i=1:N_instances
-    X{i}.state      = zeros( 1 , N     ) ;
-    accumulated{i}  = zeros( 1 , N + 2 ) ;
+    X{i}.state      = zeros( 1 , NROI     ) ;
+    accumulated{i}  = zeros( 1 , NROI + 2 ) ;
     accumulator{i}  = @(y)[ones(size(y,1),1) sum(y,2) y] ;
-    jitter{i}       = @(X)jitter_color( X , n_trials , M0*SS , M1*SS , flat_probs , 3 ) ;
+    jitter{i}       = @(X)jitter_color( X , n_trials , sizeROI(1) , sizeROI(2) , flat_probs , 3 ) ;
 
     flip_LL{i}      = @(X,flips)flip_color_LL( ...
-        X , flips , prior_LL , cell_consts , STA_W' , coneConv , colorDot , [M0 M1]*SS , betas(i)) ;
+        X , flips , prior_LL , cell_consts , STA_W' , coneConv , colorDot , sizeROI , betas(i)) ;
 end
 
 % MC move sequence
@@ -156,14 +163,6 @@ burn_in      = ceil( burn_in / (n_trials * N_moves) ) ;
 N_iterations = burn_in + ceil( TOTAL_trials / (n_trials * N_moves) ) ;
 n_cones      = zeros( N_iterations , 1 ) ;
 
-
-% X{1}.state(randi(length(X{1}.state),length(X{1}.state)*2/3,1)) = 1 ;
-% 
-% jitter{1}       = @(X)jitter_color( X , 1 , M0*SS , M1*SS , flat_probs , 3 ) ;
-% for i=1:10
-% [ accumulated{1} , X{1} ] = ...
-%     flip_MCMC( accumulated{1} , X{1} , accumulator{1} , jitter{1} , flip_LL{1} ) ;
-% end
 
 % MAIN MCMC LOOP
 fprintf('\n\n      MCMC progress\n|0%%              100%%|\n ')
@@ -210,22 +209,33 @@ cone_map.max_overlap    = max_overlap ;
 cone_map.coneConv       = coneConv ;
 cone_map.colorDot       = colorDot ;
 
+ROI = logical(ROI) ;
+
 try
 for i=1:numel(cone_map.X)
     best = cone_map.X{i}.best ;
     for j=1:size(cone_map.X{1}.best,1)
         cone_map.X{i}.best{j}.ll    = best(i,1) ;
-        cone_map.X{i}.best{j}.state = best(i,2:end) ;
+        cone_map.X{i}.best{j}.state = zeros(N,1) ;
+        cone_map.X{i}.best{j}.state(ROI) = best(i,2:end) ;
     end
 end
 end
 
-cone_map.X              = X ;
+for i=1:N_instances
+    cone_map.X{i}       = X{i} ;
+    cone_map.X{i}.state = zeros(N,1) ;
+    cone_map.X{i}.state(ROI) = X{i}.state ;
+end
 cone_map.betas          = betas ;
 cone_map.n_cones        = n_cones ;
 cone_map.burn_in        = burn_in ;
 cone_map.N_iterations   = N_iterations ;
 cone_map.moves          = moves ;
-cone_map.accumulated    = accumulated ;
-cone_map.ROI_super   = ROI ;
+for i=1:N_instances
+    cone_map.accumulated{i}              = zeros(N+2,1) ;
+    cone_map.accumulated{i}(1:2)         = accumulated{i}(1:2) ;
+    cone_map.accumulated{i}(find(ROI)+2) = accumulated{i}(3:end) ;
+end
+cone_map.ROI_super      = ROI ;
 end

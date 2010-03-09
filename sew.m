@@ -17,15 +17,6 @@ position = cell(N,1) ;
 sizes = r{1}.cut.total_sizes ;
 sizes(1:2) = sizes(1:2) * r{1}.cone_params.supersample ;
 
-% overX = ceil( (r{1}.position(1,end) - r{2}.position(1,1) + 1) * S/2 ) ;
-% overY = 12 ;
-
-sx    = ( r{1}.cut.position{1}(end) - r{1}.cut.position{1}(1) + 1 ) ;
-sy    = ( r{1}.cut.position{2}(end) - r{1}.cut.position{2}(1) + 1 ) ;
-
-overX = floor((sx - r{1}.cut.X(2) + 1)*S/2) ;
-overY = floor((sy - r{1}.cut.Y(2) + 1)*S/2) ;
-
 split = [zeros(N,1) ones(N,1)*sizes(1)+1 zeros(N,1) ones(N,1)*sizes(2)+1] ;
 for i=1:N
     position{i} = cell(2,1) ;
@@ -65,15 +56,6 @@ for j=1:M
 %     counts    = zeros(sizes) ;
         
     for i=1:N
-%         quilts{j} = quilts{j} + reshape( accessors{j}(r{i}) , sizes ) ;
-        
-%         n = length(position{1}) ;
-%         m = length(position{2}) ;
-        
-%         size( accessors{j}(r{i}) )
-%         [n m 3]
-        
-%         A  = reshape( accessors{j}(r{i}) , [n m 3] ) ;
         A  = reshape( accessors{j}(r{i}) , sizes ) ;
 
 %         subplot(2,1,1)
@@ -84,11 +66,6 @@ for j=1:M
         A(:,1:split(i,3)  ,:) = 0 ;
         A(:,split(i,4)+1:end,:) = 0 ;
         A = A(1:sizes(1),1:sizes(2),:) ;
-        
-%         [position{i}{1} position{i}{2} split(i,:)]
-        
-%         waitforbuttonpress
-%         close all
         
         quilts{j} = quilts{j} + A ;
 
