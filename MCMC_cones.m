@@ -121,10 +121,10 @@ for jj=1:N_iterations
         end
     end
     
-    GGG = zeros(26,46,3) ;
-    GGG(ROI) = X{1}.state ;
-    imagesc(GGG) ;
-    drawnow
+%     GGG = zeros(26,46,3) ;
+%     GGG(ROI) = X{1}.state ;
+%     imagesc(GGG) ;
+%     drawnow
 
 end
 fprintf('    done in %.1f sec\n\n',toc) ;
@@ -138,16 +138,16 @@ cone_map.colorDot       = colorDot ;
 
 ROI = logical(ROI) ;
 
-try
-for i=1:numel(cone_map.X)
-    best = cone_map.X{i}.best ;
-    for j=1:size(cone_map.X{1}.best,1)
-        cone_map.X{i}.best{j}.ll    = best(i,1) ;
-        cone_map.X{i}.best{j}.state = zeros(N,1) ;
-        cone_map.X{i}.best{j}.state(ROI) = best(i,2:end) ;
-    end
-end
-end
+% try
+% for i=1:numel(cone_map.X)
+%     best = cone_map.X{i}.best ;
+%     for j=1:size(cone_map.X{1}.best,1)
+%         cone_map.X{i}.best{j}.ll    = best(i,1) ;
+%         cone_map.X{i}.best{j}.state = zeros(N,1) ;
+%         cone_map.X{i}.best{j}.state(ROI) = best(i,2:end) ;
+%     end
+% end
+% end
 
 for i=1:N_instances
     cone_map.X{i}       = X{i} ;

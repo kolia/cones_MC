@@ -26,15 +26,16 @@ flip_LL      = @(X,flips)flip_color_LL( ...
 fprintf('\nGREEDY cone finding:\n')
 tic
 while 1
+    tic
     GREED = greedy( GREED , flip_LL ) ;
-    fprintf('\nCONES:%2d \t \t increase in LL:%f',sum(GREED.state),GREED.ll-best_LL)
+    fprintf('\nCONES:%2d \t \t increase in LL:%10f \t \t in %f sec',sum(GREED.state),GREED.ll-best_LL,toc)
     if GREED.ll<=best_LL
         break
     else
         best_LL = GREED.ll ;
     end
     
-    GGG = zeros(26,46,3) ;
+    GGG = zeros(M0*SS,M1*SS,N_colors) ;
     GGG(ROI) = GREED.state ;
     imagesc(GGG) ;
     drawnow

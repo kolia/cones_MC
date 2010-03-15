@@ -44,7 +44,7 @@ switch type
         ticket = sow(sprintf('cones_%d_%d_MC_%d',s,min_overlap,cone_params.supersample) , @(conemap)MCMC_cones(GC_stas,cone_params,conemap) , cone_maps) ;
         return
     case 'greedy'
-        ticket = sow(sprintf('cones_%d_%d_GREEDY_%d',s,min_overlap,cone_params.supersample) , @(conemap)greedy_cones(GC_stas,cone_params,conemap) , cone_maps) ;
+        ticket = sow(sprintf('cones04_%d_%d_GREEDY_%d',s,min_overlap,cone_params.supersample) , @(conemap)greedy_cones(GC_stas,cone_params,conemap) , cone_maps) ;
         return
     otherwise
         error('CONES_condor( GC_stas , cone_params , type ) : type must be ''MCMC'' or ''greedy''')
