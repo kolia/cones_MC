@@ -39,7 +39,7 @@ else
 end
 ROI = find(ROIlogic) ;
 [I,J,dummy]   = ind2sub([M0*SS M1*SS N_colors],ROI) ;
-% sizeROI = [max(I)-min(I) max(J)-min(J)] + 1 ; 
+sizeROI = [max(I)-min(I) max(J)-min(J)] + 1 ; 
 
 
 
@@ -127,11 +127,11 @@ prior_LL = @(X)0 ; %-1e12*sum(sum( triu(X.overlaps,1) > max_overlap*0.1 )) ;
 
 
 %% GREEDY SOLUTION
-GREED.state  = zeros( 1 , N ) ;
+GREED.state  = zeros( 1 , NROI ) ;
 best_LL      = -Inf ;
 
 flip_LL      = @(X,flips)flip_color_LL( ...
-    X , flips , prior_LL , cell_consts , STA_W' , coneConv , colorDot , [M0 M1]*SS , ROI ) ;
+    X , flips , prior_LL , cell_consts , STA_W' , coneConv , colorDot , sizeROI ) ;
 
 
 fprintf('\nGREEDY cone finding:\n')
@@ -145,7 +145,9 @@ while 1
         best_LL = GREED.ll ;
     end
     
-    imagesc(reshape(GREED.state,26,46,3)) ;
+    GGG = zeros(26,46,3) ;
+    GGG(ROI) = GREED.state ;
+    imagesc(GGG) ;
     drawnow
 
 %     find(GREED.state)
