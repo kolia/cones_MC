@@ -2,8 +2,8 @@ function ticket = CONES_condor( GC_stas , cone_params , type , min_overlap , s )
 % ticket = CONES_condor( GC_stas , cone_params , type , min_overlap , s )
 % launches condor cone finding job
 
-if nargin<5 ,  s = 10 ; end
-if nargin<4 ,  min_overlap  = 5 ; end
+if nargin<5 ,  s = 12 ; end
+if nargin<4 ,  min_overlap  = 6 ; end
 if nargin<3 ,  type         = 'MCMC' ; end
 
 % make sure agricola is present on the current path

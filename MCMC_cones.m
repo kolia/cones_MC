@@ -3,19 +3,16 @@ function cone_map = MCMC_cones( GC_stas , cone_params , cone_map )
 %  Run MCMC to find cone locations.
 %  Assumes existence of ../resource folder, where STA_W
 
-addpath(genpath(pwd))
-if nargin<3
-    cone_map = struct ;
+if nargin<3  ,  cone_map = struct ;   end
+
+% load variables defined in setup_cone_LL
+[STA_W,cone_map] = setup_cone_LL(GC_stas , cone_params , cone_map) ;
+vars = fields(cone_map) ;
+for i=1:length(vars)
+    eval(sprintf('%s = cone_map.(vars{i}) ;',vars{i})) ;
 end
 
-% size of region of interest
-  [M0,M1,N_colors] = size(GC_stas(1).spatial) ;
-  M2 = M0*M1 ;
 
-% supersampling factor
-  SS            = cone_params.supersample ;
-  
-  
 %% PARAMETERS FOR MCMC
   TOTAL_trials  = 200 * M2 * SS ;
   burn_in       = 100 * M2 * SS ;
@@ -45,81 +42,6 @@ end
 % the other 5 instances i with log-likelihood LL * betas(i) < LL.
 % Once in while, connected components of the symmetric difference between 
 % pairs of instance configurations are swapped between instances.
-
-
-%% PROBLEM SETUP: ganglion cell STAs
-
-% set up Region of Interest
-if isfield(cone_map,'ROI')
-    ROI = zeros(M0*SS,M1*SS,N_colors) ;
-    for c=1:N_colors
-        ROI(:,:,c) = kron(cone_map.ROI(:,:,c),ones(SS,SS)) ;
-    end
-else
-    ROI = ones(M0*SS,M1*SS,N_colors) ;
-end
-ROIndex = find(ROI) ;
-[I,J,dummy]   = ind2sub([M0*SS M1*SS N_colors],ROIndex) ;
-sizeROI = [max(I)-min(I) max(J)-min(J)] + 1 ; 
-
-% stereotyped cone receptive field
-s = cone_params.sigma ;
-r = cone_params.support_radius ;
-cone_RF = exp(-0.5 * ((-SS*r:SS*r)/(SS*s)).^2)' * exp(-0.5 * ((-SS*r:SS*r)/(SS*s)).^2) ;
-cone_RF = cone_RF / sum(cone_RF(:)) ; clear r s
-
-N       = M2*(SS^2)*N_colors ;
-NROI    = sum(ROI(:)) ;
-
-% Unpacking GC_stas into: STA, norms of STAs and N_spikes
-N_GC = length(GC_stas) ;
-STA_norm = zeros(N_GC,1) ;
-N_spikes = zeros(N_GC,1) ;
-STA      = zeros(N,N_GC) ;
-for i=1:N_GC
-    N_spikes(i) = length(GC_stas(i).spikes) ;
-    temp = cell(N_colors,1) ;
-    for c=1:N_colors
-        temp{c} = kron(GC_stas(i).spatial(:,:,c),ones(SS,SS)) ;
-        temp{c} = temp{c}(:) ;
-    end
-    STA(:,i)    = cell2mat(temp) ;
-    STA_norm(i) = norm(STA(:,i)) ;
-end
-
-cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
-
-%% SETUP for Log-LIKELIHOOD calculations
-
-% file = sprintf('../resources/STA_W_super%d.mat',SS) ;
-
-% try load(file) ; fprintf('\nloaded %s\n',file) 
-% catch
-    % W = matrix representing all M2 possible cone receptive fields
-    STA_W = zeros(NROI,N_GC) ;
-    fprintf('Calculating STA_W...\n')
-    for ii=1:NROI/N_colors
-        i = I(i) ;
-        j = J(i) ;
-        BW      = zeros(M0*SS,M1*SS) ;
-        BW(i,j) = 1 ;
-        BW      = imfilter(BW,cone_RF) ;
-        
-        for c=1:N_colors
-            filter  = kron(cone_params.colors(c,:),BW(:)') ;            
-
-            STA_W((c-1)*NROI/N_colors + ii , :) = filter * STA ;
-        end
-    end
-    STA_W = STA_W .* repmat( (N_spikes ./ cell_consts)' ,NROI,1) ;
-    
-%     save(file,'STA_W')
-% end
-
-coneConv    = conv2(cone_RF,cone_RF) ;
-colorDot    = cone_params.colors * cone_params.colors' ;
-max_overlap = coneConv(ceil(size(coneConv,1)/2),ceil(size(coneConv,2)/2)) ;
-
 
 
 %% MCMC RUN
@@ -198,6 +120,11 @@ for jj=1:N_iterations
             n_cones(jj) = sum(X{1}.state) ;
         end
     end
+    
+    GGG = zeros(26,46,3) ;
+    GGG(ROI) = X{1}.state ;
+    imagesc(GGG) ;
+    drawnow
 
 end
 fprintf('    done in %.1f sec\n\n',toc) ;
