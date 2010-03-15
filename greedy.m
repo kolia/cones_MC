@@ -1,14 +1,10 @@
-function X = greedy( X , flip_LL , ROI )
+function X = greedy( X , flip_LL )
 % X = greedy( X , flip_LL )
 % propagate configuration X through a greedy iteration:
 %   - calculate log-likelihood flip_LL of every single flip move
 %   - apply to X the move with highest log-likelihood increase
 
-if nargin<3
-    ROI = 1:length(X.state(:)) ;
-end
-
-N = length(ROI) ;
+N = length(X.state(:)) ;
 
 % initialize bit location history f necessary
 if ~isfield(X,'history')
@@ -26,17 +22,15 @@ ll(1)   = Y0.ll ;
 clear X
 
 % calculate the log-likelihoods for each bit flip, and populate y
-for ii=2:N+1
-    i = ROI(ii-1) ;
-    Y = flip_LL( Y0 , i ) ;
-    ll(ii) = Y.ll ;
+for i=2:N+1
+    Y = flip_LL( Y0 , i-1 ) ;
+    ll(i) = Y.ll ;
 end
 
 % choose next state
-[dummy,ii] = max(ll) ;
-if ii(1)>1
-    i = ROI(ii(1)-1) ;
-    X = flip_LL( Y0 , i ) ;
+[dummy,i] = max(ll) ;
+if i(1)>1
+    X = flip_LL( Y0 , i(1)-1 ) ;
 else
     X = Y0 ;
 end

@@ -1,5 +1,5 @@
 function X = flip_color_LL( ...
-    X , flips , prior_ll , cell_consts , STA_W , coneConv , colorDot , sizes , beta )
+    X , flips , prior_ll , cell_consts , STA_W , coneConv , colorDot , sizes , ROI , beta )
 % X = flip_color_LL( X , flips , prior_ll , cell_consts , ...
 %                    STA_W , coneConv , colorDot , sizes , beta )
 % Apply flips to configuration X, and update log-likelihood of X.
@@ -9,7 +9,7 @@ function X = flip_color_LL( ...
 % incrementally, for speed.
 
 % default inverse temperature is 1
-if nargin<9
+if nargin<10
     beta = 1 ;
 end
 
@@ -61,7 +61,7 @@ for i=1:length(flips)
         
         % reconstruct W(k,X.state) using coneConv
         Wkk     = coneConv(Nconv,Nconv) ;
-        colors  = find(X.state) ;
+        colors  = ROI( X.state )' ;
         [sI,sJ] = ind2sub(sizes,mod(colors-1,NBW)+1) ;
         [kI,kJ] = ind2sub(sizes,mod(k     -1,NBW)+1) ;
         Wkinds  = [sI-kI ; sJ-kJ] ;

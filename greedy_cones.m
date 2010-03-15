@@ -14,18 +14,34 @@ addpath(genpath(pwd))
 % supersample factor
 SS  = cone_params.supersample ;
 
+% % set up Region of Interest
+% if isfield(cone_map,'ROI')
+%     ROI  = cone_map.ROI ;
+%     temp = cell(N_colors,1) ;
+%     for c=1:N_colors
+%         temp{c} = kron(ROI(:,:,c),ones(SS,SS)) ;
+%         temp{c} = temp{c}(:) ;
+%     end
+%     ROI  = find( cell2mat(temp) ) ;
+% else
+%     ROI  = 1:M0*M1*N_colors*SS^2 ;
+% end
+% [I,J,dummy]   = ind2sub([M0*SS M1*SS N_colors],ROI) ;
+
 % set up Region of Interest
 if isfield(cone_map,'ROI')
-    ROI  = cone_map.ROI ;
-    temp = cell(N_colors,1) ;
+    ROIlogic = zeros(M0*SS,M1*SS,N_colors) ;
     for c=1:N_colors
-        temp{c} = kron(ROI(:,:,c),ones(SS,SS)) ;
-        temp{c} = temp{c}(:) ;
+        ROIlogic(:,:,c) = kron(cone_map.ROI(:,:,c),ones(SS,SS)) ;
     end
-    ROI  = find( cell2mat(temp) ) ;
 else
-    ROI  = 1:M0*M1*N_colors*SS^2 ;
+    ROIlogic = ones(M0*SS,M1*SS,N_colors) ;
 end
+ROI = find(ROIlogic) ;
+[I,J,dummy]   = ind2sub([M0*SS M1*SS N_colors],ROI) ;
+% sizeROI = [max(I)-min(I) max(J)-min(J)] + 1 ; 
+
+
 
 % stereotyped cone receptive field
 s = cone_params.sigma ;
@@ -33,7 +49,9 @@ r = cone_params.support_radius ;
 cone_RF = exp(-0.5 * ((-SS*r:SS*r)/(SS*s)).^2)' * exp(-0.5 * ((-SS*r:SS*r)/(SS*s)).^2) ;
 cone_RF = cone_RF / sum(cone_RF(:)) ; clear r s
 
-N    = M2*(SS^2)*N_colors ;
+N       = M2*(SS^2)*N_colors ;
+NROI    = sum(ROI(:)>0) ;
+
 
 % Unpacking GC_stas into: STA, norms of STAs and N_spikes
 N_GC = length(GC_stas) ;
@@ -60,23 +78,43 @@ cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
 % try load(file) ; fprintf('\nloaded %s\n',file) 
 % catch
     % W = matrix representing all M2 possible cone receptive fields
-    STA_W = zeros(N,N_GC) ;
-    fprintf('Calculating STA_W  --  counting up to %d:\n',M0*SS)
-    for i=1:M0*SS
-        fprintf('%d ',i)
-        for j=1:M1*SS
-            for c=1:N_colors
-                BW      = zeros(M0*SS,M1*SS) ;
-                BW(i,j) = 1 ;
-                BW      = imfilter(BW,cone_RF) ;
-                
-                filter  = kron(cone_params.colors(c,:),BW(:)') ;
-                
-                STA_W((c-1)*M0*M1*SS^2 + (j-1)*M0*SS + i , :) = filter * STA ;
-            end
+    
+%     STA_W2 = zeros(N,N_GC) ;
+%     fprintf('Calculating STA_W  --  counting up to %d:\n',M0*SS)
+%     for i=1:M0*SS
+%         fprintf('%d ',i)
+%         for j=1:M1*SS
+%                 BW      = zeros(M0*SS,M1*SS) ;
+%                 BW(i,j) = 1 ;
+%                 BW      = imfilter(BW,cone_RF) ;
+%                 
+%             for c=1:N_colors
+%                 filter  = kron(cone_params.colors(c,:),BW(:)') ;
+%                 
+%                 STA_W2((c-1)*M0*M1*SS^2 + (j-1)*M0*SS + i , :) = filter * STA ;
+%             end
+%         end
+%     end
+%     STA_W2 = STA_W2 .* repmat( (N_spikes ./ cell_consts)' ,N,1) ;
+%     STA_W = STA_W2 ;
+    
+    STA_W = zeros(NROI,N_GC) ;
+    fprintf('Calculating STA_W...\n')
+    for ii=1:NROI/N_colors
+        i = I(ii) ;
+        j = J(ii) ;
+        BW      = zeros(M0*SS,M1*SS) ;
+        BW(i,j) = 1 ;
+        BW      = imfilter(BW,cone_RF) ;
+        
+        for c=1:N_colors
+            filter  = kron(cone_params.colors(c,:),BW(:)') ;
+            
+            STA_W((c-1)*NROI/N_colors + ii , :) = filter * STA ;
         end
     end
-    STA_W = STA_W .* repmat( (N_spikes ./ cell_consts)' ,N,1) ;
+    STA_W = STA_W .* repmat( (N_spikes ./ cell_consts)' ,NROI,1) ;
+
     
 %     save(file,'STA_W')
 % end
@@ -85,7 +123,7 @@ coneConv    = conv2(cone_RF,cone_RF) ;
 colorDot    = cone_params.colors * cone_params.colors' ;
 max_overlap = coneConv(ceil(size(coneConv,1)/2),ceil(size(coneConv,2)/2)) ;
 
-prior_LL = @(X)-1e12*sum(sum( triu(X.overlaps,1) > max_overlap*0.1 )) ;
+prior_LL = @(X)0 ; %-1e12*sum(sum( triu(X.overlaps,1) > max_overlap*0.1 )) ;
 
 
 %% GREEDY SOLUTION
@@ -93,19 +131,23 @@ GREED.state  = zeros( 1 , N ) ;
 best_LL      = -Inf ;
 
 flip_LL      = @(X,flips)flip_color_LL( ...
-    X , flips , prior_LL , cell_consts , STA_W' , coneConv , colorDot , [M0 M1]*SS) ;
+    X , flips , prior_LL , cell_consts , STA_W' , coneConv , colorDot , [M0 M1]*SS , ROI ) ;
 
 
 fprintf('\nGREEDY cone finding:\n')
 tic
 while 1
-    GREED = greedy( GREED , flip_LL , ROI ) ;
+    GREED = greedy( GREED , flip_LL ) ;
     fprintf('\nCONES:%2d \t \t increase in LL:%f',sum(GREED.state),GREED.ll-best_LL)
     if GREED.ll<=best_LL
         break
     else
         best_LL = GREED.ll ;
     end
+    
+    imagesc(reshape(GREED.state,26,46,3)) ;
+    drawnow
+
 %     find(GREED.state)
 %     GREED.overlaps - diag(diag(GREED.overlaps))
 end
