@@ -130,7 +130,7 @@ if Ncones>0
     invWW = X.invWW ;
     invWW(invWW<invWW(1,1)*1e-3) = 0 ;
     invWW = sparse(invWW) ;
-    ldet = log(det(invWW)) ;
+    ldet = 2 * sum(log(diag(chol(invWW))));
     
     STA_W_state = STA_W(:,X.state) ;
 
@@ -142,6 +142,10 @@ end
 
 % update log-likelihood
 X.ll = beta * (X.data_ll + prior_ll(X)) ;
+
+if ~isfinite(X.ll)
+    fprintf('oops')
+end
 
 % % initialize best 10 configurations encountered to zero
 % if ~isfield(X,'best')
