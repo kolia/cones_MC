@@ -15,14 +15,15 @@ end
 
 %% PARAMETERS FOR MCMC
   TOTAL_trials  = 10 * M2 * SS ;
-  burn_in       = 10 * M2 * SS ;
+  burn_in       = 20 * M2 * SS ;
 
 % these params shouldn't need tweaking unless the problem setup changes
 %        
 % prior_LL      prior used both for greedy and MCMC
 %
 % betas         instance X_i has inverse temperature betas(i)
-  betas         = [1 0.25 0.2 0.2 0.15] ;
+% betas         = [1 0.25 0.2 0.2 0.15] ;
+  betas         = ones(1,2) ;
 %               X_1 is the main instance
 %               X_(2..N-1) are a pool of warm instances
 %               X_N is a hot instance that provides randomness to the pool
@@ -50,24 +51,20 @@ n_trials        = 10 ;
 fprintf('\n\nSTARTING %d MCMC instances with different inverse temperatures beta:\n',N_instances)
 fprintf('%.2f   ',betas)
 
-% % move proposal distribution: higher probabilities where STAs were larger
-% MPD = reshape(STA_W,[sizeROI N_colors N_GC]) ;
-% MPD = MPD ./ repmat( max( max( max(abs(MPD),[],1) , [] , 2) , [] , 3 ) , [sizeROI N_colors 1] ) ;
-% MPD = sum( max(abs(MPD),[],4) ,3) ;
+% move proposal distribution: higher probabilities where STAs were larger
+MPD = reshape(STA_W,[sizeROI N_colors N_GC]) ;
+MPD = MPD ./ repmat( max( max( max(abs(MPD),[],1) , [] , 2) , [] , 3 ) , [sizeROI N_colors 1] ) ;
+MPD = sum( max(abs(MPD),[],4) ,3) ;
 
 % initializing variables
-% proposal_prob   = cumsum(MPD(:)) ;
-% proposal_prob   = proposal_prob ./ proposal_prob(end) ;
-
-
-% initializing variables
-flat_probs      = cumsum(ones(NROI,1)) / NROI ;
+proposal_prob   = cumsum(MPD(:)) ;
+proposal_prob   = proposal_prob ./ proposal_prob(end) ;
 flip_LL         = cell( N_instances , 1 ) ;
 accumulated     = cell( N_instances , 1 ) ;
 accumulator     = cell( N_instances , 1 ) ;
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
-prior_LL        = @(X)-1e12*sum(sum( triu(X.overlaps,1) > max_overlap*0.01 )) ;
+prior_LL        = @(X)-1e8*sum(sum( triu(X.overlaps,1) > max_overlap*0.01 )) ;
 
 minSTAW = min(STA_W(:)) ;
 STA_W(abs(STA_W)<minSTAW*0.01) = 0 ;
@@ -77,7 +74,7 @@ for i=1:N_instances
     X{i}.state      = sparse([],[],[],1,NROI,ceil(NROI/(15*SS^2))) ;
     accumulated{i}  = zeros( 1 , NROI + 2 ) ;
     accumulator{i}  = @(y)[ones(size(y,1),1) sum(y,2) y] ;
-    jitter{i}       = @(X,n_trial)jitter_color( X , n_trial , sizeROI(1) , sizeROI(2) , flat_probs , 3 ) ;
+    jitter{i}       = @(X,n_trial)jitter_color(X , n_trial , sizeROI(1) , sizeROI(2) , proposal_prob , N_colors) ;
 
     flip_LL{i}      = @(X,flips)flip_color_LL( ...
         X , flips , prior_LL , cell_consts , STA_W , coneConv , colorDot , sizeROI , betas(i)) ;
@@ -86,15 +83,17 @@ for i=1:N_instances
 end
 
 % MC move sequence
-temp0   = repmat(2:N_instances-1,N_instances-2,1) ;
-temp1   = temp0' ;
-choose  = logical( tril(ones(N_instances-2),-1) ) ;
-pairs   = [temp1(choose) temp0(choose)]' ;
+% temp0   = repmat(2:N_instances-1,N_instances-2,1) ;
+% temp1   = temp0' ;
+% choose  = logical( tril(ones(N_instances-2),-1) ) ;
+% pairs   = [temp1(choose) temp0(choose)]' ;
 
-moves   = [ num2cell(  repmat( 1:N_instances , 1 , N_instances-2 ) )                ...
-            num2cell( pairs , 1)                                                    ...
-            num2cell( [ N_instances-1:-1:2 ; N_instances*ones(1,N_instances-2)] ,1) ...
-            num2cell( [         ones(1,N_instances-2) ; N_instances-1:-1:2] , 1 )   ] ;
+moves   = num2cell( 1:N_instances ) ;
+
+% moves   = [ num2cell(  repmat( 1:N_instances , 1 , N_instances-2 ) )                ...
+%             num2cell( pairs , 1)                                                    ...
+%             num2cell( [ N_instances-1:-1:2 ; N_instances*ones(1,N_instances-2)] ,1) ...
+%             num2cell( [         ones(1,N_instances-2) ; N_instances-1:-1:2] , 1 )   ] ;
 
 N_moves      = length(moves) ;
 burn_in      = ceil( burn_in / (n_trials * N_moves) ) ;
@@ -108,7 +107,7 @@ h = figure('Position',[1 scrsz(4)*0.7 1500 600]) ;
 
 % MAIN MCMC LOOP
 % fprintf('\n\n      MCMC progress:|0%%              100%%|\n ')
-fprintf('\n\nMCMC progress:\n')
+fprintf('\n\nMCMC progress:')
 tic
 for jj=1:N_iterations
 %     if ~mod(jj,floor(N_iterations/20)) , fprintf('*') , end
@@ -147,36 +146,43 @@ for jj=1:N_iterations
                 [ accumulated{i} , X{i} ] = ...
                     flip_MCMC( accumulated{i} , X{i} , accumulator{i} , jit , flip_LL{i} , jj<burn_in ) ;
             end
-            n_cones(jj) = sum(X{1}.state) ;            
+            n_cones(jj) = sum(X{1}.state) ;
+
+            if jj>1 && n_cones(jj-1)>n_cones(jj)
+                fprintf('\nN_CONES DECREASED!!!\n')
+            end
         end
     end
-    
-    if isswap
-        swapstring = 'w/ swap' ;
-    else
-        swapstring = 'burn-in' ;
-    end
-    fprintf('Iteration:%4d of %d \t %s\t    %8f sec\n',jj,N_iterations,swapstring,toc)
-    
-    figure(h)
-    for i=1:N_instances
-        subplot(2,ceil(N_instances/2),i)
-        colormap('pink')
-        GGG = zeros(26*SS,46*SS,3) ;
-        GGG(ROI) = X{i}.state ;
-        imagesc(GGG) ;
-        titl = sprintf('X_%d   \\beta %.2f',i,betas(i)) ;
-        if i == ceil(N_instances/4)
-            title({sprintf('Iteration %d',jj) ; titl },'FontSize',22)
+
+    if ~mod(jj,50)
+        if isswap
+            swapstring = 'average' ;
         else
-            title( titl , 'FontSize',22)
+            swapstring = 'burn-in' ;
         end
-        %             set(get(gca,'Title'),'Visible','on')
+        fprintf('\nIteration:%4d of %d \t %s\t    %8f sec',jj,N_iterations,swapstring,toc)
+        
+        figure(h)
+        for i=1:N_instances
+%             subplot(2,ceil(N_instances/2),i)
+            subplot(1,N_instances,i)
+            colormap('pink')
+            GGG = zeros(26*SS,46*SS,3) ;
+            GGG(ROI) = X{i}.state ;
+            imagesc(GGG) ;
+            titl = sprintf('X_%d   \\beta %.2f',i,betas(i)) ;
+            if i == ceil(N_instances/4)
+                title({sprintf('Iteration %d',jj) ; titl },'FontSize',22)
+            else
+                title( titl , 'FontSize',22)
+            end
+            %             set(get(gca,'Title'),'Visible','on')
+        end
+        drawnow
     end
-    drawnow
     
 end
-fprintf('    done in %.1f sec\n\n',toc) ;
+fprintf('\n    done in %.1f sec\n\n',toc) ;
 cone_map.stas           = GC_stas ;
 cone_map.cone_RF        = cone_RF ;
 cone_map.cone_params    = cone_params ;

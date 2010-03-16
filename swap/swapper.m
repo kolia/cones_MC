@@ -12,9 +12,9 @@ x = zeros(length(X.state),1) ;
 
 % try newer version bwconncomp
 try
-    CC = bwconncomp( sym_diff , 8 ) ;
+    CC = bwconncomp( full(sym_diff) , 8 ) ;
    
-    fprintf('\n ')
+%     fprintf('\n%d swaps: ')
     
     swap.flips = cell(CC.NumObjects,1) ;
     for j=1:CC.NumObjects

@@ -6,8 +6,6 @@ function [ result , X ] = flip_MCMC( result , X , accumulate , trial_sampler , f
 % then the metropolis-hastings rule is used. For more than one trial, the
 % symmetric MC rule is used.
 
-tic
-
 if nargin<6
     burn_in = false ;
 end
@@ -41,7 +39,6 @@ end
 L = exp( ll - max(ll) ) ;
 L = L/sum(L) ;
 
-
 % choose next state
 % if n_trials>1       
 
@@ -54,7 +51,6 @@ L = L/sum(L) ;
     p = L./trans_prior' ;
     p = cumsum(p) ;
     p = p/p(end) ;
-        
     i = randiscrete( p ) ;
     X = Ys{i} ;
     

@@ -39,22 +39,30 @@ if ~isfield(X,'invWW') || ~isfield(X,'overlaps')
 end
 
 
+has_delete = 0 ;
+Xold = X ;
+
 % apply all the bit flips to X
 for i=1:length(flips)
     k = flips(i) ;
     n = size(X.invWW,1) ;
     
-    j = length(find(X.state)<=k) ;
-    
+    j = sum(find(X.state)<=k) ;
+        
     % block matrix inverse update
     if X.state(k)     % update inverse by deleting jth row/column
         inds = [1:j-1 j+1:n] ;
         X.overlaps = X.overlaps(inds,inds) ;
         X.invWW = X.invWW(inds,inds) - ...
                   X.invWW(inds,j   )*X.invWW(j,inds)/X.invWW(j,j) ;
+        X.WW    = X.WW(inds,inds) ;
         X.positions = X.positions(:,inds) ;
         X.colors    = X.colors(inds) ;
         X.state(k)  = false ;
+        
+        has_delete = 1 ;
+        
+        
     else                % update inverse by adding row/column
         j = j + 1 ;
         inds = [1:j-1 j+1:n+1] ;
@@ -91,16 +99,16 @@ for i=1:length(flips)
         if sum(where)
             Nc   = size(coneConv,1) ;
             here = (Nconv+Wkinds(2,where) - 1)*Nc + Nconv+Wkinds(1,where) ;
-            overlap(where) = coneConv(here) ;            
+            overlap(where) = coneConv(here) ;
             Wkstate(where) = overlap(where) .* colorDot(k_color,colors(where)) ;
         end
-        
-%         WW                  = X.WW ;
-%         X.WW                = zeros(n+1) ;
-%         X.WW(inds,inds)     = WW ;
-%         X.WW(inds,j)        = Wkstate ;
-%         X.WW(j,inds)        = Wkstate ;
-%         X.WW(j,j)           = Wkk ;
+
+        WW                  = X.WW ;
+        X.WW                = zeros(n+1) ;
+        X.WW(inds,inds)     = WW ;
+        X.WW(inds,j)        = Wkstate ;
+        X.WW(j,inds)        = Wkstate ;
+        X.WW(j,j)           = Wkk ;
 
         O                     = X.overlaps ;
         X.overlaps            = zeros(n+1) ;
@@ -119,6 +127,22 @@ for i=1:length(flips)
         X.invWW(j,j)       = q     ;
         
         X.state(k)  = true ;
+        
+        
+        
+%         % debugging!
+%         this    = find( X.state ) ;
+%         posi    = 1 + mod( this-1 , NBW      ) ;
+%         tI      = 1 + mod( this-1 , sizes(1) ) ;
+%         tJ      = 1 + floor( (posi-1) / sizes(1)) ;        
+%         t_color = 1 + floor( (this-1) / NBW     ) ;
+%         if      sum(abs(tI - X.positions(1,:)))>0
+%             fprintf('case 1')
+%         elseif sum(abs(tJ - X.positions(2,:)))>0
+%             fprintf('case 2')
+%         elseif sum(abs(t_color - X.colors))>0
+%             fprintf('case 3')
+%         end
     end
 end
 X.state = logical(X.state) ;
@@ -130,12 +154,21 @@ if Ncones>0
     invWW = X.invWW ;
     invWW(invWW<invWW(1,1)*1e-3) = 0 ;
     invWW = sparse(invWW) ;
-    ldet = 2 * sum(log(diag(chol(invWW))));
+    try
+        ldet = 2 * sum(log(diag(chol(invWW))));
+    catch
+        fprintf('\n\nWARNING: catching numerical instability...')
+        X.invWW = X.WW^(-1) ;
+        ldet = 2 * sum(log(diag(chol(X.invWW))));        
+    end
     
     STA_W_state = STA_W(:,X.state) ;
 
-    X.data_ll = + Ncones * (length(cell_consts) * log(2*pi) + X.sumLconst) * ldet + ...
-        sum( cell_consts .* sum( (STA_W_state * invWW) .* STA_W_state ,2) )/2 ;
+    X.data_ll = full(+ Ncones * (length(cell_consts) * log(2*pi) + X.sumLconst) * ldet + ...
+        sum( cell_consts .* sum( (STA_W_state * invWW) .* STA_W_state ,2) )/2) ;
+%     X.data_ll = ( - length(cell_consts) * log( det(2.*pi.*X.invWW) ) + ...
+%                 sum( cell_consts .* sum( (STA_W(:,X.state) * X.invWW) .* STA_W(:,X.state) ,2) ) ...
+%                 )/2 ;
 else
     X.data_ll = 0 ;
 end
@@ -143,8 +176,8 @@ end
 % update log-likelihood
 X.ll = beta * (X.data_ll + prior_ll(X)) ;
 
-if ~isfinite(X.ll)
-    fprintf('oops')
+if has_delete
+    fprintf(' \t deletion? ,  delta_LL = %.0f' , X.ll - Xold.ll )
 end
 
 % % initialize best 10 configurations encountered to zero
