@@ -12,7 +12,7 @@ for i=1:length(vars)
 end
 
 % define prior
-prior_LL = @(X)-1e12*sum(sum( triu(X.overlaps,1) > max_overlap*0.1 )) ;
+prior_LL = @(X)-1e12*sum(sum( triu(X.overlaps,1) > max_overlap*0.01 )) ;
 
 
 %% GREEDY SOLUTION

@@ -13,19 +13,24 @@ x = zeros(length(X.state),1) ;
 % try newer version bwconncomp
 try
     CC = bwconncomp( sym_diff , 8 ) ;
+   
+    fprintf('\n ')
     
     swap.flips = cell(CC.NumObjects,1) ;
     for j=1:CC.NumObjects
+        
+%         fprintf('%d ',length(CC.PixelIdxList{j}))
+        
         swap.flips{j}.flips = CC.PixelIdxList{j} ;
         swap.flips{j}.forward_prob  = 1/CC.NumObjects ;
         swap.flips{j}.backward_prob = 1/CC.NumObjects ;
         
         x(CC.PixelIdxList{j}) = j ;
     end
-    
+       
 % or fall back to older bwlabel
 catch
-    [L, num] = bwlabel(sym_diff, 8) ;
+    [L, num] = bwlabel(full(sym_diff), 8) ;
     swap.flips = cell(num,1) ;
     for j=1:num
         swap.flips{j}.flips = find(L == j) ;

@@ -56,6 +56,9 @@ cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
 
 %% SETUP for Log-LIKELIHOOD calculations
 
+try load('STA_WROI')
+catch
+    
 STA_W = zeros(NROI,N_GC) ;
 fprintf('Calculating STA_W...\n')
 for ii=1:NROI/N_colors
@@ -73,12 +76,16 @@ for ii=1:NROI/N_colors
 end
 STA_W = STA_W .* repmat( (N_spikes ./ cell_consts)' ,NROI,1) ;
 
+save('STA_WROI','STA_W')
+end
+
 coneConv    = conv2(cone_RF,cone_RF) ;
 
 cone_map.M0             = M0 ;
 cone_map.M1             = M1 ;
 cone_map.M2             = M2 ;
 cone_map.N_colors       = N_colors ;
+cone_map.N_GC           = N_GC ;
 cone_map.max_overlap    = coneConv(ceil(size(coneConv,1)/2),ceil(size(coneConv,2)/2)) ;
 cone_map.cell_consts    = cell_consts ;
 cone_map.stas           = GC_stas ;

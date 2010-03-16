@@ -14,15 +14,15 @@ end
 
 
 %% PARAMETERS FOR MCMC
-  TOTAL_trials  = 200 * M2 * SS ;
-  burn_in       = 100 * M2 * SS ;
+  TOTAL_trials  = 10 * M2 * SS ;
+  burn_in       = 10 * M2 * SS ;
 
 % these params shouldn't need tweaking unless the problem setup changes
 %        
 % prior_LL      prior used both for greedy and MCMC
 %
 % betas         instance X_i has inverse temperature betas(i)
-  betas         = [1 0.25 0.2 0.2 0.2 0.15] ;
+  betas         = [1 0.25 0.2 0.2 0.15] ;
 %               X_1 is the main instance
 %               X_(2..N-1) are a pool of warm instances
 %               X_N is a hot instance that provides randomness to the pool
@@ -50,23 +50,39 @@ n_trials        = 10 ;
 fprintf('\n\nSTARTING %d MCMC instances with different inverse temperatures beta:\n',N_instances)
 fprintf('%.2f   ',betas)
 
+% % move proposal distribution: higher probabilities where STAs were larger
+% MPD = reshape(STA_W,[sizeROI N_colors N_GC]) ;
+% MPD = MPD ./ repmat( max( max( max(abs(MPD),[],1) , [] , 2) , [] , 3 ) , [sizeROI N_colors 1] ) ;
+% MPD = sum( max(abs(MPD),[],4) ,3) ;
+
 % initializing variables
-flat_probs      = ones(NROI,1) / NROI ;
+% proposal_prob   = cumsum(MPD(:)) ;
+% proposal_prob   = proposal_prob ./ proposal_prob(end) ;
+
+
+% initializing variables
+flat_probs      = cumsum(ones(NROI,1)) / NROI ;
 flip_LL         = cell( N_instances , 1 ) ;
 accumulated     = cell( N_instances , 1 ) ;
 accumulator     = cell( N_instances , 1 ) ;
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
-prior_LL        = @(X)-1e12*sum(sum( triu(X.overlaps,1) > max_overlap*0.1 )) ;
+prior_LL        = @(X)-1e12*sum(sum( triu(X.overlaps,1) > max_overlap*0.01 )) ;
+
+minSTAW = min(STA_W(:)) ;
+STA_W(abs(STA_W)<minSTAW*0.01) = 0 ;
+STA_W = sparse(STA_W') ;
 
 for i=1:N_instances
-    X{i}.state      = zeros( 1 , NROI     ) ;
+    X{i}.state      = sparse([],[],[],1,NROI,ceil(NROI/(15*SS^2))) ;
     accumulated{i}  = zeros( 1 , NROI + 2 ) ;
     accumulator{i}  = @(y)[ones(size(y,1),1) sum(y,2) y] ;
-    jitter{i}       = @(X)jitter_color( X , n_trials , sizeROI(1) , sizeROI(2) , flat_probs , 3 ) ;
+    jitter{i}       = @(X,n_trial)jitter_color( X , n_trial , sizeROI(1) , sizeROI(2) , flat_probs , 3 ) ;
 
     flip_LL{i}      = @(X,flips)flip_color_LL( ...
-        X , flips , prior_LL , cell_consts , STA_W' , coneConv , colorDot , sizeROI , betas(i)) ;
+        X , flips , prior_LL , cell_consts , STA_W , coneConv , colorDot , sizeROI , betas(i)) ;
+    
+    X{i} = flip_LL{i}( X{i} , [] ) ;  % initialize X{i}
 end
 
 % MC move sequence
@@ -86,12 +102,21 @@ N_iterations = burn_in + ceil( TOTAL_trials / (n_trials * N_moves) ) ;
 n_cones      = zeros( N_iterations , 1 ) ;
 
 
+scrsz = get(0,'ScreenSize');
+h = figure('Position',[1 scrsz(4)*0.7 1500 600]) ;
+
+
 % MAIN MCMC LOOP
-fprintf('\n\n      MCMC progress\n|0%%              100%%|\n ')
+% fprintf('\n\n      MCMC progress:|0%%              100%%|\n ')
+fprintf('\n\nMCMC progress:\n')
 tic
 for jj=1:N_iterations
-    if ~mod(jj,floor(N_iterations/20)) , fprintf('*') , end
-    
+%     if ~mod(jj,floor(N_iterations/20)) , fprintf('*') , end
+
+    isswap = jj>burn_in*0.8 ;
+%     isswap = jj>9 ;
+
+    tic
     for j=1:N_moves
         this_move = moves{j} ;
 
@@ -99,7 +124,7 @@ for jj=1:N_iterations
             i = this_move(1) ;
             
             % swap move if this_move has 2 indices
-            if length(this_move) == 2 && jj>burn_in*0.8
+            if length(this_move) == 2 && isswap
                 swapX = swapper( X{i} , X{this_move(2)} ) ;
                 swap_flipper = @(swapX,flips) swap_LL(swapX,flips, flip_LL{i} , flip_LL{this_move(2)}) ;
 
@@ -114,18 +139,42 @@ for jj=1:N_iterations
             % regular MCMC move if this_move has one index
             elseif length(this_move) == 1
                 i = this_move ;
+                if jj>burn_in
+                    jit = @(X)jitter{i}(X,n_trials) ;
+                else
+                    jit = @(X)jitter{i}(X,1) ;
+                end
                 [ accumulated{i} , X{i} ] = ...
-                    flip_MCMC( accumulated{i} , X{i} , accumulator{i} , jitter{i} , flip_LL{i} ) ;
+                    flip_MCMC( accumulated{i} , X{i} , accumulator{i} , jit , flip_LL{i} , jj<burn_in ) ;
             end
-            n_cones(jj) = sum(X{1}.state) ;
+            n_cones(jj) = sum(X{1}.state) ;            
         end
     end
     
-%     GGG = zeros(26,46,3) ;
-%     GGG(ROI) = X{1}.state ;
-%     imagesc(GGG) ;
-%     drawnow
-
+    if isswap
+        swapstring = 'w/ swap' ;
+    else
+        swapstring = 'burn-in' ;
+    end
+    fprintf('Iteration:%4d of %d \t %s\t    %8f sec\n',jj,N_iterations,swapstring,toc)
+    
+    figure(h)
+    for i=1:N_instances
+        subplot(2,ceil(N_instances/2),i)
+        colormap('pink')
+        GGG = zeros(26*SS,46*SS,3) ;
+        GGG(ROI) = X{i}.state ;
+        imagesc(GGG) ;
+        titl = sprintf('X_%d   \\beta %.2f',i,betas(i)) ;
+        if i == ceil(N_instances/4)
+            title({sprintf('Iteration %d',jj) ; titl },'FontSize',22)
+        else
+            title( titl , 'FontSize',22)
+        end
+        %             set(get(gca,'Title'),'Visible','on')
+    end
+    drawnow
+    
 end
 fprintf('    done in %.1f sec\n\n',toc) ;
 cone_map.stas           = GC_stas ;

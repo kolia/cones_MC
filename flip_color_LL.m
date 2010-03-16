@@ -27,39 +27,36 @@ end
 
 % initialize inverse if necessary
 if ~isfield(X,'invWW') || ~isfield(X,'overlaps')
-    temp_X.state     = false(1,size(STA_W,2)) ;
+    temp_X.state     = sparse([],[],[],1,size(STA_W,2),200) ; %false(1,size(STA_W,2)) ;
     temp_X.invWW     = [] ;
     temp_X.overlaps  = [] ;
     temp_X.WW        = [] ;
     temp_X.positions = [] ;
     temp_X.colors    = [] ;
+    temp_X.sumLconst = sum(log(cell_consts)) ;
     X = flip_color_LL( temp_X , find(X.state) , prior_ll , cell_consts , ...
                       STA_W , coneConv , colorDot , sizes , beta ) ;
 end
 
-% % initialize best 10 configurations encountered to zero
-% if ~isfield(X,'best')
-%     X.best = zeros(10,size(STA_W,2)+1) ;
-%     X.best(1:10) = -Inf ;
-% end
 
 % apply all the bit flips to X
 for i=1:length(flips)
     k = flips(i) ;
     n = size(X.invWW,1) ;
-    j = cumsum(X.state) ;
+    
+    j = length(find(X.state)<=k) ;
     
     % block matrix inverse update
     if X.state(k)     % update inverse by deleting jth row/column
-        j = j(k) ;
         inds = [1:j-1 j+1:n] ;
         X.overlaps = X.overlaps(inds,inds) ;
         X.invWW = X.invWW(inds,inds) - ...
                   X.invWW(inds,j   )*X.invWW(j,inds)/X.invWW(j,j) ;
         X.positions = X.positions(:,inds) ;
         X.colors    = X.colors(inds) ;
+        X.state(k)  = false ;
     else                % update inverse by adding row/column
-        j = j(k) + 1 ;
+        j = j + 1 ;
         inds = [1:j-1 j+1:n+1] ;
         A = X.invWW ;
         
@@ -87,11 +84,6 @@ for i=1:length(flips)
         X.colors    = zeros(1,n + 1) ;
         X.colors(inds) = colors ;
         X.colors(j)    = k_color  ;
-        
-%         colors  = find( X.state ) ;
-% [sI,sJ] = ind2sub(sizes,mod(colors-1,NBW)+1) ;
-% [kI,kJ] = ind2sub(sizes,mod(k     -1,NBW)+1) ;
-%         colors  = 1 + floor( (colors-1)/NBW ) ;
 
         overlap = zeros(1,n) ;
         Wkstate = overlap ;
@@ -99,14 +91,7 @@ for i=1:length(flips)
         if sum(where)
             Nc   = size(coneConv,1) ;
             here = (Nconv+Wkinds(2,where) - 1)*Nc + Nconv+Wkinds(1,where) ;
-            
-%             here = sub2ind(size(coneConv),Nconv+Wkinds(1,where),Nconv+Wkinds(2,where)) ;
-            overlap(where) = coneConv(here) ;
-            
-%             where
-%             overlap(where) .* colorDot(k_color,colors(where))
-%             Wkstate(where)
-            
+            overlap(where) = coneConv(here) ;            
             Wkstate(where) = overlap(where) .* colorDot(k_color,colors(where)) ;
         end
         
@@ -133,20 +118,24 @@ for i=1:length(flips)
         X.invWW(j,inds)    = -r*q  ;
         X.invWW(j,j)       = q     ;
         
+        X.state(k)  = true ;
     end
-    X.state(flips(i)) = ~X.state(flips(i)) ;    
 end
 X.state = logical(X.state) ;
 
 % recalculate data log-likelihood
 Ncones = sum(X.state) ;
 if Ncones>0
-    ldet = log( det(X.invWW) ) ;
-    X.data_ll = + Ncones * (length(cell_consts) * log(2*pi) + sum(log(cell_consts))) * ldet + ...
-        sum( cell_consts .* sum( (STA_W(:,X.state) * X.invWW) .* STA_W(:,X.state) ,2) )/2 ;
-%     X.data_ll = ( - length(cell_consts) * log( det(2.*pi.*X.invWW) ) + ...
-%         sum( cell_consts .* sum( (STA_W(:,X.state) * X.invWW) .* STA_W(:,X.state) ,2) ) ...
-%         )/2 ;
+    
+    invWW = X.invWW ;
+    invWW(invWW<invWW(1,1)*1e-3) = 0 ;
+    invWW = sparse(invWW) ;
+    ldet = log(det(invWW)) ;
+    
+    STA_W_state = STA_W(:,X.state) ;
+
+    X.data_ll = + Ncones * (length(cell_consts) * log(2*pi) + X.sumLconst) * ldet + ...
+        sum( cell_consts .* sum( (STA_W_state * invWW) .* STA_W_state ,2) )/2 ;
 else
     X.data_ll = 0 ;
 end
@@ -154,6 +143,12 @@ end
 % update log-likelihood
 X.ll = beta * (X.data_ll + prior_ll(X)) ;
 
+% % initialize best 10 configurations encountered to zero
+% if ~isfield(X,'best')
+%     X.best = zeros(10,size(STA_W,2)+1) ;
+%     X.best(1:10) = -Inf ;
+% end
+% 
 % % update best 10 configurations encountered so far
 % i = 1 ;
 % while 1    
