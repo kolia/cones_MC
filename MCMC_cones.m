@@ -64,7 +64,7 @@ accumulated     = cell( N_instances , 1 ) ;
 accumulator     = cell( N_instances , 1 ) ;
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
-prior_LL        = @(X)-1e8*sum(sum( triu(X.overlaps,1) > max_overlap*0.01 )) ;
+prior_LL        = @(X)-1e6*sum(sum( triu(X.overlaps,1) > max_overlap*0.01 )) ;
 
 minSTAW = min(STA_W(:)) ;
 STA_W(abs(STA_W)<minSTAW*0.01) = 0 ;
@@ -115,7 +115,6 @@ for jj=1:N_iterations
     isswap = jj>burn_in*0.8 ;
 %     isswap = jj>9 ;
 
-    tic
     for j=1:N_moves
         this_move = moves{j} ;
 
@@ -154,13 +153,15 @@ for jj=1:N_iterations
         end
     end
 
-    if ~mod(jj,50)
-        if isswap
+    if ~mod(jj,100)
+        if jj>burn_in
             swapstring = 'average' ;
         else
             swapstring = 'burn-in' ;
         end
-        fprintf('\nIteration:%4d of %d \t %s\t    %8f sec',jj,N_iterations,swapstring,toc)
+        fprintf('\nIteration:%4d of %d \t %s\t  %4d cones \t%8.2f sec',...
+                            jj,N_iterations,swapstring,n_cones(jj),toc)
+        tic
         
         figure(h)
         for i=1:N_instances

@@ -80,6 +80,7 @@ save('STA_W','STA_W')
 end
 
 coneConv    = conv2(cone_RF,cone_RF) ;
+coneConv(abs(coneConv)<1e-6) = 0 ;
 
 cone_map.M0             = M0 ;
 cone_map.M1             = M1 ;
