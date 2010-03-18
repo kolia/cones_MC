@@ -11,7 +11,8 @@ function samples = jitter_sampler( X , p , n , M )
 % For speed, backward probabilities are not calculated: this sampler should
 % only be used with the symmetric rule, not with metropolis-hastings.
 
-sampled = randiscrete( p , n) ;
+cumprob = cumsum(p) ;
+sampled = randiscrete( cumprob , n) ;
 samples = cell(n*8,1) ;
 ns      = 0 ;
 
