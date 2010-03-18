@@ -1,58 +1,57 @@
 function cone_map = MCMC_cones( GC_stas , cone_params , cone_map )
-%% cone_map = map_cones( GC_stas , cone_params )
+%% cone_map = map_cones( GC_stas , cone_params [ , cone_map] )
 %  Run MCMC to find cone locations.
-%  Assumes existence of ../resource folder, where STA_W
+%  All important parameters are within lines 17-26
 
 if nargin<3  ,  cone_map = struct ;   end
 
-% load variables defined in setup_cone_LL
+% load variables defined in setup_cone_LL (shared with greedy_cones.m)
 [STA_W,cone_map] = setup_cone_LL(GC_stas , cone_params , cone_map) ;
 vars = fields(cone_map) ;
 for i=1:length(vars)
     eval(sprintf('%s = cone_map.(vars{i}) ;',vars{i})) ;
 end
 
+%% prior_LL      prior log-likelihood : ~hard repulsion   VERY SENSITIVE
+%   prior_LL      = @(X)-1e5*sum(sum( triu(X.overlaps,1) > max_overlap*0.01)) ; %   weak
+  prior_LL      = @(X)-1e6*sum(sum( triu(X.overlaps,1) > max_overlap*0.01 )) ;  %   strong
+
+
+%% APPROXIMATION!  sparsify STA_W
+minSTAW = min(STA_W(:)) ;
+STA_W(abs(STA_W)<minSTAW * 0.01 ) = 0 ;
+STA_W = sparse(STA_W') ;
+
+%% plot and display info every ? MCMC iterations  (0 for never)
+plot_every      = 0 ;
+display_every   = 100 ;
+
 
 %% PARAMETERS FOR MCMC
-  TOTAL_trials  = 10 * M2 * SS ;
-  burn_in       = 20 * M2 * SS ;
+  TOTAL_trials  = 1   * M2 * SS ; % number of trials after burn-in = TOTAL_trials * n_trials ;
+  burn_in       = 30  * M2 * SS ; % number of burn-in trials
+
+% q             probability of trying to move an existing cone vs. placing
+%               a new one.
+  q             = 0.8 ;
 
 % these params shouldn't need tweaking unless the problem setup changes
-%        
-% prior_LL      prior used both for greedy and MCMC
 %
-% betas         instance X_i has inverse temperature betas(i)
-% betas         = [1 0.25 0.2 0.2 0.15] ;
+% betas         number of independent instances run simultaneously
   betas         = ones(1,2) ;
-%               X_1 is the main instance
-%               X_(2..N-1) are a pool of warm instances
-%               X_N is a hot instance that provides randomness to the pool
 %
 % moves         sequence of moves at each iteration, currently:
-%               - 3 regular MC moves for each instance
-%               - one swap between X_1 and each X_(2..N-1)
-%               - one swap among each pair of   X_(2..N-1)
-%               - one swap between X_N and each X_(2..N-1)
-
-
-%% WHAT MCMC IS DOING: the short version 
-% The MCMC used here is a combination of parallel tempering, aka replica 
-% exchange MC, and cluster MC, with clusters adapted to our problem.
-%
-% 6 MC instances are run in parallel: one with the actual log-likelihood LL
-% the other 5 instances i with log-likelihood LL * betas(i) < LL.
-% Once in while, connected components of the symmetric difference between 
-% pairs of instance configurations are swapped between instances.
+%               - a regular MC move for each instance
 
 
 %% MCMC RUN
 N_instances     = length(betas) ;
-n_trials        = 10 ;
+n_trials        = 10 ;      % only applies after burn-in
 fprintf('\n\nSTARTING %d MCMC instances with different inverse temperatures beta:\n',N_instances)
 fprintf('%.2f   ',betas)
 
 % move proposal distribution: higher probabilities where STAs were larger
-MPD = reshape(STA_W,[sizeROI N_colors N_GC]) ;
+MPD = reshape(full(STA_W),[sizeROI N_colors N_GC]) ;
 MPD = MPD ./ repmat( max( max( max(abs(MPD),[],1) , [] , 2) , [] , 3 ) , [sizeROI N_colors 1] ) ;
 MPD = sum( max(abs(MPD),[],4) ,3) ;
 
@@ -64,17 +63,12 @@ accumulated     = cell( N_instances , 1 ) ;
 accumulator     = cell( N_instances , 1 ) ;
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
-prior_LL        = @(X)-1e6*sum(sum( triu(X.overlaps,1) > max_overlap*0.01 )) ;
-
-minSTAW = min(STA_W(:)) ;
-STA_W(abs(STA_W)<minSTAW*0.01) = 0 ;
-STA_W = sparse(STA_W') ;
 
 for i=1:N_instances
     X{i}.state      = sparse([],[],[],1,NROI,ceil(NROI/(15*SS^2))) ;
     accumulated{i}  = zeros( 1 , NROI + 2 ) ;
     accumulator{i}  = @(y)[ones(size(y,1),1) sum(y,2) y] ;
-    jitter{i}       = @(X,n_trial)jitter_color(X , n_trial , sizeROI(1) , sizeROI(2) , proposal_prob , N_colors) ;
+    jitter{i}       = @(X,n_trial)jitter_color(X , n_trial , q , sizeROI(1) , sizeROI(2) , proposal_prob , N_colors) ;
 
     flip_LL{i}      = @(X,flips)flip_color_LL( ...
         X , flips , prior_LL , cell_consts , STA_W , coneConv , colorDot , sizeROI , betas(i)) ;
@@ -100,14 +94,15 @@ burn_in      = ceil( burn_in / (n_trials * N_moves) ) ;
 N_iterations = burn_in + ceil( TOTAL_trials / (n_trials * N_moves) ) ;
 n_cones      = zeros( N_iterations , 1 ) ;
 
-
+if plot_every
 scrsz = get(0,'ScreenSize');
 h = figure('Position',[1 scrsz(4)*0.7 1500 600]) ;
-
+end
 
 % MAIN MCMC LOOP
 % fprintf('\n\n      MCMC progress:|0%%              100%%|\n ')
 fprintf('\n\nMCMC progress:')
+t = cputime ;
 tic
 for jj=1:N_iterations
 %     if ~mod(jj,floor(N_iterations/20)) , fprintf('*') , end
@@ -153,7 +148,7 @@ for jj=1:N_iterations
         end
     end
 
-    if ~mod(jj,100)
+    if ~mod(jj,display_every)
         if jj>burn_in
             swapstring = 'average' ;
         else
@@ -162,7 +157,9 @@ for jj=1:N_iterations
         fprintf('\nIteration:%4d of %d \t %s\t  %4d cones \t%8.2f sec',...
                             jj,N_iterations,swapstring,n_cones(jj),toc)
         tic
-        
+    end
+    
+    if ~mod(jj,plot_every)
         figure(h)
         for i=1:N_instances
 %             subplot(2,ceil(N_instances/2),i)
@@ -183,7 +180,7 @@ for jj=1:N_iterations
     end
     
 end
-fprintf('\n    done in %.1f sec\n\n',toc) ;
+fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
 cone_map.stas           = GC_stas ;
 cone_map.cone_RF        = cone_RF ;
 cone_map.cone_params    = cone_params ;

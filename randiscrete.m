@@ -1,6 +1,6 @@
 function sample = randiscrete(cumprob,m)
-% draw m integers from 1:length(p) from discrete probability vector p.
-% p must sum to one.
+% draw m integers from 1:length(cumprob) from cumulative probability vector
+% cumprob, where cumprob must be positive, increasing and cumprob(end) = 1.
 
 if nargin<2
     m = 1 ;

@@ -2,8 +2,12 @@ function X = flip_color_LL( ...
     X , flips , prior_ll , cell_consts , STA_W , coneConv , colorDot , sizes , beta )
 % X = flip_color_LL( X , flips , prior_ll , cell_consts , ...
 %                    STA_W , coneConv , colorDot , sizes , beta )
+%
+% pardon my appearance, i've been optimized for speed, not prettiness
+%
 % Apply flips to configuration X, and update log-likelihood of X.
 % Bits in X.state are flipped, and the inverse X.invWW of WW is updated.
+% Some other book-keeping variables are stored in X, for speed.
 % The matrix inverse is not recalculated each time:
 % block matrix inverse update formulas are used to update X.invWW 
 % incrementally, for speed.
@@ -30,7 +34,7 @@ if ~isfield(X,'invWW') || ~isfield(X,'overlaps')
     temp_X.state     = sparse([],[],[],1,size(STA_W,2),200) ; %false(1,size(STA_W,2)) ;
     temp_X.invWW     = [] ;
     temp_X.overlaps  = [] ;
-    temp_X.WW        = [] ;
+%     temp_X.WW        = [] ;
     temp_X.positions = [] ;
     temp_X.colors    = [] ;
     temp_X.sumLconst = sum(log(cell_consts)) ;
@@ -55,7 +59,7 @@ for i=1:length(flips)
         X.overlaps = X.overlaps(inds,inds) ;
         X.invWW = X.invWW(inds,inds) - ...
                   X.invWW(inds,j   )*X.invWW(j,inds)/X.invWW(j,j) ;
-        X.WW    = X.WW(inds,inds) ;
+%         X.WW    = X.WW(inds,inds) ;
         X.positions = X.positions(:,inds) ;
         X.colors    = X.colors(inds) ;
         X.state(k)  = false ;
@@ -105,12 +109,12 @@ for i=1:length(flips)
 
         Wkkc = Wkk * colorDot(k_color,k_color) ;
         
-        WW                  = X.WW ;
-        X.WW                = zeros(n+1) ;
-        X.WW(inds,inds)     = WW ;
-        X.WW(inds,j)        = Wkstate ;
-        X.WW(j,inds)        = Wkstate ;
-        X.WW(j,j)           = Wkkc ;
+%         WW                  = X.WW ;
+%         X.WW                = zeros(n+1) ;
+%         X.WW(inds,inds)     = WW ;
+%         X.WW(inds,j)        = Wkstate ;
+%         X.WW(j,inds)        = Wkstate ;
+%         X.WW(j,j)           = Wkkc ;
 
         O                     = X.overlaps ;
         X.overlaps            = zeros(n+1) ;
@@ -134,7 +138,7 @@ for i=1:length(flips)
         
         
         
-%         % debugging!  reconstruct positions from scratch, compare w/
+%         % DEBUGGING!  reconstruct positions from scratch, compare w/
 %         % incremental version stored in X
 %         this    = find( X.state ) ;
 %         posi    = 1 + mod( this-1 , NBW      ) ;
@@ -149,7 +153,7 @@ for i=1:length(flips)
 %             fprintf('case 3')
 %         end
         
-%         % debugging!  reconstruct WW from scratch
+%         % DEBUGGING!  reconstruct WW from scratch
 %         overlap = zeros(n+1) ;
 %         WW      = zeros(n+1) ;
 %         for i=1:n+1
@@ -189,22 +193,19 @@ if Ncones>0
     invWW = X.invWW ;
     invWW(abs(invWW)<abs(invWW(1,1))*1e-17) = 0 ;
     invWW = sparse(invWW) ;
-    try
+%     try
         ldet = 2 * sum(log(diag(chol(invWW))));
-    catch
-        fprintf('\n\nWARNING: catching numerical instability...')
-        X.invWW = X.WW^(-1) ;
-        ldet = 2 * sum(log(diag(chol(X.invWW))));        
-    end
+
+%     catch  % just in case... never actually happens anymore
+%         fprintf('\n\nWARNING: catching fatal numerical instability...')
+%         X.invWW = X.WW^(-1) ;
+%         ldet = 2 * sum(log(diag(chol(X.invWW))));        
+%     end
     
     STA_W_state = STA_W(:,X.state) ;
 
     X.data_ll = full(+ Ncones * (length(cell_consts) * log(2*pi) + X.sumLconst) * ldet + ...
         sum( cell_consts .* sum( (STA_W_state * invWW) .* STA_W_state ,2) )/2) ;
-%     X.data_ll = ( - length(cell_consts) * log( det(2.*pi.*X.invWW) ) + ...
-%                 sum( cell_consts .* ...
-%                       sum( (STA_W(:,X.state) * X.invWW) .* STA_W(:,X.state) ,2) ) ...
-%                 )/2 ;
 else
     X.data_ll = 0 ;
 end

@@ -1,8 +1,13 @@
 function [STA_W,cone_map] = setup_cone_LL( GC_stas , cone_params , cone_map )
+%% [STA_W,cone_map] = setup_cone_LL( GC_stas , cone_params , cone_map )
+%  Expand data and parameters into variables used to calculate likelihoods.
+%  Mainly, spatial supersampling by a factor of cone_map.supersample is
+%  applied to the STAs, and the convolution of the STAs with the cone
+%  receptive fields is stored in STA_W.
 
 addpath(genpath(pwd))
 
-% size of region of interest
+% size of data
   [M0,M1,N_colors] = size(GC_stas(1).spatial) ;
   M2 = M0*M1 ;
 
@@ -56,7 +61,7 @@ cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
 
 %% SETUP for Log-LIKELIHOOD calculations
 
-try load('STA_W')
+try load('STA_W')  % calculating STA_W takes a while, check for STA_W.mat
 catch
     
 STA_W = zeros(NROI,N_GC) ;
@@ -80,7 +85,6 @@ save('STA_W','STA_W')
 end
 
 coneConv    = conv2(cone_RF,cone_RF) ;
-coneConv(abs(coneConv)<1e-6) = 0 ;
 
 cone_map.M0             = M0 ;
 cone_map.M1             = M1 ;
