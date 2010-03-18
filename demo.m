@@ -22,7 +22,7 @@ addpath(genpath(pwd))
 %% MAIN PARAMETERS OF THE PROBLEM
 %
 % M             size of the Region of Interest: M-by-M
-  M           = 20 ;
+  M           = 15 ;
 
 % N_cells       number of ganglion cells
   N_cells     = ceil( M^2/10 ) ;
@@ -108,12 +108,13 @@ position_key = [repmat(1:M,1,M) ; reshape(repmat(1:M,M,1),[],1)'] ;
 lprior_cone_position = @(state) factor * sum( sum( h( pair_dist(position_key(:,state))))) ;
 
 % draw position of cones : MCMC burn-in with lprior_cone_position
-X.state = zeros(1,M^2) ;
-n_trials = 10 ;
-avg_cones = 0 ;
+X.state     = zeros(1,M^2) ;
+n_trials    = 10 ;
+avg_cones   = 0 ;
+flat_probs  = cumsum(ones(1,M^2)) / M^2 ;
 for i=1:M^2
     [ avg_cones , X ] = flip_MCMC( avg_cones , X , @(y)sum(y,2) , ...
-        @(X)independent_sampler(X,ones(1,M^2)/M^2,n_trials) , ...
+        @(X)independent_sampler(X,flat_probs,n_trials) , ...
         @(X,flips)simple_flipper(X,flips,lprior_cone_position) ) ;
 end
 cones = X ;
