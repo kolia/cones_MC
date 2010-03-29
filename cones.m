@@ -1,26 +1,13 @@
-function cone_map = MCMC_cones( GC_stas , cone_params , cone_map )
-%% cone_map = map_cones( GC_stas , cone_params [ , cone_map] )
+function cone_map = cones( cone_map )
+%% cone_map = cones( LL )
 %  Run MCMC to find cone locations.
-%  All important parameters are within lines 17-26
 
-if nargin<3  ,  cone_map = struct ;   end
+% addpath('../library/kdtree')
 
-% load variables defined in setup_cone_LL (shared with greedy_cones.m)
-[STA_W,cone_map] = setup_cone_LL(GC_stas , cone_params , cone_map) ;
-vars = fields(cone_map) ;
-for i=1:length(vars)
-    eval(sprintf('%s = cone_map.(vars{i}) ;',vars{i})) ;
-end
+LL = cone_map.LL ;
+N_cones_factor = cone_map.N_cones_factor ;
 
-%% prior_LL      prior log-likelihood : ~hard repulsion   VERY SENSITIVE
-%   prior_LL      = @(X)-1e5*sum(sum( triu(X.overlaps,1) > max_overlap*0.01)) ; %   weak
-  prior_LL      = @(X)-1e6*sum(sum( triu(X.overlaps,1) > max_overlap*0.01 )) ;  %   strong
-
-
-%% APPROXIMATION!  sparsify STA_W
-minSTAW = min(STA_W(:)) ;
-STA_W(abs(STA_W)<minSTAW * 0.01 ) = 0 ;
-STA_W = sparse(STA_W') ;
+[M0,M1,N_colors] = size(LL) ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
 plot_every      = 20 ;
@@ -28,8 +15,8 @@ display_every   = 20 ;
 
 
 %% PARAMETERS FOR MCMC
-  TOTAL_trials  = 1   * M2 * SS ; % number of trials after burn-in = TOTAL_trials * n_trials ;
-  burn_in       = 30  * M2 * SS ; % number of burn-in trials
+  TOTAL_trials  = 5   * M0 * M1 ; % number of trials after burn-in = TOTAL_trials * n_trials ;
+  burn_in       = 5   * M0 * M1 ; % number of burn-in trials
 
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
@@ -50,30 +37,30 @@ n_trials        = 10 ;      % only applies after burn-in
 fprintf('\n\nSTARTING %d MCMC instances with different inverse temperatures beta:\n',N_instances)
 fprintf('%.2f   ',betas)
 
-% move proposal distribution: higher probabilities where STAs were larger
-MPD = reshape(full(STA_W),[sizeROI N_colors N_GC]) ;
-MPD = MPD ./ repmat( max( max( max(abs(MPD),[],1) , [] , 2) , [] , 3 ) , [sizeROI N_colors 1] ) ;
-MPD = sum( max(abs(MPD),[],4) ,3) ;
-
 % initializing variables
-proposal_prob   = cumsum(MPD(:)) ;
-proposal_prob   = proposal_prob ./ proposal_prob(end) ;
 flip_LL         = cell( N_instances , 1 ) ;
 accumulated     = cell( N_instances , 1 ) ;
 accumulator     = cell( N_instances , 1 ) ;
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
 
-for i=1:N_instances
-    X{i}.state      = sparse([],[],[],1,NROI,ceil(NROI/(15*SS^2))) ;
-    accumulated{i}  = zeros( 1 , NROI + 2 ) ;
-    accumulator{i}  = @(y)[ones(size(y,1),1) sum(y,2) y] ;
-    jitter{i}       = @(X,n_trial)jitter_color(X , n_trial , q , sizeROI(1) , sizeROI(2) , proposal_prob , N_colors) ;
+exclusion       = 10 ;
 
-    flip_LL{i}      = @(X,flips)flip_color_LL( ...
-        X , flips , prior_LL , cell_consts , STA_W , coneConv , colorDot , sizeROI , betas(i)) ;
+dprior          = @(X,x,y,c)dist_prior(X,x,y,c, exclusion, ...
+                        @(d)-1e8*(abs(d-exclusion^2/2)<exclusion^2/2)  , ...
+                        @(n) 0 ) ; % -10*(10-n) )  ;
+
+for i=1:N_instances
     
-    X{i} = flip_LL{i}( X{i} , [] ) ;  % initialize X{i}
+    accumulated{i}  = zeros( 1 , M0*M1 + 1) ;
+    accumulator{i}  = @(X)[1 X.state(:)'] ;
+        
+    flip_LL{i}      = @(X,x,y,c)flip_diag_LL( X , x , y , c , LL , N_cones_factor , dprior ) ;
+    
+    jitter{i}       = @(X,n_trial)jitter_color(X , n_trial , q , flip_LL{i} , N_colors) ;
+
+    X{i}            = flip_LL{i}( struct , 0 , 0 , 0 ) ;  % initialize X{i}
+    
 end
 
 % MC move sequence
@@ -98,6 +85,9 @@ if plot_every
 scrsz = get(0,'ScreenSize');
 h = figure('Position',[1 scrsz(4)*0.7 1500 600]) ;
 end
+
+GG0 = LL - min(LL(:)) ;
+GG0 = GG0 / max(GG0(:)) ;
 
 % MAIN MCMC LOOP
 % fprintf('\n\n      MCMC progress:|0%%              100%%|\n ')
@@ -136,15 +126,15 @@ for jj=1:N_iterations
                     jit = @(X)jitter{i}(X,n_trials) ;
                 else
                     jit = @(X)jitter{i}(X,1) ;
-                end
+                end                
                 [ accumulated{i} , X{i} ] = ...
-                    flip_MCMC( accumulated{i} , X{i} , accumulator{i} , jit , flip_LL{i} , jj<burn_in ) ;
+                    flip_MCMC( accumulated{i} , X{i} , accumulator{i} , jit , jj<burn_in ) ;
             end
-            n_cones(jj) = sum(X{1}.state) ;
+            n_cones(jj) = numel(find(X{1}.state>0)) ;
 
-            if jj>1 && n_cones(jj-1)>n_cones(jj)
-                fprintf('\nN_CONES DECREASED!!!\n')
-            end
+%             if jj>1 && n_cones(jj-1)>n_cones(jj)
+%                 fprintf('\nN_CONES DECREASED!!!\n')
+%             end
         end
     end
 
@@ -165,8 +155,14 @@ for jj=1:N_iterations
 %             subplot(2,ceil(N_instances/2),i)
             subplot(1,N_instances,i)
             colormap('pink')
-            GGG = zeros(26*SS,46*SS,3) ;
-            GGG(ROI) = X{i}.state ;
+            GGG = GG0 ;
+            for c=1:3
+                [ix,iy] = find(X{i}.state == c) ;
+                for cc=1:3
+                    GGG(ix + M0*(iy-1) + M0*M1*(cc-1)) = 0 ;
+                end
+                GGG(ix + M0*(iy-1) + M0*M1*(c-1)) = 1 ;
+            end
             imagesc(GGG) ;
             titl = sprintf('X_%d   \\beta %.2f',i,betas(i)) ;
             if i == ceil(N_instances/4)
@@ -181,15 +177,7 @@ for jj=1:N_iterations
     
 end
 fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
-cone_map.stas           = GC_stas ;
-cone_map.cone_RF        = cone_RF ;
-cone_map.cone_params    = cone_params ;
-cone_map.prior_LL       = func2str(prior_LL) ;
-cone_map.max_overlap    = max_overlap ;
-cone_map.coneConv       = coneConv ;
-cone_map.colorDot       = colorDot ;
-
-ROI = logical(ROI) ;
+cone_map.dprior       = func2str(dprior) ;
 
 % try
 % for i=1:numel(cone_map.X)
@@ -204,18 +192,12 @@ ROI = logical(ROI) ;
 
 for i=1:N_instances
     cone_map.X{i}       = X{i} ;
-    cone_map.X{i}.state = zeros(N,1) ;
-    cone_map.X{i}.state(ROI) = X{i}.state ;
 end
 cone_map.betas          = betas ;
 cone_map.n_cones        = n_cones ;
 cone_map.burn_in        = burn_in ;
 cone_map.N_iterations   = N_iterations ;
 cone_map.moves          = moves ;
-for i=1:N_instances
-    cone_map.accumulated{i}              = zeros(N+2,1) ;
-    cone_map.accumulated{i}(1:2)         = accumulated{i}(1:2) ;
-    cone_map.accumulated{i}(find(ROI)+2) = accumulated{i}(3:end) ;
-end
-cone_map.ROI_super      = ROI ;
+cone_map.accumulated    = accumulated ;
+
 end

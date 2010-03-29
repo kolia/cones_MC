@@ -1,11 +1,11 @@
-function samples = jitter_color( X , n , q , M0 , M1 , cumprob , N_colors )
-% samples = jitter_color( X , n , q , M0 , M1 , cumprob , N_colors )
+function samples = jitter_color( X , n , q , flip_LL , N_colors )
+% samples = jitter_color( X , n , q , flip_LL , N_colors )
 % Draw n trial flips starting from state X.
 % M0 -by- M1 is the spatial extent of cone locations, N-colors = 3. 
 % Two types of move are produced: additions of cones, and moves or changes
 % in color of existing cones.
 % First, n spatial locations are drawn. They are drawn from existing cone
-% locations with probability q, and from probability cumprob with
+% locations with probability q, and from the uniform distribution with
 % probability (1-q).
 % For each trial location i, if no cone of any color is at that position,
 % then the corresponding trial is a placement of a single randomly colored
@@ -20,96 +20,79 @@ function samples = jitter_color( X , n , q , M0 , M1 , cumprob , N_colors )
 
 % defaults
 if nargin<7 ,   N_colors = 3 ;                end
-if nargin<6 ,   cumprob  = (1:M0*M1) * 2 / (M0*M1*(M0*M1+1)) ;   end
 
-% current number of cones in X
-n_cones = size(X.positions,2) ;
+[M0,M1] = size(X.state) ;
 
-% number of spatial locations, should equal  M0 * M1
-NBW = numel(X.state)/N_colors ;
-
-% number of draws from existing cone locations
-n_moved = binornd(n,q) ;
-
-% draw cone locations
-sampled = randiscrete( cumprob , n-n_moved) ;
-if n_cones > 0
-    cones   = randi( n_cones , 1 , n_moved ) ;
-    sampled  = [X.positions(1,cones)+M0*(X.positions(2,cones)-1) sampled] ;
-else
-    sampled = randiscrete( cumprob , n) ;
-end
+% current cones in X
+[cx,cy]     = find(X.state>0) ;
+n_cones     = numel( cx ) ;
 
 % initialize samples
 samples  = cell(n*8,1) ;
 ns       = 0 ;
 
-% for each sampled location, generate corresponding moves
-for s=1:length(sampled)
-    
-    % current position index considered
-    k  = sampled(s) ;
-    
-    % compute corresponding i-j coordinates and color
-    position = mod( k-1 , NBW      ) + 1 ;
-    color    = mod( k-1 , N_colors ) + 1 ;
-    i        = 1 + mod( position-1 , M0 ) ;
-    j        = 1 + floor( (position-1) / M0) ;
-    
-    % does this position already have a cone?
-    occupied= s<=n_moved  &&  ismember([i j],X.positions','rows') ;
-    
-    % probability of choosing this spatial location from cumprob
-    if position == 1
-        p = cumprob(1) ;
-    else
-        p = cumprob(position) - cumprob(position-1) ;
-    end
-    
-    
-    % if location already had a cone
-    if occupied
+% number of draws from existing cone locations
+n_moved = binornd(n,q) ;
 
+% draw cone locations
+if n_cones > 0
+    cones       = randi( n_cones , 1 , n_moved ) ;
+
+    for s=1:n_moved
+        i       = cx(cones(s)) ;
+        j       = cy(cones(s)) ;
+        color   = X.state(i,j) ;
+        
         % probability of choosing this location
-        p = 1/n_cones * q  +  (1-q) * p ;
+        p = 1/n_cones * q ;
 
         % adjacent locations, being careful not to go beyond borders
         sx   = max(1,i-1):min(M0,i+1) ;
         sy   = max(1,j-1):min(M1,j+1) ;
-        sxy  = [reshape( repmat( sx  , length(sy) , 1 ) , [] , 1 ) ...
-            reshape( repmat( sy' , 1 , length(sx) ) , [] , 1 ) ] ;
-        inds = sub2ind( [M0 M1] , sxy(:,1) , sxy(:,2) ) ;
 
         % for each adjacent location, add trial move to that location
-        ni = length(inds) ;
-        for i=1:ni
-            % store away move to adjacent location
-            if inds(i) ~= position
-                ns = ns+1 ;
-                samples{ns}.flips = [position inds(i)] + (color-1)*M0*M1 ;
-                samples{ns}.forward_prob   = p/ni ;
-
-            % store away change of color or deletion, without moving
-            else
-                for j=1:N_colors
+        ni = numel(sx) * numel(sy) ;
+        Xtemp = flip_LL(X,i,j,color) ;
+        for x=sx
+            for y=sy
+                % move to adjacent location
+                if x~=i || y~=j
                     ns = ns+1 ;
-                    samples{ns}.flips = position + (j-1)*M0*M1 ;
-                    samples{ns}.forward_prob = p/ni/N_colors ;
+                    samples{ns} = flip_LL(Xtemp,x,y,color) ;
+                    samples{ns}.forward_prob   = p/ni ;
+                    
+                % change of color or deletion, without moving
+                else
+                    for cc=1:N_colors
+                        ns = ns+1 ;
+                        samples{ns} = flip_LL(X,x,y,cc) ;
+                        samples{ns}.forward_prob = p/(ni*N_colors) ;
+                    end
                 end
             end
         end
-    
-    % if location unoccupied by cone
-    else
-        % probability of choosing this location
-        p = (1-q)*p ;
+    end
+else
+    n_moved = 0 ;
+end
 
-        % store away change of color
-        for j=1:N_colors
-            ns = ns+1 ;
-            samples{ns}.flips = position + (j-1)*M0*M1 ;
-            samples{ns}.forward_prob  = p/N_colors ;
-        end
+
+sampled_x = randi( M0 , n-n_moved) ;
+sampled_y = randi( M1 , n-n_moved) ;
+
+% for each sampled location, generate corresponding moves
+for s=1:n-n_moved
+    i       = sampled_x(s) ;
+    j       = sampled_y(s) ;
+    
+    % probability of choosing this location
+    p = (1-q)/(M0*M1) ;
+    
+    % store away change of color
+    for cc=1:N_colors
+        ns = ns+1 ;
+        samples{ns} = flip_LL(X,i,j,cc) ;
+        samples{ns}.forward_prob  = p/N_colors ;
     end
 end
 

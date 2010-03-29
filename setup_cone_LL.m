@@ -1,11 +1,13 @@
-function [STA_W,cone_map] = setup_cone_LL( GC_stas , cone_params , cone_map )
-%% [STA_W,cone_map] = setup_cone_LL( GC_stas , cone_params , cone_map )
+function cone_map = setup_cone_LL( GC_stas , cone_params , cone_map )
+%% cone_map = setup_cone_LL( GC_stas , cone_params , cone_map )
 %  Expand data and parameters into variables used to calculate likelihoods.
 %  Mainly, spatial supersampling by a factor of cone_map.supersample is
 %  applied to the STAs, and the convolution of the STAs with the cone
 %  receptive fields is stored in STA_W.
 
 addpath(genpath(pwd))
+
+if nargin < 3  ,   cone_map = struct ; end
 
 % size of data
   [M0,M1,N_colors] = size(GC_stas(1).spatial) ;
@@ -35,7 +37,7 @@ sizeROI = [max(I)-min(I) max(J)-min(J)] + 1 ;
 s = cone_params.sigma ;
 r = cone_params.support_radius ;
 cone_RF = exp(-0.5 * ((-SS*r:SS*r)/(SS*s)).^2)' * exp(-0.5 * ((-SS*r:SS*r)/(SS*s)).^2) ;
-cone_RF = cone_RF / sum(cone_RF(:)) ; clear r s
+cone_RF = cone_RF / norm(cone_RF(:)) ; clear r s
 
 N       = M2*(SS^2)*N_colors ;
 NROI    = sum(ROI(:)>0) ;
@@ -59,9 +61,10 @@ end
 
 cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
 
+
 %% SETUP for Log-LIKELIHOOD calculations
 
-try load('STA_W')  % calculating STA_W takes a while, check for STA_W.mat
+try load('LL')  % calculating LL takes a while, check for LL.mat
 catch
     
 STA_W = zeros(NROI,N_GC) ;
@@ -75,17 +78,21 @@ for ii=1:NROI/N_colors
     
     for c=1:N_colors
         filter  = kron(cone_params.colors(c,:),BW(:)') ;
-        
         STA_W((c-1)*NROI/N_colors + ii , :) = filter * STA ;
     end
 end
 STA_W = STA_W .* repmat( (N_spikes ./ cell_consts)' ,NROI,1) ;
 
-save('STA_W','STA_W')
+LL = (STA_W .^ 2) * diag(cell_consts) ;
+LL = reshape( sum(LL , 2)/2 , [M0*SS M1*SS 3] ) ;
+
+save('LL','LL')
 end
 
 coneConv    = conv2(cone_RF,cone_RF) ;
 
+cone_map.LL             = LL ;
+cone_map.N_cones_factor = sum(log(2*pi*cell_consts)) ;
 cone_map.M0             = M0 ;
 cone_map.M1             = M1 ;
 cone_map.M2             = M2 ;

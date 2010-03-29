@@ -1,4 +1,4 @@
-function ticket = CONES_condor( GC_stas , cone_params , type , min_overlap , s )
+function ticket = CONDOR_cones( GC_stas , cone_params , type , min_overlap , s )
 % ticket = CONES_condor( GC_stas , cone_params , type , min_overlap , s )
 % launches condor cone finding job
 

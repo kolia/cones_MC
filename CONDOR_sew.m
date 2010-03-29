@@ -1,4 +1,4 @@
-function quilts = sew( r , accessors )
+function quilts = CONDOR_sew( r , accessors )
 
 if nargin<2
     if isfield(r{1},'GREED')
