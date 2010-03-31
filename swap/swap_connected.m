@@ -1,4 +1,4 @@
-function swap = swapper( X , otherX )
+function swap = swap_connected( X , otherX )
 % Combine two systems into a single system, summing their log-likelihoods.
 % This is in preparation for swapping parts of the two systems'
 % configurations:  connected components of the symmetric difference between

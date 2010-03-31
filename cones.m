@@ -10,13 +10,13 @@ N_cones_factor = cone_map.N_cones_factor ;
 [M0,M1,N_colors] = size(LL) ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
-plot_every      = 20 ;
-display_every   = 20 ;
+plot_every      = 0 ;
+display_every   = 50 ;
 
 
 %% PARAMETERS FOR MCMC
-  TOTAL_trials  = 5   * M0 * M1 ; % number of trials after burn-in = TOTAL_trials * n_trials ;
-  burn_in       = 5   * M0 * M1 ; % number of burn-in trials
+  TOTAL_trials  = 100 * M0 * M1 ; % number of trials after burn-in = TOTAL_trials * n_trials ;
+  burn_in       = 60  * M0 * M1 ; % number of burn-in trials
 
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
@@ -25,7 +25,10 @@ display_every   = 20 ;
 % these params shouldn't need tweaking unless the problem setup changes
 %
 % betas         number of independent instances run simultaneously
-  betas         = ones(1,2) ;
+  betas         = [1 0.05 0.01 0.001 0.05 0.01] ;
+%
+% exclusions    exclusion distance between cones of instance i
+  exclusions    = [9 9 9 9 8.7 8.7] ;
 %
 % moves         sequence of moves at each iteration, currently:
 %               - a regular MC move for each instance
@@ -39,22 +42,16 @@ fprintf('%.2f   ',betas)
 
 % initializing variables
 flip_LL         = cell( N_instances , 1 ) ;
-accumulated     = cell( N_instances , 1 ) ;
-accumulator     = cell( N_instances , 1 ) ;
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
 
-exclusion       = 10 ;
-
-dprior          = @(X,x,y,c)dist_prior(X,x,y,c, exclusion, ...
-                        @(d)-1e8*(abs(d-exclusion^2/2)<exclusion^2/2)  , ...
-                        @(n) 0 ) ; % -10*(10-n) )  ;
-
 for i=1:N_instances
     
-    accumulated{i}  = zeros( 1 , M0*M1 + 1) ;
-    accumulator{i}  = @(X)[1 X.state(:)'] ;
-        
+
+    dprior          = @(X,x,y,c)dist_prior(X,x,y,c, exclusions(i), ...
+                        @(d)-1e8*(abs(d-exclusions(i)^2/2)<exclusions(i)^2/2)  , ...
+                        @(n) 0 ) ; % -10*(10-n) )  ;
+
     flip_LL{i}      = @(X,x,y,c)flip_diag_LL( X , x , y , c , LL , N_cones_factor , dprior ) ;
     
     jitter{i}       = @(X,n_trial)jitter_color(X , n_trial , q , flip_LL{i} , N_colors) ;
@@ -63,31 +60,48 @@ for i=1:N_instances
     
 end
 
+accumulator  = @(X)[(X.state(:)'==1) (X.state(:)'==2) (X.state(:)'==3)] ;
+accumulated  = zeros( 1 , M0*M1*N_colors ) ;
+
 % MC move sequence
 % temp0   = repmat(2:N_instances-1,N_instances-2,1) ;
 % temp1   = temp0' ;
 % choose  = logical( tril(ones(N_instances-2),-1) ) ;
 % pairs   = [temp1(choose) temp0(choose)]' ;
-
-moves   = num2cell( 1:N_instances ) ;
-
+% 
 % moves   = [ num2cell(  repmat( 1:N_instances , 1 , N_instances-2 ) )                ...
 %             num2cell( pairs , 1)                                                    ...
 %             num2cell( [ N_instances-1:-1:2 ; N_instances*ones(1,N_instances-2)] ,1) ...
 %             num2cell( [         ones(1,N_instances-2) ; N_instances-1:-1:2] , 1 )   ] ;
+
+% moves   = num2cell( 1:N_instances ) ;
+
+% moves   = [ num2cell(  1:N_instances )                          ...
+%             num2cell( [1:N_instances-1 ; 2:N_instances] , 1 )   ] ;
+
+% moves = {1 2 3 4 [1 2] [1 3] [1 4]} ;
+moves = {1 2 3 4 5 6 [1 2] [1 3] [1 4] [1 5] [1 6]} ;
 
 N_moves      = length(moves) ;
 burn_in      = ceil( burn_in / (n_trials * N_moves) ) ;
 N_iterations = burn_in + ceil( TOTAL_trials / (n_trials * N_moves) ) ;
 n_cones      = zeros( N_iterations , 1 ) ;
 
-if plot_every
-scrsz = get(0,'ScreenSize');
-h = figure('Position',[1 scrsz(4)*0.7 1500 600]) ;
+stats = cell(N_moves,1) ;
+for j=1:N_moves
+    stats{j}.N        = 0 ;
+    stats{j}.accepted = 0 ;
 end
 
+if plot_every
+scrsz = get(0,'ScreenSize');
+h = figure('Position',[1 scrsz(4)*0.7 1500 1200]) ;
+end
+
+% hswaps = figure ;
+
 GG0 = LL - min(LL(:)) ;
-GG0 = GG0 / max(GG0(:)) ;
+GG0 = ( GG0 / max(GG0(:))) .^ 0.8 ; % !!! take power to enhance low values visually
 
 % MAIN MCMC LOOP
 % fprintf('\n\n      MCMC progress:|0%%              100%%|\n ')
@@ -97,38 +111,44 @@ tic
 for jj=1:N_iterations
 %     if ~mod(jj,floor(N_iterations/20)) , fprintf('*') , end
 
-    isswap = jj>burn_in*0.8 ;
-%     isswap = jj>9 ;
+    isswap = jj>burn_in*0.6 ;
 
     for j=1:N_moves
         this_move = moves{j} ;
 
         if isnumeric(this_move)
             i = this_move(1) ;
+
+            isaccumulate = i ~= 1 || jj<burn_in ;
             
             % swap move if this_move has 2 indices
             if length(this_move) == 2 && isswap
-                swapX = swapper( X{i} , X{this_move(2)} ) ;
-                swap_flipper = @(swapX,flips) swap_LL(swapX,flips, flip_LL{i} , flip_LL{this_move(2)}) ;
+                [swapX,swaps] = swap_randrect( X{i} , X{this_move(2)} , n_trials , ...
+                                               flip_LL{i} , flip_LL{this_move(2)}) ;
+                
+                swapX.stats = stats{j} ;
 
-                if ~isempty(swapX.flips)
-                    for ii=1:2
-                    [ accumulated{i} , swapX ] = ...
-                        flip_MCMC( accumulated{i} , swapX , accumulator{i} , @(X)X.flips , swap_flipper ) ;
-                    end
-                    X{i} = swapX.X ; X{this_move(2)} = swapX.with ;
-                end
+% figure(hswaps)
+% imagesc( xor( swaps{1}.state>0 , swapX.state>0 ) )
+% drawnow
+
+                                           
+                [ accumulated , swapX ] = ...
+                    flip_MCMC( accumulated , swapX , accumulator , swaps , isaccumulate ) ;
+                
+                X{i} = swapX.X ; X{this_move(2)} = swapX.with ;
+                stats{j} = swapX.stats ;
                 
             % regular MCMC move if this_move has one index
             elseif length(this_move) == 1
                 i = this_move ;
                 if jj>burn_in
-                    jit = @(X)jitter{i}(X,n_trials) ;
+                    jit_samples = jitter{i}(X{i},n_trials) ;
                 else
-                    jit = @(X)jitter{i}(X,1) ;
+                    jit_samples = jitter{i}(X{i},1) ;
                 end                
-                [ accumulated{i} , X{i} ] = ...
-                    flip_MCMC( accumulated{i} , X{i} , accumulator{i} , jit , jj<burn_in ) ;
+                [ accumulated , X{i} ] = ...
+                    flip_MCMC( accumulated , X{i} , accumulator , jit_samples , isaccumulate ) ;
             end
             n_cones(jj) = numel(find(X{1}.state>0)) ;
 
@@ -152,8 +172,8 @@ for jj=1:N_iterations
     if ~mod(jj,plot_every)
         figure(h)
         for i=1:N_instances
-%             subplot(2,ceil(N_instances/2),i)
-            subplot(1,N_instances,i)
+            subplot(2,ceil(N_instances/2),i)
+%             subplot(1,N_instances,i)
             colormap('pink')
             GGG = GG0 ;
             for c=1:3
@@ -164,8 +184,13 @@ for jj=1:N_iterations
                 GGG(ix + M0*(iy-1) + M0*M1*(c-1)) = 1 ;
             end
             imagesc(GGG) ;
-            titl = sprintf('X_%d   \\beta %.2f',i,betas(i)) ;
-            if i == ceil(N_instances/4)
+            titl = sprintf('X_%d   \\beta %.3f     excl %.1f',...
+                            i,betas(i),exclusions(i)) ;
+            if i > 1 && isswap
+                s = stats{N_instances-1+i} ;
+                titl = sprintf('%s     acc %.2f',titl,s.accepted/s.N) ;
+            end
+            if i == ceil(N_instances/2)
                 title({sprintf('Iteration %d',jj) ; titl },'FontSize',22)
             else
                 title( titl , 'FontSize',22)
@@ -198,6 +223,19 @@ cone_map.n_cones        = n_cones ;
 cone_map.burn_in        = burn_in ;
 cone_map.N_iterations   = N_iterations ;
 cone_map.moves          = moves ;
-cone_map.accumulated    = accumulated ;
+cone_map.accumulated    = reshape( accumulated , [M0 M1 N_colors] ) ;
+cone_map.stats          = stats ;
+cone_map.exclusions     = exclusions ;
+
+figure
+acc = cone_map.accumulated ./ max(cone_map.accumulated(:)) ;
+imagesc(acc)
+titl = sprintf('X_%d   \\beta %.2f    excl %.1f',i,betas(1),exclusions(1)) ;
+if i == ceil(N_instances/4)
+    title({sprintf('Iteration %d',jj) ; titl },'FontSize',22)
+else
+    title( titl , 'FontSize',22)
+end
+
 
 end
