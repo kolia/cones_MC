@@ -16,7 +16,7 @@ display_every   = 50 ;
 
 %% PARAMETERS FOR MCMC
   TOTAL_trials  = 100 * M0 * M1 ; % number of trials after burn-in = TOTAL_trials * n_trials ;
-  burn_in       = 60  * M0 * M1 ; % number of burn-in trials
+  burn_in       = 80  * M0 * M1 ; % number of burn-in trials
 
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
@@ -25,10 +25,10 @@ display_every   = 50 ;
 % these params shouldn't need tweaking unless the problem setup changes
 %
 % betas         number of independent instances run simultaneously
-  betas         = [1 0.05 0.01 0.001 0.05 0.01] ;
+  betas         = [1 0.9 0.8 0.6 0.4 0.2] ;
 %
 % exclusions    exclusion distance between cones of instance i
-  exclusions    = [9 9 9 9 8.7 8.7] ;
+  exclusions    = [9 8.98 8.96 8.85 8.7 8.58] ;
 %
 % moves         sequence of moves at each iteration, currently:
 %               - a regular MC move for each instance
@@ -44,15 +44,18 @@ fprintf('%.2f   ',betas)
 flip_LL         = cell( N_instances , 1 ) ;
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
+dprior          = cell( N_instances , 1 ) ;
+
+N_cones_prior = @(n,i) -20*(i>1)*n*betas(i) ;
 
 for i=1:N_instances
     
 
-    dprior          = @(X,x,y,c)dist_prior(X,x,y,c, exclusions(i), ...
+    dprior{i}       = @(X,x,y,c) betas(i) * dist_prior(X,x,y,c, exclusions(i), ...
                         @(d)-1e8*(abs(d-exclusions(i)^2/2)<exclusions(i)^2/2)  , ...
-                        @(n) 0 ) ; % -10*(10-n) )  ;
+                        @(n)N_cones_prior(n,i) )  ;
 
-    flip_LL{i}      = @(X,x,y,c)flip_diag_LL( X , x , y , c , LL , N_cones_factor , dprior ) ;
+    flip_LL{i}      = @(X,x,y,c)flip_diag_LL( X , x , y , c , LL * betas(i) , N_cones_factor * betas(i) , dprior{i} ) ;
     
     jitter{i}       = @(X,n_trial)jitter_color(X , n_trial , q , flip_LL{i} , N_colors) ;
 
@@ -80,7 +83,8 @@ accumulated  = zeros( 1 , M0*M1*N_colors ) ;
 %             num2cell( [1:N_instances-1 ; 2:N_instances] , 1 )   ] ;
 
 % moves = {1 2 3 4 [1 2] [1 3] [1 4]} ;
-moves = {1 2 3 4 5 6 [1 2] [1 3] [1 4] [1 5] [1 6]} ;
+% moves = {1 2 3 4 5 6 [1 2] [1 3] [2 3] [2 4] [3 4] [3 5] [4 5] [4 6] [5 6]} ;
+moves = {1 2 3 4 5 6 [1 2] [2 3] [3 4] [4 5] [5 6]} ;
 
 N_moves      = length(moves) ;
 burn_in      = ceil( burn_in / (n_trials * N_moves) ) ;
@@ -111,7 +115,7 @@ tic
 for jj=1:N_iterations
 %     if ~mod(jj,floor(N_iterations/20)) , fprintf('*') , end
 
-    isswap = jj>burn_in*0.6 ;
+    isswap = jj>burn_in*0.1 ;
 
     for j=1:N_moves
         this_move = moves{j} ;
@@ -126,7 +130,7 @@ for jj=1:N_iterations
                 [swapX,swaps] = swap_randrect( X{i} , X{this_move(2)} , n_trials , ...
                                                flip_LL{i} , flip_LL{this_move(2)}) ;
                 
-                swapX.stats = stats{j} ;
+                swapX.stats = stats{this_move(2)} ;
 
 % figure(hswaps)
 % imagesc( xor( swaps{1}.state>0 , swapX.state>0 ) )
@@ -137,7 +141,7 @@ for jj=1:N_iterations
                     flip_MCMC( accumulated , swapX , accumulator , swaps , isaccumulate ) ;
                 
                 X{i} = swapX.X ; X{this_move(2)} = swapX.with ;
-                stats{j} = swapX.stats ;
+                stats{this_move(2)} = swapX.stats ;
                 
             % regular MCMC move if this_move has one index
             elseif length(this_move) == 1
@@ -184,13 +188,13 @@ for jj=1:N_iterations
                 GGG(ix + M0*(iy-1) + M0*M1*(c-1)) = 1 ;
             end
             imagesc(GGG) ;
-            titl = sprintf('X_%d   \\beta %.3f     excl %.1f',...
+            titl = sprintf('X_%d   \\beta %.1f     excl %.2f',...
                             i,betas(i),exclusions(i)) ;
             if i > 1 && isswap
-                s = stats{N_instances-1+i} ;
+                s = stats{i} ;
                 titl = sprintf('%s     acc %.2f',titl,s.accepted/s.N) ;
             end
-            if i == ceil(N_instances/2)
+            if i == ceil(N_instances/4)
                 title({sprintf('Iteration %d',jj) ; titl },'FontSize',22)
             else
                 title( titl , 'FontSize',22)
@@ -218,6 +222,7 @@ cone_map.dprior       = func2str(dprior) ;
 for i=1:N_instances
     cone_map.X{i}       = X{i} ;
 end
+cone_map.N_cones_prior  = func2str(N_cones_prior) ;
 cone_map.betas          = betas ;
 cone_map.n_cones        = n_cones ;
 cone_map.burn_in        = burn_in ;
