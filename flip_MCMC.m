@@ -35,12 +35,12 @@ p = L./trans_prior' ;
 p = cumsum(p) ;
 p = p/p(end) ;
 i = randiscrete( p ) ;
-X = trials{i} ;
+X = update_X( trials{i} ) ;
 
 % accumulate acceptance rate statistics
 if isfield(trials{1},'stats')
-    X.stats.N = trials{1}.stats.N + 1 ;
-    X.stats.accepted = trials{1}.stats.accepted + (i>1) ;
+    X.stats.N500 = (1-1/500)*trials{1}.stats.N500 + 1 ;
+    X.stats.accepted = (1 - 1/500) * trials{1}.stats.accepted + (i>1) ;
 end
 
 % accumulate observable

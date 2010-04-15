@@ -43,14 +43,3 @@ X.ll    = X.X.ll + X.with.ll ;
 X.state = X.X.state ;
 
 end
-
-
-function range = randrange(M,m)
-
-n = max(2,ceil(M/m)) ;
-r = randi(M,1,n) ;
-r = sort(r) ;
-i = randi(n-1) ;
-range = [r(i) r(i+1)] ;
-
-end
