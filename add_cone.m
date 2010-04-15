@@ -1,7 +1,6 @@
-function X = add_cone( X , x , y , c , LL , N_cones_factor , masks )
+function X = add_cone( X , x , y , c , LL , N_cones_factor )
 
-indices = place_mask( X.M0 , X.M1 , x , y , masks.exclusion ) ;
-
+indices = place_mask( X.M0 , X.M1 , x , y , X.masks.exclusion ) ;
 free    = isempty( find( X.state(indices)>0 , 1) ) ;
 
 if ~free
