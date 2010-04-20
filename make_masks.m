@@ -30,6 +30,13 @@ for d=1:4
     masks.cardinal{d} = [x y] - c ;
 end
 
+[x,y] = find( disks{1} ) ;
+masks.exclusion = [x y] - c ;
+
+masks.shift = shift(2:5) ;
+
+masks.opposite = [3 4 1 2] ;
+
 % % testing with plot
 % im = zeros(s,s,3) ;
 % for d=1:3

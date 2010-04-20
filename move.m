@@ -1,7 +1,6 @@
-function samples = move( X , n , q , LL , N_cone_factor )
-% samples = jitter_color( X , n , q , LL , N_cone_factor )
+function samples = move( X , n , q , LL )
+% samples = move( X , n , q , LL )
 % Draw n trial flips starting from state X.
-% M0 -by- M1 is the spatial extent of cone locations, N-colors = 3. 
 % Two types of move are produced: additions of cones, and moves or changes
 % in color of existing cones.
 % First, n spatial locations are drawn. They are drawn from existing cone
@@ -9,12 +8,12 @@ function samples = move( X , n , q , LL , N_cone_factor )
 % probability (1-q).
 % For each trial location i, if no cone of any color is at that position,
 % then the corresponding trial is a placement of a single randomly colored
-% cone at that location, or adding no cones at all (nothing changes).
-% If a cone of any color is at location i, then the corresponding 
-% trial is a change of color or deletion with probability 1/9, or a move of
-% the cone to a neighboring location, each with probability 1/9. If the
-% cone lies on the border of the domain, 9 is replaced by 1 + the number of
-% available adjacent bits.
+% cone at that location.
+% If a cone of any color is at location i, then the corresponding
+% trial is a change of color or deletion with probability 1/7, or a move of
+% the cone to a neighboring location, each with probability 1/7. If the
+% cone lies on the border of the domain, 7 is replaced by 3 + the number of
+% adjacent positions that are within the border.
 % For speed, backward probabilities are not calculated: this sampler should
 % only be used with the symmetric rule, not with metropolis-hastings.
 
@@ -25,16 +24,15 @@ function samples = move( X , n , q , LL , N_cone_factor )
 n_cones     = numel( cx ) ;
 
 % initialize samples
-samples  = cell(n*4,1) ;
+samples  = cell(n*8,1) ;
 ns       = 0 ;
 
-% number of draws from existing cone locations
-n_moved = binornd(n,q) ;
-
-% draw cone locations
+% propose moves of existing cones
 if n_cones > 0
+    % draw n_moved existing cones
+    n_moved     = binornd(n,q) ;
     cones       = randi( n_cones , 1 , n_moved ) ;
-
+    
     for s=1:n_moved
         i       = cx(cones(s)) ;
         j       = cy(cones(s)) ;
@@ -42,54 +40,52 @@ if n_cones > 0
         
         % probability of choosing this location
         p = 1/n_cones * q ;
-
-        % adjacent locations, being careful not to go beyond borders
-        sx   = max(1,i-1):min(M0,i+1) ;
-        sy   = max(1,j-1):min(M1,j+1) ;
+        
+        % number of legal moves for this cone, being careful with borders
+        nforward    = 4 - X.outofbounds(i,j) + X.N_colors ;
 
         % for each adjacent location, add trial move to that location
-        ni = numel(sx) * numel(sy) ;
-        Xtemp = flip_LL(X,i,j,color) ;
-        for x=sx
-            for y=sy
-                % move to adjacent location
-                if x~=i || y~=j
-                    ns = ns+1 ;
-                    samples{ns} = flip_LL(Xtemp,x,y,color) ;
-                    samples{ns}.forward_prob   = p/ni ;
-                    
-                % change of color or deletion, without moving
-                else
-                    for cc=1:N_colors
-                        ns = ns+1 ;
-                        samples{ns} = flip_LL(X,x,y,cc) ;
-                        samples{ns}.forward_prob = p/(ni*N_colors) ;
-                    end
-                end
+        for d=1:4                 % move N , E , S , W
+            ni = i + X.masks.shift{d}(1) ;
+            nj = j + X.masks.shift{d}(2) ;
+            if ni > 0   &&  ni <= M0  &&  nj>0  &&  nj <= M1
+                ns = ns+1 ;
+                samples{ns} = move_cone( X , i , j , d , LL ) ;
+                samples{ns}.forward_prob   = p/nforward ;
             end
         end
+        
+        % change of color, without moving
+        for cc=setdiff( 1:X.N_colors , color )
+            ns = ns+1 ;
+            samples{ns} = change_color( X , i , j , cc , LL ) ;
+            samples{ns}.forward_prob    = p/nforward ;
+        end
+        
+        % cone deletion
+        ns = ns+1 ;
+        samples{ns} = delete_cone( X , i , j , LL ) ;
+        samples{ns}.forward_prob    = p/nforward ;
+        
     end
-else
-    n_moved = 0 ;
 end
 
 
-sampled_x = randi( M0 , n-n_moved) ;
-sampled_y = randi( M1 , n-n_moved) ;
-
 % for each sampled location, generate corresponding moves
-for s=1:n-n_moved
-    i       = sampled_x(s) ;
-    j       = sampled_y(s) ;
-    
-    % probability of choosing this location
-    p = (1-q)/(M0*M1) ;
-    
-    % store away change of color
-    for cc=1:X.N_colors
-        ns = ns+1 ;
-        samples{ns} = flip_LL(X,i,j,cc) ;
-        samples{ns}.forward_prob  = p/N_colors ;
+while ns <= n
+    i       = randi( M0 , 1 ) ;
+    j       = randi( M0 , 1 ) ;
+
+    if ~X.state(i,j)
+        % probability of choosing this location
+        p = (1-q)/(M0*M1 - n_cones) ;
+        
+        % propose addition of new cone of each color
+        for c=1:X.N_colors
+            ns = ns+1 ;
+            samples{ns} = add_cone( X , i , j , c , LL ) ;
+            samples{ns}.forward_prob    = p/X.N_colors ;
+        end
     end
 end
 

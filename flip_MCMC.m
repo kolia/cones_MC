@@ -10,7 +10,8 @@ if nargin<5 , burn_in = true ; end
 
 % prepend current X to samples
 n_trials = length(trials) ;
-trials   = [{X} ; trials] ;
+nomove.ll = X.ll ;
+trials   = [{nomove} ; trials] ;
 
 % calculate the log-likelihoods of proposed trials
 ll      = zeros(1,n_trials+1) ;
@@ -35,7 +36,7 @@ p = L./trans_prior' ;
 p = cumsum(p) ;
 p = p/p(end) ;
 i = randiscrete( p ) ;
-X = update_X( trials{i} ) ;
+if i>1 , X = update_X( trials{i} ) ; end
 
 % accumulate acceptance rate statistics
 if isfield(trials{1},'stats')
@@ -45,7 +46,8 @@ end
 
 % accumulate observable
 if ~burn_in
-    result = result + sum( L * cell2mat( map_cell( accumulate , trials )) , 1 ) ;
+%     result = result + sum( L * cell2mat( map_cell( accumulate , trials )) , 1 ) ;
+    result = result + accumulate(X) ;
 end
     
 % else                % metropolis_hastings

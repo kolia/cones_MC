@@ -1,14 +1,14 @@
-function [X,swaps] = swap_randrect( X , otherX , n , XLL , OLL )
+function [X,swaps] = swap_randrect( X , otherX , XLL , OLL )
 % Combine two systems into a single system, summing their log-likelihoods.
 % This is in preparation for swapping parts of the two systems'
 % configurations:  swaps of random rectangular regions of space are stored
 % in swap.flips. 
 
-[M0,M1,N_colors] = size(X.state) ;
+[M0,M1] = size(X.state) ;
 swaps = cell(n,1) ;
 
 ns = 0 ;
-while ns<n
+while ns<1
     
     xrange = randrange(M0,40) ;
     yrange = randrange(M1,40) ;

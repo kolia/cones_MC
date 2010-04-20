@@ -25,7 +25,6 @@ display_every   = 20 ;
 % these params shouldn't need tweaking unless the problem setup changes
 %
 % betas         temperatures of independent instances run simultaneously
-%   betas         = [1 0.997 0.99 0.98 0.975 0.97 0.955 0.94 0.925 0.91 0.895 0.88 0.65 0.85 0.8 0.75 0.71 0.67 0.57 0.5 0.3 0.2 0.1 0.02] * 0.01 ;
 %   betas         = [1 0.8 0.5 0.1] / 0.001 ;
   betas         = ones(1,9) ; %  [1 1 0.95 0.9 0.85 0.8 0.75 0.7 0.65] ;
 
@@ -42,63 +41,34 @@ display_every   = 20 ;
 
 %% MCMC RUN
 N_instances     = length(betas) ;
-n_trials        = 10 ;      % only applies after burn-in
 fprintf('\n\nSTARTING %d MCMC instances with different inverse temperatures beta:\n',N_instances)
 fprintf('%.2f   ',betas)
 
 % initializing variables
-flip_LL         = cell( N_instances , 1 ) ;
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
-dprior          = cell( N_instances , 1 ) ;
-
-N_cones_prior = @(n,i) 0 ;  % (n>100) * ( -1967  - 0.5 * (n-120) + ((n-120)/10)^3 ) ;
-N_cones_prior_str = func2str(N_cones_prior)
-cone_map.N_cones_prior  = N_cones_prior_str ;
 
 for i=1:N_instances
-    
-    dprior{i}       = @(X,x,y,c) betas(i) * dist_prior(X,x,y,c, exclusions(i), ...
-                        @(d)-1e8*(abs(d-exclusions(i)^2/2)<exclusions(i)^2/2)  , ...
-                        @(n)N_cones_prior(n,i) )  ;
 
 	LLi             = ((1+LL).^deltas(i)-1) * betas(i) ;
     N_factor_i      = ((1+N_cones_factor).^deltas(i)-1) * betas(i) ;
     
-    flip_LL{i}      = @(X,x,y,c)flip_diag_LL( X , x , y , c , LLi , N_factor_i , dprior{i} ) ;
-    
-    jitter{i}       = @(X,n_trial)jitter_color(X , n_trial , q , flip_LL{i} , N_colors) ;
+    jitter{i}       = @(X)move(X  , 1 , q , LLi ) ;
 
-    X{i}            = flip_LL{i}( struct , 0 , 0 , 0 ) ;  % initialize X{i}
+    X{i}            = initialize_X( LLi , N_factor_i , exclusions(i) ) ;  % initialize X{i}
     
 end
+
 
 accumulator  = @(X)[(X.state(:)'==1) (X.state(:)'==2) (X.state(:)'==3)] ;
 accumulated  = zeros( 1 , M0*M1*N_colors ) ;
 
-% MC move sequence
-% temp0   = repmat(2:N_instances-1,N_instances-2,1) ;
-% temp1   = temp0' ;
-% choose  = logical( tril(ones(N_instances-2),-1) ) ;
-% pairs   = [temp1(choose) temp0(choose)]' ;
-% 
-% moves   = [ num2cell(  repmat( 1:N_instances , 1 , N_instances-2 ) )                ...
-%             num2cell( pairs , 1)                                                    ...
-%             num2cell( [ N_instances-1:-1:2 ; N_instances*ones(1,N_instances-2)] ,1) ...
-%             num2cell( [         ones(1,N_instances-2) ; N_instances-1:-1:2] , 1 )   ] ;
-
-% moves   = num2cell( 1:N_instances ) ;
-
-% moves   = [ num2cell(  1:N_instances )                          ...
-%             num2cell( [1:N_instances-1 ; 2:N_instances] , 1 )   ] ;
-
-% moves = {1 2 3 4 [1 2] [1 3] [1 4]} ;
-% moves = {1 2 3 4 5 6 [1 2] [1 3] [2 3] [2 4] [3 4] [3 5] [4 5] [4 6] [5 6]} ;
-moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)]
+% moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)] ;
+moves = num2cell(1:N_instances) ;  % no swaps for now
 
 N_moves      = length(moves) ;
-burn_in      = ceil( burn_in / (n_trials * N_moves) ) ;
-N_iterations = burn_in + ceil( TOTAL_trials / (n_trials * N_moves) ) ;
+burn_in      = ceil( burn_in / N_moves ) ;
+N_iterations = burn_in + ceil( TOTAL_trials / N_moves ) ;
 n_cones      = zeros( N_iterations , 1 ) ;
 
 stats = cell(N_moves,1) ;
@@ -137,32 +107,27 @@ for jj=1:N_iterations
             
             % swap move if this_move has 2 indices
             if length(this_move) == 2 && isswap
-                [swapX,swaps] = swap_randrect( X{i} , X{this_move(2)} , n_trials , ...
-                                               flip_LL{i} , flip_LL{this_move(2)}) ;
-
-                swapX.stats = stats{this_move(2)} ;
-
-% figure(hswaps)
-% imagesc( xor( swaps{1}.state>0 , swapX.state>0 ) )
-% drawnow
-
-                                           
-                [ accumulated , swapX ] = ...
-                    flip_MCMC( accumulated , swapX , accumulator , swaps , isaccumulate ) ;
-                
-                X{i} = swapX.X ; X{this_move(2)} = swapX.with ;
-                stats{this_move(2)} = swapX.stats ;
+%                 [swapX,swaps] = swap_randrect( X{i} , X{this_move(2)} , ...
+%                                                flip_LL{i} , flip_LL{this_move(2)}) ;
+% 
+%                 swapX.stats = stats{this_move(2)} ;
+% 
+% % figure(hswaps)
+% % imagesc( xor( swaps{1}.state>0 , swapX.state>0 ) )
+% % drawnow
+% 
+%                                            
+%                 [ accumulated , swapX ] = ...
+%                     flip_MCMC( accumulated , swapX , accumulator , swaps , isaccumulate ) ;
+%                 
+%                 X{i} = swapX.X ; X{this_move(2)} = swapX.with ;
+%                 stats{this_move(2)} = swapX.stats ;
                 
             % regular MCMC move if this_move has one index
             elseif length(this_move) == 1
                 i = this_move ;
-                if jj>burn_in
-                    jit_samples = jitter{i}(X{i},n_trials) ;
-                else
-                    jit_samples = jitter{i}(X{i},1) ;
-                end                
                 [ accumulated , X{i} ] = ...
-                    flip_MCMC( accumulated , X{i} , accumulator , jit_samples , isaccumulate ) ;
+                    flip_MCMC( accumulated , X{i} , accumulator , jitter{i}(X{i}) , isaccumulate ) ;
             end
             n_cones(jj) = numel(find(X{1}.state>0)) ;
 
@@ -228,9 +193,7 @@ fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
 % end
 % end
 
-cone_map.dprior = cell(N_instances,1) ;
 for i=1:N_instances
-    cone_map.dprior{i}  = func2str(dprior{i}) ;
     cone_map.X{i}       = X{i} ;
 end
 
