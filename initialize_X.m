@@ -9,6 +9,7 @@ X.N_colors  = N_colors ;
 X.N_cones   = 0  ;
 X.N_cones_factor = N_cones_factor ;
 X.ll        = 0 ;
+X.n_moves   = 0 ;
 
 % upper bound on anticipated number of cones
 X.maxcones  = ceil( M0*M1 * 0.015 ) ;
@@ -21,6 +22,12 @@ X.id        = sparse([],[],[],M0,M1,X.maxcones) ;
 
 % which ids are already assigned to cones
 X.taken_ids = false(X.maxcones,1) ;
+
+% change in LL of moving existing cones in 4 cardinal directions
+X.shift_dLL = cell(4,1) ;
+for i=1:4
+    X.shift_dLL{i} = zeros(X.maxcones,1) ;
+end
 
 % sparse int matrix, with number of out-of-border adjacencies
 X.outofbounds = sparse([],[],[],M0,M1,2*(M0+M1)) ;
