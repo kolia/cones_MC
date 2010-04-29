@@ -11,7 +11,11 @@ if  ~( move(1)  &&  move(2)  &&  X.M0>=move(1)  &&  X.M1>=move(2) )
     
 % regular move of cone x,y
 else
-    trial.ll = X.ll + X.shift_dLL{d}( X.id(x,y) ) ;
+    try
+    trial.ll = X.ll + sum( X.shift_dLL{d}( X.reach{d}(X.id(x,y),:) ) ) ;
+    catch
+       'blah' 
+    end
     trial.move = {'shift' x y d} ;
 end
 

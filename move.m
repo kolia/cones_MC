@@ -74,7 +74,7 @@ end
 % for each sampled location, generate corresponding moves
 while ns <= n
     i       = randi( M0 , 1 ) ;
-    j       = randi( M0 , 1 ) ;
+    j       = randi( M1 , 1 ) ;
 
     if ~X.state(i,j)
         % probability of choosing this location
@@ -89,15 +89,12 @@ while ns <= n
     end
 end
 
-% for s=1:ns
-%     k = samples{s}.flips(end) ;
-%     position = mod( k-1 , NBW ) + 1 ;
-%     [i,j]    = ind2sub( [M0 M1] , position ) ;
-%     color    = floor((k-1) / NBW) + 1 ;
-%     fprintf('\nPosition %3d %3d  Color %d',i,j,color)
-% end
-% fprintf('\n')
-
 samples = samples(1:ns) ;
+
+% for s=1:ns
+%     if isfield(samples{s},'move')  &&  samples{s}.move{3}(1)>90
+%         ss = samples{s}.move
+%     end
+% end
 
 end

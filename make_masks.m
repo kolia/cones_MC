@@ -18,7 +18,7 @@ shift{5}= -shift{3} ;
 for i=1:s
     for j=1:s
         for d=1:5
-            if sqrt( (i-c+shift{d}(1))^2 + (j-c+shift{d}(2))^2 ) <= D
+            if sqrt( (i-c-shift{d}(1))^2 + (j-c-shift{d}(2))^2 ) <= D
                 disks{d}(i,j) = 1 ;
             end
         end
@@ -40,7 +40,7 @@ masks.opposite = [3 4 1 2] ;
 % % testing with plot
 % im = zeros(s,s,3) ;
 % for d=1:3
-%     inds = s*s*(d-1)  + masks.cardinal{d}(:,1)+c + s * (masks.cardinal{d}(:,2)+c-1) ;    
+%     inds = s*s*(d-1)  + masks.cardinal{d}(:,1)+c + s * (masks.cardinal{d}(:,2)+c-1) ;
 %     im( inds ) = 1 ;
 % end
 % imagesc(im)

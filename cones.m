@@ -16,20 +16,21 @@ display_every   = 20 ;
 
 %% PARAMETERS FOR MCMC
   TOTAL_trials  = 100 * M0 * M1 ; % number of trials after burn-in = TOTAL_trials * n_trials ;
-  burn_in       = 80 * M0 * M1 ; % number of burn-in trials
+  burn_in       = 80  * M0 * M1 ; % number of burn-in trials
 
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
-  q             = 0.8 ;
+  q             = 0.5 ;
 
 % these params shouldn't need tweaking unless the problem setup changes
 %
 % betas         temperatures of independent instances run simultaneously
 %   betas         = [1 0.8 0.5 0.1] / 0.001 ;
-  betas         = ones(1,9) ; %  [1 1 0.95 0.9 0.85 0.8 0.75 0.7 0.65] ;
+  betas         = ones(1,1) ; %  [1 1 0.95 0.9 0.85 0.8 0.75 0.7 0.65] ;
 
 % deltas        powers applied to likelihoods of instances
-  deltas        = [1 0.97 0.94 0.9 0.86 0.79 0.72 0.65 0.5] * 0.2 ;
+  deltas        = ones(1,1) ;
+% deltas        = [1 0.97 0.94 0.9 0.86 0.79 0.72 0.65 0.5] * 0.2 ;
 %
 % exclusions    exclusion distance between cones of instance i
   exclusions    = ones(1,length(betas)) * 9.2  ;
@@ -47,6 +48,7 @@ fprintf('%.2f   ',betas)
 % initializing variables
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
+updater         = cell( N_instances , 1 ) ;
 
 for i=1:N_instances
 
@@ -56,6 +58,8 @@ for i=1:N_instances
     jitter{i}       = @(X)move(X  , 1 , q , LLi ) ;
 
     X{i}            = initialize_X( LLi , N_factor_i , exclusions(i) ) ;  % initialize X{i}
+    
+    updater{i}      = @(X,trial)update_X(X,trial,LLi) ;
     
 end
 
@@ -127,7 +131,8 @@ for jj=1:N_iterations
             elseif length(this_move) == 1
                 i = this_move ;
                 [ accumulated , X{i} ] = ...
-                    flip_MCMC( accumulated , X{i} , accumulator , jitter{i}(X{i}) , isaccumulate ) ;
+                    flip_MCMC( accumulated ,     X{i} ,       accumulator , ...
+                               jitter{i}(X{i}) , updater{i} , isaccumulate ) ;
             end
             n_cones(jj) = numel(find(X{1}.state>0)) ;
 

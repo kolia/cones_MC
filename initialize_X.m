@@ -23,7 +23,7 @@ X.id        = sparse([],[],[],M0,M1,X.maxcones) ;
 % which ids are already assigned to cones
 X.taken_ids = false(X.maxcones,1) ;
 
-% change in LL of moving existing cones in 4 cardinal directions
+% local change in LL of moving existing cones in 4 cardinal directions
 X.shift_dLL = cell(4,1) ;
 for i=1:4
     X.shift_dLL{i} = zeros(X.maxcones,1) ;
@@ -36,7 +36,13 @@ X.outofbounds([1 M0],:) = X.outofbounds([1 M0],:) + 1 ;
 
 % contact forces at four cardinal adjacent positions, indexed by id
 for d=1:4
-    X.contact{d} = sparse(zeros(X.maxcones)) ;
+    X.contact{d} = sparse(false(X.maxcones)) ;
 end
+
+% transitive closure of contact forces X.contact
+for d=1:4
+    X.reach{d} = sparse(false(X.maxcones)) ;
+end
+
 
 end
