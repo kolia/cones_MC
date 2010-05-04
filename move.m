@@ -24,16 +24,19 @@ function samples = move( X , n , q , LL )
 n_cones     = numel( cx ) ;
 
 % initialize samples
-samples  = cell(n*8,1) ;
+samples  = cell(n_cones*7+n,1) ;
 ns       = 0 ;
 
 % propose moves of existing cones
 if n_cones > 0
     % draw n_moved existing cones
-    n_moved     = binornd(n,q) ;
+    n_moved     = binornd(n,q/7) ;
     cones       = randi( n_cones , 1 , n_moved ) ;
     
+%     cones       = 1:n_cones ;
+    
     for s=1:n_moved
+%     for s=1:n_cones
         i       = cx(cones(s)) ;
         j       = cy(cones(s)) ;
         color   = X.state(i,j) ;
@@ -70,9 +73,10 @@ if n_cones > 0
     end
 end
 
+nns = ns ;
 
 % for each sampled location, generate corresponding moves
-while ns <= n
+while ns <= n + nns
     i       = randi( M0 , 1 ) ;
     j       = randi( M1 , 1 ) ;
 

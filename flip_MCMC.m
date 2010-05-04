@@ -38,6 +38,9 @@ p = p/p(end) ;
 i = randiscrete( p ) ;
 if i>1 , X = update( X , trials{i} ) ; end
 
+% fprintf('  dLL:%f  ',ll(i)-ll(1))
+
+
 % accumulate acceptance rate statistics
 if isfield(trials{1},'stats')
     X.stats.N500 = (1-1/500)*trials{1}.stats.N500 + 1 ;

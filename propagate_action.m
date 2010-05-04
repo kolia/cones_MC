@@ -5,7 +5,9 @@ if nargin<5  , done = false(X.maxcones,1) ;  end
 
 if ~done(id)
     for cid = find( X.contact{d}(id,:) )
-        [X,done] = propagate_action( X , cid , d , action , done ) ;
+        if cid ~= id
+            [X,done] = propagate_action( X , cid , d , action , done ) ;
+        end
     end
     
     X = action(X,id) ;

@@ -11,7 +11,7 @@ N_cones_factor = cone_map.N_cones_factor ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
 plot_every      = 20 ;
-display_every   = 20 ;
+display_every   = 60 ;
 
 
 %% PARAMETERS FOR MCMC
@@ -20,7 +20,7 @@ display_every   = 20 ;
 
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
-  q             = 0.5 ;
+  q             = 0.99 ;
 
 % these params shouldn't need tweaking unless the problem setup changes
 %
@@ -55,7 +55,7 @@ for i=1:N_instances
 	LLi             = ((1+LL).^deltas(i)-1) * betas(i) ;
     N_factor_i      = ((1+N_cones_factor).^deltas(i)-1) * betas(i) ;
     
-    jitter{i}       = @(X)move(X  , 1 , q , LLi ) ;
+    jitter{i}       = @(X)move(X  , 2 , q , LLi ) ;
 
     X{i}            = initialize_X( LLi , N_factor_i , exclusions(i) ) ;  % initialize X{i}
     
@@ -83,7 +83,7 @@ end
 
 if plot_every
 scrsz = get(0,'ScreenSize');
-h = figure('Position',[1 scrsz(4)*0.7 1500 1200]) ;
+h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
 end
 
 % hswaps = figure ;
