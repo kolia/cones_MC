@@ -7,7 +7,7 @@ N    = X.N_cones ;
 switch type
     
     case 'delete'
-        fprintf('\ndelete %3d %3d',x,y)
+%         fprintf('\ndelete %3d %3d',x,y)
         
         X = update_cone_deletion(X,x,y) ;
         X = transitive_closures( X ) ;
@@ -28,7 +28,7 @@ switch type
         X               = make_contacts( X , x , y , id , LL ) ;
         X               = transitive_closures( X ) ;
                 
-        fprintf('\nadd    %3d %3d %d',x,y,c)
+%         fprintf('\nadd    %3d %3d %d',x,y,c)
         
     case 'shift'
 
@@ -38,7 +38,7 @@ switch type
         % update contacts and shift_dLLs recursively
         [X,done]   = propagate_action(X,id,d, @(x,ID)action_shift(x,ID,d,LL)) ;
         
-        fprintf('\nshift  %3d %3d %d : %d cones',x,y,d,sum(done))
+%         fprintf('\nshift  %3d %3d %d : %d cones',x,y,d,sum(done))
         
         X   = transitive_closures( X ) ;
        
@@ -51,7 +51,7 @@ switch type
         for d=1:4
             X.shift_dLL{d}(X.id(x,y)) = local_dLL(LL,x,y,d,X) ;
         end
-        fprintf('\ncolor  %3d %3d %d',x,y,c)
+%         fprintf('\ncolor  %3d %3d %d',x,y,c)
 
 end
 

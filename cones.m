@@ -11,12 +11,12 @@ N_cones_factor = cone_map.N_cones_factor ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
 plot_every      = 20 ;
-display_every   = 60 ;
+display_every   = 500 ;
 
 
 %% PARAMETERS FOR MCMC
-  TOTAL_trials  = 100 * M0 * M1 ; % number of trials after burn-in = TOTAL_trials * n_trials ;
-  burn_in       = 80  * M0 * M1 ; % number of burn-in trials
+  TOTAL_trials  = 40 * M0 * M1 ; % number of trials after burn-in = TOTAL_trials * n_trials ;
+  burn_in       = 10 * M0 * M1 ; % number of burn-in trials
 
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
@@ -26,10 +26,10 @@ display_every   = 60 ;
 %
 % betas         temperatures of independent instances run simultaneously
 %   betas         = [1 0.8 0.5 0.1] / 0.001 ;
-  betas         = ones(1,1) ; %  [1 1 0.95 0.9 0.85 0.8 0.75 0.7 0.65] ;
+  betas         = ones(1,2) ; %  [1 1 0.95 0.9 0.85 0.8 0.75 0.7 0.65] ;
 
 % deltas        powers applied to likelihoods of instances
-  deltas        = ones(1,1) ;
+  deltas        = ones(1,length(betas)) * 0.4 ;
 % deltas        = [1 0.97 0.94 0.9 0.86 0.79 0.72 0.65 0.5] * 0.2 ;
 %
 % exclusions    exclusion distance between cones of instance i

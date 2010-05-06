@@ -30,7 +30,7 @@ ns       = 0 ;
 % propose moves of existing cones
 if n_cones > 0
     % draw n_moved existing cones
-    n_moved     = binornd(n,q/7) ;
+    n_moved     = binornd(n,q) ;
     cones       = randi( n_cones , 1 , n_moved ) ;
     
 %     cones       = 1:n_cones ;
