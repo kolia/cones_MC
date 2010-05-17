@@ -2,7 +2,7 @@ function cone_map = cones( cone_map )
 %% cone_map = cones( LL )
 %  Run MCMC to find cone locations.
 
-% addpath('../library/kdtree')
+addpath('../libraries/swaps')
 
 LL = cone_map.LL ;
 N_cones_factor = cone_map.N_cones_factor ;
@@ -10,13 +10,13 @@ N_cones_factor = cone_map.N_cones_factor ;
 [M0,M1,N_colors] = size(LL) ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
-plot_every      = 20 ;
+plot_every      = 10 ;
 display_every   = 500 ;
 
 
 %% PARAMETERS FOR MCMC
   TOTAL_trials  = 40 * M0 * M1 ; % number of trials after burn-in = TOTAL_trials * n_trials ;
-  burn_in       = 10 * M0 * M1 ; % number of burn-in trials
+  burn_in       = 3  * M0 * M1 ; % number of burn-in trials
 
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
@@ -24,14 +24,16 @@ display_every   = 500 ;
 
 % these params shouldn't need tweaking unless the problem setup changes
 %
+% deltas        powers applied to likelihoods of instances
+% deltas        = [0.5 0.4 0.3] ;
+  deltas        = [0.42 0.39 0.35 0.3 0.2] ;
+% deltas        = [1 0.97 0.94 0.9 0.86 0.79 0.72 0.65 0.5] * 0.2 ;
+
 % betas         temperatures of independent instances run simultaneously
 %   betas         = [1 0.8 0.5 0.1] / 0.001 ;
-  betas         = ones(1,2) ; %  [1 1 0.95 0.9 0.85 0.8 0.75 0.7 0.65] ;
+%   betas         = ones(1,2) ; %  [1 1 0.95 0.9 0.85 0.8 0.75 0.7 0.65] ;
+  betas         = ones(1,length(deltas)) ;
 
-% deltas        powers applied to likelihoods of instances
-  deltas        = ones(1,length(betas)) * 0.4 ;
-% deltas        = [1 0.97 0.94 0.9 0.86 0.79 0.72 0.65 0.5] * 0.2 ;
-%
 % exclusions    exclusion distance between cones of instance i
   exclusions    = ones(1,length(betas)) * 9.2  ;
 %   exclusions    = [9 8.98 8.96 8.85 8.7 8.58] ;
@@ -49,17 +51,18 @@ fprintf('%.2f   ',betas)
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
 updater         = cell( N_instances , 1 ) ;
+LLi             = cell( N_instances , 1 ) ;
 
 for i=1:N_instances
 
-	LLi             = ((1+LL).^deltas(i)-1) * betas(i) ;
+	LLi{i}          = ((1+LL).^deltas(i)-1) * betas(i) ;
     N_factor_i      = ((1+N_cones_factor).^deltas(i)-1) * betas(i) ;
     
-    jitter{i}       = @(X)move(X  , 2 , q , LLi ) ;
+    jitter{i}       = @(X)move(X  , 2 , q , LLi{i} ) ;
 
-    X{i}            = initialize_X( LLi , N_factor_i , exclusions(i) ) ;  % initialize X{i}
+    X{i}            = initialize_X( LLi{i} , N_factor_i , exclusions(i) ) ;  % initialize X{i}
     
-    updater{i}      = @(X,trial)update_X(X,trial,LLi) ;
+    updater{i}      = @(X,trial)update_X(X,trial,LLi{i}) ;
     
 end
 
@@ -67,8 +70,8 @@ end
 accumulator  = @(X)[(X.state(:)'==1) (X.state(:)'==2) (X.state(:)'==3)] ;
 accumulated  = zeros( 1 , M0*M1*N_colors ) ;
 
-% moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)] ;
-moves = num2cell(1:N_instances) ;  % no swaps for now
+moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)] ;
+% moves = num2cell(1:N_instances) ;  % no swaps for now
 
 N_moves      = length(moves) ;
 burn_in      = ceil( burn_in / N_moves ) ;
@@ -111,21 +114,21 @@ for jj=1:N_iterations
             
             % swap move if this_move has 2 indices
             if length(this_move) == 2 && isswap
-%                 [swapX,swaps] = swap_randrect( X{i} , X{this_move(2)} , ...
-%                                                flip_LL{i} , flip_LL{this_move(2)}) ;
-% 
-%                 swapX.stats = stats{this_move(2)} ;
-% 
-% % figure(hswaps)
-% % imagesc( xor( swaps{1}.state>0 , swapX.state>0 ) )
-% % drawnow
-% 
-%                                            
-%                 [ accumulated , swapX ] = ...
-%                     flip_MCMC( accumulated , swapX , accumulator , swaps , isaccumulate ) ;
-%                 
-%                 X{i} = swapX.X ; X{this_move(2)} = swapX.with ;
-%                 stats{this_move(2)} = swapX.stats ;
+                [swapX,swaps] = swap_closure( X{i} , X{this_move(2)} , ...
+                                               LLi{i} , LLi{this_move(2)}) ;
+
+                swapX.stats = stats{this_move(2)} ;
+
+% figure(hswaps)
+% imagesc( xor( swaps{1}.state>0 , swapX.state>0 ) )
+% drawnow
+                                           
+                [ accumulated , swapX ] = ...
+                    flip_MCMC( accumulated , swapX , accumulator , swaps , ...
+                    @(x,t)update_swap(x,t,LLi{i},LLi{this_move(2)}) , isaccumulate ) ;
+                
+                X{i} = swapX.X ; X{this_move(2)} = swapX.with ;
+                stats{this_move(2)} = swapX.stats ;
                 
             % regular MCMC move if this_move has one index
             elseif length(this_move) == 1

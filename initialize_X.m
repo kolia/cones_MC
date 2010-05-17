@@ -23,6 +23,9 @@ X.id        = sparse([],[],[],M0,M1,X.maxcones) ;
 % which ids are already assigned to cones
 X.taken_ids = false(X.maxcones,1) ;
 
+% local log-likelihood at current cone locations
+X.localLL   = zeros(X.maxcones,1) ;
+
 % local change in LL of moving existing cones in 4 cardinal directions
 X.shift_dLL = cell(4,1) ;
 for i=1:4

@@ -38,13 +38,16 @@ p = p/p(end) ;
 i = randiscrete( p ) ;
 if i>1 , X = update( X , trials{i} ) ; end
 
-% fprintf('  dLL:%f  ',ll(i)-ll(1))
+% if isfield(trials{i},'move')
+%     fprintf('\n  dLL:%g  %s  %3d  %3d',ll(i)-ll(1),trials{i}.move{1},...
+%         length(trials{i}.move{2}),length(trials{i}.move{3}))
+% end
 
 
 % accumulate acceptance rate statistics
-if isfield(trials{1},'stats')
-    X.stats.N500 = (1-1/500)*trials{1}.stats.N500 + 1 ;
-    X.stats.accepted = (1 - 1/500) * trials{1}.stats.accepted + (i>1) ;
+if isfield(X,'stats')
+    X.stats.N500 = (1-1/500)*X.stats.N500 + 1 ;
+    X.stats.accepted = (1 - 1/500) * X.stats.accepted + (i>1) ;
 end
 
 % accumulate observable

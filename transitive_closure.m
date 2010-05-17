@@ -1,4 +1,4 @@
-function R = transitive_closure( R , inds )
+function R = transitive_closure( R , inds , sym)
 % Calculate transitive closure of a binary relation
 % represented by boolean matrix R.
 % inds is a list of indices which are known to be necessary for this
@@ -9,8 +9,22 @@ function R = transitive_closure( R , inds )
 % to R has been to add some entries, then inds need only be the indices of
 % those entries.
 
-for k=inds(:)'
-    R( R(:,k) , R(k,:) ) = true ;
+% non-symmetrical relation
+if nargin<3 || ~sym
+    for k=inds(:)'
+        R( R(:,k) , R(k,:) ) = true ;
+    end
+    
+% symmetrical relation
+else    
+    for k=inds(:)'
+        i = R(:,k) ;
+%         if ~isempty(find(i,1))
+            R( i , i ) = true ;
+%         end
+    end
+    
 end
+
 
 end

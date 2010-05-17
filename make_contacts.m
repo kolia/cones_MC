@@ -14,4 +14,6 @@ for d=1:4
     X.shift_dLL{d}(id) = local_dLL(LL,x,y,d,X) ;
 end
 
+X.localLL(id)   = LL(x,y,X.state(x,y)) ;
+
 end
