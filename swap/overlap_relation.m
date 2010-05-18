@@ -8,7 +8,7 @@ R    = false(X.maxcones) ;
 [x,y,v]= find(X.id) ;
 
 for i=1:length(x)
-    [~,indices] = place_mask( Y.M0 , Y.M1 , x(i) , y(i) , Y.masks.exclusion ) ;    
+    [dum,indices] = place_mask( Y.M0 , Y.M1 , x(i) , y(i) , Y.masks.exclusion ) ;
     ids = Y.id( indices( Y.id(indices)>0 ) ) ;
 
     R(v(i),ids) = true ;

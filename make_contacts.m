@@ -2,7 +2,7 @@ function X = make_contacts( X , x , y , id , LL )
 
 for d=1:4
     shift    = X.masks.cardinal{d} ;
-    [~,inds] = place_mask( X.M0 , X.M1 , x , y , shift ) ;
+    [dummy,inds] = place_mask( X.M0 , X.M1 , x , y , shift ) ;
     contacts    = X.id(inds) ;
     contacts    = contacts(contacts>0) ;
     

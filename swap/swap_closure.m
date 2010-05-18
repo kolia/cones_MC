@@ -20,13 +20,13 @@ swaps = cell( length(classes), 1 ) ;
 
 
 [Xx,Xy,Xc] = find(X.state) ;
-[~,~,Xi]   = find(X.id) ;
+[dum,dum,Xi]   = find(X.id) ;
 XX         = sortrows([Xx Xy Xc Xi],4) ;
 Xinds      = zeros(X.maxcones,1) ;
 Xinds(XX(:,4)) = XX(:,1) + X.M0*(XX(:,2)-1) + X.M0*X.M1*(XX(:,3)-1) ;
 
 [Ox,Oy,Oc] = find(otherX.state) ;
-[~,~,Oi]   = find(otherX.id) ;
+[dum,dum,Oi]   = find(otherX.id) ;
 OO         = sortrows([Ox Oy Oc Oi],4) ;
 Oinds      = zeros(X.maxcones,1) ;
 Oinds(OO(:,4)) = OO(:,1) + otherX.M0*(OO(:,2)-1) + otherX.M0*otherX.M1*(OO(:,3)-1) ;

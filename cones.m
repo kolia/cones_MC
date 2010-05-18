@@ -2,7 +2,7 @@ function cone_map = cones( cone_map )
 %% cone_map = cones( LL )
 %  Run MCMC to find cone locations.
 
-addpath('../libraries/swaps')
+% addpath('../libraries/swaps')
 
 LL = cone_map.LL ;
 N_cones_factor = cone_map.N_cones_factor ;
@@ -10,13 +10,13 @@ N_cones_factor = cone_map.N_cones_factor ;
 [M0,M1,N_colors] = size(LL) ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
-plot_every      = 10 ;
+plot_every      = 0 ;
 display_every   = 500 ;
 
 
 %% PARAMETERS FOR MCMC
-  TOTAL_trials  = 40 * M0 * M1 ; % number of trials after burn-in = TOTAL_trials * n_trials ;
-  burn_in       = 3  * M0 * M1 ; % number of burn-in trials
+  TOTAL_trials  = 60 * M0 * M1 ;  % number of trials after burn-in = TOTAL_trials * n_trials ;
+  burn_in       = 40  * M0 * M1 ; % number of burn-in trials
 
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
@@ -25,8 +25,10 @@ display_every   = 500 ;
 % these params shouldn't need tweaking unless the problem setup changes
 %
 % deltas        powers applied to likelihoods of instances
+  deltas        = make_deltas(0.1,0.4,4.4,20) ;
 % deltas        = [0.5 0.4 0.3] ;
-  deltas        = [0.42 0.39 0.35 0.3 0.2] ;
+% deltas        = [0.5 0.49 0.485 0.48 0.47 0.46 0.45 0.44...
+%                  0.43 0.42 0.4 0.38 0.34 0.3 0.2 0.18 0.1] ;
 % deltas        = [1 0.97 0.94 0.9 0.86 0.79 0.72 0.65 0.5] * 0.2 ;
 
 % betas         temperatures of independent instances run simultaneously
@@ -102,7 +104,7 @@ tic
 for jj=1:N_iterations
 %     if ~mod(jj,floor(N_iterations/20)) , fprintf('*') , end
 
-    isswap = jj>burn_in*0.1 ;
+    isswap = jj>burn_in*0.6 ;
 
     for j=1:N_moves
         this_move = moves{j} ;
@@ -208,6 +210,7 @@ end
 cone_map.code           = file2str('cones.m') ;
 
 cone_map.betas          = betas ;
+cone_map.deltas         = deltas ;
 cone_map.n_cones        = n_cones ;
 cone_map.burn_in        = burn_in ;
 cone_map.N_iterations   = N_iterations ;
