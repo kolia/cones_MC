@@ -10,44 +10,47 @@ N_cones_factor = cone_map.N_cones_factor ;
 [M0,M1,N_colors] = size(LL) ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
-plot_every      = 0 ;
-display_every   = 500 ;
+plot_every      = 20 ;
+display_every   = 50 ;
 
 
 %% PARAMETERS FOR MCMC
-  TOTAL_trials  = 60 * M0 * M1 ;  % number of trials after burn-in = TOTAL_trials * n_trials ;
-  burn_in       = 40  * M0 * M1 ; % number of burn-in trials
+  TOTAL_trials  = 30 * M0 * M1 ;  % number of trials after burn-in = TOTAL_trials * n_trials ;
+  burn_in       = 20 * M0 * M1 ; % number of burn-in trials
+
+% maxcones      maximum number of cones allowed
+  maxcones      = 150 ;
+%   maxcones      = floor( 0.005 * M0 * M1 ) ;  
+  
+% these params shouldn't need tweaking unless the problem setup changes
+%
+% deltas        powers applied to likelihoods of instances
+  deltas        = [0.4 0.35 0.3 0.2] ;
+%   deltas        = make_deltas(0.1,0.4,4.4,20) ;
+
+% betas         temperatures of independent instances run simultaneously
+  betas         = ones(1,length(deltas)) ;
+
+% exclusions    exclusion distance between cones of instance i
+  exclusions    = ones(1,length(betas)) * 9.2  ;
 
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
   q             = 0.99 ;
 
-% these params shouldn't need tweaking unless the problem setup changes
-%
-% deltas        powers applied to likelihoods of instances
-  deltas        = make_deltas(0.1,0.4,4.4,20) ;
-% deltas        = [0.5 0.4 0.3] ;
-% deltas        = [0.5 0.49 0.485 0.48 0.47 0.46 0.45 0.44...
-%                  0.43 0.42 0.4 0.38 0.34 0.3 0.2 0.18 0.1] ;
-% deltas        = [1 0.97 0.94 0.9 0.86 0.79 0.72 0.65 0.5] * 0.2 ;
-
-% betas         temperatures of independent instances run simultaneously
-%   betas         = [1 0.8 0.5 0.1] / 0.001 ;
-%   betas         = ones(1,2) ; %  [1 1 0.95 0.9 0.85 0.8 0.75 0.7 0.65] ;
-  betas         = ones(1,length(deltas)) ;
-
-% exclusions    exclusion distance between cones of instance i
-  exclusions    = ones(1,length(betas)) * 9.2  ;
-%   exclusions    = [9 8.98 8.96 8.85 8.7 8.58] ;
-%
-% moves         sequence of moves at each iteration, currently:
+  % moves         sequence of moves at each iteration, currently:
 %               - a regular MC move for each instance
 
 
 %% MCMC RUN
 N_instances     = length(betas) ;
-fprintf('\n\nSTARTING %d MCMC instances with different inverse temperatures beta:\n',N_instances)
+fprintf('\n\nSTARTING %d MCMC instances with',N_instances)
+fprintf('\ndifferent inverse temperatures beta:\n')
 fprintf('%.2f   ',betas)
+fprintf('\ntemperature powers delta:\n')
+fprintf('%.2f   ',deltas)
+fprintf('\nmaximum number of cones: %d   ',maxcones)
+
 
 % initializing variables
 jitter          = cell( N_instances , 1 ) ;
@@ -61,8 +64,9 @@ for i=1:N_instances
     N_factor_i      = ((1+N_cones_factor).^deltas(i)-1) * betas(i) ;
     
     jitter{i}       = @(X)move(X  , 2 , q , LLi{i} ) ;
-
-    X{i}            = initialize_X( LLi{i} , N_factor_i , exclusions(i) ) ;  % initialize X{i}
+  
+    % initialize X{i}
+    X{i}            = initialize_X( LLi{i} , N_factor_i , exclusions(i) , maxcones) ;
     
     updater{i}      = @(X,trial)update_X(X,trial,LLi{i}) ;
     
@@ -152,6 +156,11 @@ for jj=1:N_iterations
             swapstring = 'average' ;
         else
             swapstring = 'burn-in' ;
+        end
+        if isswap
+            swapstring = [swapstring ' swap'] ;
+        else
+            swapstring = [swapstring '     '] ;
         end
         fprintf('\nIteration:%4d of %d \t %s\t  %4d cones \t%8.2f sec',...
                             jj,N_iterations,swapstring,n_cones(jj),toc)

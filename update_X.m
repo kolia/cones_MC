@@ -11,16 +11,22 @@ switch type
     case 'delete'
 %         fprintf('\ndelete %3d %3d',x,y)
         
-        X = update_cone_deletion(X,x,y) ;
-        X = transitive_closures( X ) ;
+        X   = update_cone_deletion(X,x,y) ;
+        X   = transitive_closures( X ) ;
         
     case 'add'
         
-        c = trial.move{4} ;
-        X = update_cone_addition(X,x,y,c,LL) ;
+        if X.N_cones >= X.maxcones
+            [minLL,mid] = min(X.localLL(X.localLL>0)) ;
+            [mx   ,my ] = find(X.id==mid,1) ;
+            X = update_cone_deletion(X,mx,my) ;
+        end
+        
+        c   = trial.move{4} ;
+        X   = update_cone_addition(X,x,y,c,LL) ;        
         
         % all transitive closures
-        X = transitive_closures( X ) ;
+        X   = transitive_closures( X ) ;
                 
 %         fprintf('\nadd    %3d %3d %d',x,y,c)
         
@@ -30,7 +36,7 @@ switch type
         d   = trial.move{4} ;
         
         % update contacts and shift_dLLs recursively
-        [X,done]   = propagate_action(X,id,d, @(x,ID)action_shift(x,ID,d,LL)) ;
+        X   = propagate_action(X,id,d, @(x,ID)action_shift(x,ID,d,LL)) ;
         
 %         fprintf('\nshift  %3d %3d %d : %d cones',x,y,d,sum(done))
         
@@ -52,6 +58,6 @@ switch type
 end
 
 % if X.N_cones < N , check_X(LL,X) , end
-% check_X(LL,X)
+check_X(LL,X)
 
 end

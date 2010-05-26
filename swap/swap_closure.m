@@ -13,11 +13,8 @@ R = transitive_closure(R,1:2*X.maxcones,1) ;
 
 % get equivalence classes / connected components
 [classes,sizes] = equivalence_classes(R) ;
-
 classes = classes( sizes>2 ) ;
-
 swaps = cell( length(classes), 1 ) ;
-
 
 [Xx,Xy,Xc] = find(X.state) ;
 [dum,dum,Xi]   = find(X.id) ;
@@ -31,18 +28,24 @@ OO         = sortrows([Ox Oy Oc Oi],4) ;
 Oinds      = zeros(X.maxcones,1) ;
 Oinds(OO(:,4)) = OO(:,1) + otherX.M0*(OO(:,2)-1) + otherX.M0*otherX.M1*(OO(:,3)-1) ;
 
+keep = [] ;
 if length(swaps) > 1
     for i=1:length(swaps)
         Xclass   = classes{i}(classes{i}<=X.maxcones) ;
         Oclass   = classes{i}(classes{i} >X.maxcones) - X.maxcones ;
         
-        swaps{i} = make_swap( X , otherX , XLL , OLL , Xinds , Oinds , Xclass , Oclass , 'patch' ) ;
+        if X.maxcones >= X.N_cones + numel(Oclass) && X.maxcones >= otherX.N_cones + numel(Xclass)        
+            swaps{i} = make_swap( X , otherX , XLL , OLL , Xinds , Oinds , Xclass , Oclass , 'patch' ) ;
+            keep = [keep i] ;
+        end
     end
 else
     Xclass   = find(     X.taken_ids) ;
     Oclass   = find(otherX.taken_ids) ;
     swaps{1} = make_swap( X , otherX , XLL , OLL , Xinds , Oinds , Xclass , Oclass , 'whole' ) ;
 end
+
+swaps = swaps(keep) ;
 
 result_X.X     = X ;
 result_X.with  = otherX ;

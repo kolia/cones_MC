@@ -7,6 +7,7 @@ function [ result , X ] = flip_MCMC( result , X , accumulate , trials , update ,
 % symmetric MC rule is used.
 
 if nargin<5 , burn_in = true ; end
+if isempty(trials) ,  return ; end
 
 % prepend current X to samples
 n_trials = length(trials) ;

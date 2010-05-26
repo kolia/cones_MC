@@ -2,6 +2,7 @@ function X = update_cone_addition(X,x,y,c,LL)
 
 % assign new id to added cone
 id              = find( ~X.taken_ids , 1 ) ;
+
 X.id(x,y)       = id ;
 X.taken_ids(id) = true ;
 

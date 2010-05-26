@@ -1,4 +1,4 @@
-function X = initialize_X(LL,N_cones_factor,D)
+function X = initialize_X(LL,N_cones_factor,D,maxcones)
 
 [M0,M1,N_colors] = size(LL) ;
 
@@ -12,7 +12,7 @@ X.ll        = 0 ;
 X.n_moves   = 0 ;
 
 % upper bound on anticipated number of cones
-X.maxcones  = ceil( M0*M1 * 0.015 ) ;
+X.maxcones  = maxcones ;
 
 % sparse int matrix, representing cone positions and colors
 X.state     = sparse([],[],[],M0,M1,X.maxcones) ;
