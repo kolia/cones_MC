@@ -1,4 +1,4 @@
-function X = make_contacts( X , x , y , id , LL )
+function X = make_contacts( X , x , y , id )
 
 for d=1:4
     shift    = X.masks.cardinal{d} ;
@@ -9,11 +9,6 @@ for d=1:4
     X.contact{d}( id , contacts )             = true ;
     X.contact{1+mod(d+1,4)}( contacts , id )  = true ;
     X.contact{d}( id , id )                   = true ;
-    
-    % calculate local dLL
-    X.shift_dLL{d}(id) = local_dLL(LL,x,y,d,X) ;
 end
-
-X.localLL(id)   = LL(x,y,X.state(x,y)) ;
 
 end

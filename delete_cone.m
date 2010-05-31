@@ -1,10 +1,10 @@
-function trial = delete_cone( X , x , y , LL )
+function trial = delete_cone( X , x , y , cell_consts , STA_W )
 
 old_color = X.state(x,y) ;
 
 if old_color
-    trial.ll    = X.ll - LL(x,y,old_color) + X.N_cones_factor ;
-    trial.move = {'delete' x y} ;    
+    X          = flip_LL( X , [x y 0] , cell_consts , STA_W ) ;
+    trial.move = {'delete' X x y} ;
 else
     error('delete_cone cannot delete nonexistent cone...')
 end

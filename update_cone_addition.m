@@ -1,4 +1,4 @@
-function X = update_cone_addition(X,x,y,c,LL)
+function X = update_cone_addition(X,x,y,c)
 
 % assign new id to added cone
 id              = find( ~X.taken_ids , 1 ) ;
@@ -11,6 +11,6 @@ X.state(x,y)    = c ;
 X.N_cones       = X.N_cones + 1 ;
 
 % update contacts and shifts locally
-X               = make_contacts( X , x , y , id , LL ) ;
+X               = make_contacts( X , x , y , id ) ;
 
 end

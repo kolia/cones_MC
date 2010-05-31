@@ -1,10 +1,6 @@
-function X = action_shift(X,id,d,LL)
+function X = action_shift(X,ox,oy,d)
 
-% old cone location
-[ox,oy] = find( X.id == id ) ;
-if length(ox) ~= 1
-    error('X.id should contain exactly 1 entry with this id.') ;
-end
+id = X.id(ox,oy) ;
 
 % new cone location
 x = ox+X.masks.shift{d}(1) ;
@@ -28,7 +24,7 @@ if x>0 && x<=X.M0 && y>0 && y<=X.M1
     X.state(ox,oy) = 0 ;
     
     % make new contacts and get local dLLs
-    X = make_contacts(X,x,y,id,LL) ;
+    X = make_contacts(X,x,y,id) ;
     
 % if new cone location is out of bounds
 else

@@ -1,4 +1,4 @@
-function samples = move( X , n , q , LL )
+function samples = move( X , n , q , cell_consts , STA_W )
 % samples = move( X , n , q , LL )
 % Draw n trial flips starting from state X.
 % Two types of move are produced: additions of cones, and moves or changes
@@ -53,7 +53,7 @@ if n_cones > 0
             nj = j + X.masks.shift{d}(2) ;
             if ni > 0   &&  ni <= M0  &&  nj>0  &&  nj <= M1
                 ns = ns+1 ;
-                samples{ns} = move_cone( X , i , j , d , LL ) ;
+                samples{ns} = move_cone( X , i , j , d , cell_consts , STA_W ) ;
                 samples{ns}.forward_prob   = p/nforward ;
             end
         end
@@ -61,13 +61,13 @@ if n_cones > 0
         % change of color, without moving
         for cc=setdiff( 1:X.N_colors , color )
             ns = ns+1 ;
-            samples{ns} = change_color( X , i , j , cc , LL ) ;
+            samples{ns} = change_color( X , i , j , cc , cell_consts , STA_W ) ;
             samples{ns}.forward_prob    = p/nforward ;
         end
         
         % cone deletion
         ns = ns+1 ;
-        samples{ns} = delete_cone( X , i , j , LL ) ;
+        samples{ns} = delete_cone( X , i , j , cell_consts , STA_W ) ;
         samples{ns}.forward_prob    = p/nforward ;
         
     end
@@ -83,12 +83,25 @@ while ns <= n + nns
     if ~X.state(i,j)
         % probability of choosing this location
         p = (1-q)/(M0*M1 - n_cones) ;
-        
+
+        if n_cones >= X.maxcones            
+        % delete random cone
+            cone = randi( n_cones , 1 , 1 ) ;
+            x    = cx(cone) ;
+            y    = cy(cone) ;
+            for c=1:X.N_colors
+                ns = ns+1 ;
+                samples{ns} = teleport_cone( X , x , y , i , j , c , cell_consts , STA_W ) ;
+                samples{ns}.forward_prob    = p/(X.N_colors*n_cones) ;
+            end
+            
+        else
         % propose addition of new cone of each color
-        for c=1:X.N_colors
-            ns = ns+1 ;
-            samples{ns} = add_cone( X , i , j , c , LL ) ;
-            samples{ns}.forward_prob    = p/X.N_colors ;
+            for c=1:X.N_colors
+                ns = ns+1 ;
+                samples{ns} = add_cone( X , i , j , c , cell_consts , STA_W ) ;
+                samples{ns}.forward_prob    = p/X.N_colors ;
+            end
         end
     end
 end
