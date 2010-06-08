@@ -31,6 +31,8 @@ switch type
                     X.id(x,y)       = id ;
                     X.taken_ids(id) = true ;
                     X               = make_contacts( X , x , y , id ) ;
+                else
+                    fprintf('\nCOLOR CHANGE!')
                 end
 
             % delete cone
@@ -50,8 +52,11 @@ switch type
         fprintf('\nchange %3d %3d %d     ll: %f',x,y,c,X.ll)
         
     case 'shift'% update contacts recursively
+        X.id = Y.id ;
         d = a(1,3) ;
-        id= X.id(a(1,1),a(1,2)) ;
+%         id= X.id(a(1,1),a(1,2)) ;
+%         fprintf('\nax %d  ,  ay %d',a(1,1),a(1,2))
+        
 %         X = propagate_action(X,a(1,1),a(1,2),id,d,@(X,x,y)action_shift(X,x,y,d)) ;
         
 

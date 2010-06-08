@@ -102,6 +102,6 @@ while ns <= n + nns
 end
 
 samples = samples(1:ns) ;
-fprintf('\nDONE sampling trial moves\n')
+% fprintf('\nDONE sampling trial moves\n')
 
 end

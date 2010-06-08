@@ -1,26 +1,34 @@
 function check_X( Y )
 
-% Y = X ;
+X = Y ;
+[x,y] = find( X.id ) ;
 
-% [x,y] = find( X.id ) ;
+% check X.contact
+for d=1:4
+    X.contact{d} = X.contact{d} * 0 ;
+    
+    for i=1:length(x)
+        X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) ) ;
+    end    
+    
+    dX = find( xor( Y.contact{d} , X.contact{d}) ) ;
+    if dX
+        X.contact{d}
+        Y.contact{d}
+        Y.id
+        dX
+        d        
+    end
+end
 
-% % check X.contact
-% for d=1:4
-%     X.contact{d} = X.contact{d} * 0 ;
-%     
-%     for i=1:length(x)
-%         X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) , LL ) ;
-%     end    
-%     
-%     dX = find( xor( Y.contact{d} , X.contact{d}) ) ;
-%     if dX
-%         Z.contact{d}
-%         X.contact{d}
-%         Y.contact{d}
-%         dX
-%         d        
-%     end
-% end
+% check for consistency between X.state and X.id
+for i=1:length(x)
+    if ~X.state(x(i),y(i))
+        X.state
+        X.id
+    end
+end
+
 
 
 % for i=1:length(x)
