@@ -1,4 +1,4 @@
-function trial = change_cone( X , a , cell_consts , STA_W )
+function X = change_cone( X , a , cell_consts , STA_W )
 
 for i=1:size(a,1)
     x = a(i,1) ;
@@ -18,8 +18,5 @@ for i=1:size(a,1)
     end
     
 end
-
-trial.move = {'generate' X a} ;
-trial.ll   = X.ll ;
 
 end

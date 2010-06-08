@@ -15,7 +15,7 @@ Nconv   = ceil(size(X.coneConv,1)/2) ;
 
 for i=1:size(flips,1)
 
-    OX = X ;
+%     OX = X ;
     
     x = flips(i,1) ;
     y = flips(i,2) ;
@@ -46,6 +46,8 @@ for i=1:size(flips,1)
         %         X.WW    = X.WW(inds,inds) ;
         X.state(x,y)= 0 ;
         X.N_cones   = X.N_cones - 1 ;
+        
+        X.diff.deleted = [X.diff.deleted ; x y] ;
         
     else                     % update inverse by adding row/column
         j = j + 1 ;
@@ -99,6 +101,8 @@ for i=1:size(flips,1)
         X.invWW(j,j)       = q ;
         X.state(x,y)       = c ;
         
+        X.diff.added = [X.diff.added ; x y] ;
+
     end
 end
 
@@ -114,12 +118,12 @@ if X.N_cones>0
     
     STA_W_state = STA_W( x+X.M0*(y-1)+X.M0*X.M1*(c-1) , : )' ;
     
-    try
+%     try
     ll  = X.beta * full(- X.N_cones * X.sumLconst + ldet + ...
         sum( cell_consts .* sum( (STA_W_state * invWW) .* STA_W_state ,2) )/2) ;
-    catch
-       'blah' 
-    end
+%     catch
+%        'blah' 
+%     end
 else
     ll = 0 ;
 end
