@@ -1,4 +1,4 @@
-function check_X( LL , Y )
+function check_X( Y )
 
 % Y = X ;
 
@@ -43,25 +43,26 @@ function check_X( LL , Y )
 %     end
 % end
 
-% check that localLL is consistent with LL(inds)
-[Xx,Xy,Xc] = find(Y.state) ;
-[x,y,v]    = find(Y.id   ) ;
-inds   = Xx + Y.M0*(Xy-1) + Y.M0*Y.M1*(Xc-1) ;
-if ~isempty(find( Y.localLL(v) - LL(inds) , 1))
-   'ha!' 
-end
+% % check that localLL is consistent with LL(inds)
+% [Xx,Xy,Xc] = find(Y.state) ;
+% [x,y,v]    = find(Y.id   ) ;
+% inds   = Xx + Y.M0*(Xy-1) + Y.M0*Y.M1*(Xc-1) ;
+% if ~isempty(find( Y.localLL(v) - LL(inds) , 1))
+%    'ha!' 
+% end
 
 % check if N_cones if consistent with id, state and taken_ids
-counts = [numel(find(Y.localLL)) numel(find(Y.id)) Y.N_cones numel(find(Y.state)) numel(find(Y.taken_ids))] ;
+% counts = [Y.N_cones numel(find(Y.id)) numel(find(Y.state)) numel(find(Y.taken_ids)) size(Y.invWW,1)] ;
+counts = [Y.N_cones numel(find(Y.id)) numel(find(Y.state)) size(Y.invWW,1)] ;
 if ~isempty(find(diff(counts)))
     counts
     'N_cones is off'
 end
 
-% calculate Y.ll directly
-Yll  = sum( Y.localLL ) - Y.N_cones_factor * Y.N_cones ;
-if abs( Y.ll - Yll ) > 1
-    'aha!'
-end
+% % calculate Y.ll directly
+% Yll  = sum( Y.localLL ) - Y.N_cones_factor * Y.N_cones ;
+% if abs( Y.ll - Yll ) > 1
+%     'aha!'
+% end
 
 end

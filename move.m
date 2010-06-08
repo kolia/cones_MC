@@ -17,32 +17,32 @@ function samples = move( X , n , q , cell_consts , STA_W )
 % For speed, backward probabilities are not calculated: this sampler should
 % only be used with the symmetric rule, not with metropolis-hastings.
 
-[M0,M1] = size(X.state) ;
+M0 = X.M0 ;
+M1 = X.M1 ;
 
 % current cones in X
-[cx,cy]     = find(X.state>0) ;
-n_cones     = numel( cx ) ;
+[cx,cy]     = find(X.state) ;
 
 % initialize samples
-samples  = cell(n_cones*7+n,1) ;
+samples  = cell(X.N_cones*7+n,1) ;
 ns       = 0 ;
 
 % propose moves of existing cones
-if n_cones > 0
+if X.N_cones > 0
     % draw n_moved existing cones
     n_moved     = binornd(n,q) ;
-    cones       = randi( n_cones , 1 , n_moved ) ;
+    cones       = randi( X.N_cones , 1 , n_moved ) ;
     
-%     cones       = 1:n_cones ;
+%     cones       = 1:X.n_cones ;
     
     for s=1:n_moved
-%     for s=1:n_cones
+%     for s=1:X.n_cones
         i       = cx(cones(s)) ;
         j       = cy(cones(s)) ;
         color   = X.state(i,j) ;
         
         % probability of choosing this location
-        p = 1/n_cones * q ;
+        p = 1/X.N_cones * q ;
         
         % number of legal moves for this cone, being careful with borders
         nforward    = 4 - X.outofbounds(i,j) + X.N_colors ;
@@ -61,13 +61,13 @@ if n_cones > 0
         % change of color, without moving
         for cc=setdiff( 1:X.N_colors , color )
             ns = ns+1 ;
-            samples{ns} = change_color( X , i , j , cc , cell_consts , STA_W ) ;
+            samples{ns} = change_cone( X , [i j 0 ; i j cc] , cell_consts , STA_W ) ;
             samples{ns}.forward_prob    = p/nforward ;
         end
         
         % cone deletion
         ns = ns+1 ;
-        samples{ns} = delete_cone( X , i , j , cell_consts , STA_W ) ;
+        samples{ns} = change_cone( X , [i j 0] , cell_consts , STA_W ) ;
         samples{ns}.forward_prob    = p/nforward ;
         
     end
@@ -75,43 +75,33 @@ end
 
 nns = ns ;
 
-% for each sampled location, generate corresponding moves
+% sample unoccupied locations, propose cone additions
 while ns <= n + nns
     i       = randi( M0 , 1 ) ;
     j       = randi( M1 , 1 ) ;
+    
+    if ~X.state(i+X.M0*(j-1))
+        l1      = [] ;
+        % probability of choosing this location & color
+        p = (1-q)/((M0*M1 - X.N_cones)*X.N_colors) ;
 
-    if ~X.state(i,j)
-        % probability of choosing this location
-        p = (1-q)/(M0*M1 - n_cones) ;
-
-        if n_cones >= X.maxcones            
-        % delete random cone
-            cone = randi( n_cones , 1 , 1 ) ;
-            x    = cx(cone) ;
-            y    = cy(cone) ;
-            for c=1:X.N_colors
-                ns = ns+1 ;
-                samples{ns} = teleport_cone( X , x , y , i , j , c , cell_consts , STA_W ) ;
-                samples{ns}.forward_prob    = p/(X.N_colors*n_cones) ;
-            end
-            
-        else
+        if X.N_cones >= X.maxcones            
+        % if maxcones has been reached, delete a random cone first
+            cone = randi( X.N_cones , 1 , 1 ) ;
+            l1   = [cx(cone) cy(cone) 0] ;
+            p    = p/X.N_cones ;
+        end
+        
         % propose addition of new cone of each color
-            for c=1:X.N_colors
-                ns = ns+1 ;
-                samples{ns} = add_cone( X , i , j , c , cell_consts , STA_W ) ;
-                samples{ns}.forward_prob    = p/X.N_colors ;
-            end
+        for c=1:X.N_colors
+            ns = ns+1 ;
+            samples{ns} = change_cone( X , [l1 ; i j c] , cell_consts , STA_W ) ;
+            samples{ns}.forward_prob    = p ;
         end
     end
 end
 
 samples = samples(1:ns) ;
-
-% for s=1:ns
-%     if isfield(samples{s},'move')  &&  samples{s}.move{3}(1)>90
-%         ss = samples{s}.move
-%     end
-% end
+fprintf('\nDONE sampling trial moves\n')
 
 end

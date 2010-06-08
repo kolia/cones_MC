@@ -14,56 +14,61 @@ function X = flip_LL( X , flips , cell_consts , STA_W )
 Nconv   = ceil(size(X.coneConv,1)/2) ;
 
 for i=1:size(flips,1)
+
+    OX = X ;
+    
     x = flips(i,1) ;
     y = flips(i,2) ;
     c = flips(i,3) ;
     
-    j = sum( find(X.state) <= x + X.M0*(y-1) + X.M0*X.M1*(c-1) ) ;
+    [posX,posY,colors] = find(X.state) ;
+
+    if ~c && ~X.state(x,y)
+        error('deleting nonexistent cone...')
+    elseif c    % cone addition
+        k = x + X.M0*(y-1) + X.M0*X.M1*(c-1) ;
+    else        % cone deletion
+        k = x + X.M0*(y-1) + X.M0*X.M1*(X.state(x,y)-1) ;
+    end
+    j = sum( posX + X.M0*(posY-1) + X.M0*X.M1*(colors-1) <= k ) ;
     
     % block matrix inverse update
-    if X.state(k)     % update inverse by deleting jth row/column
+    if ~c       % update inverse by deleting jth row/column
         inds = [1:j-1 j+1:X.N_cones] ;
         X.overlaps = X.overlaps(inds,inds) ;
-        X.invWW = X.invWW(inds,inds) - X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
-        %         X.WW    = X.WW(inds,inds) ;
-        X.positions = X.positions(:,inds) ;
-        X.colors    = X.colors(inds) ;
-        X.state(k)  = false ;
         
-    else               % update inverse by adding row/column
-        j = j + 1 ;
-        inds = [1:j-1 j+1:X.N_cones+1] ;
-        A = X.invWW ;
-        
-        % reconstruct W(k,X.state) using coneConv
-        Wkk     = coneConv(Nconv,Nconv) ;
-        
-        positions   = X.positions ;
-        X.positions = zeros(2,X.N_cones + 1) ;
-        if ~isempty(positions)
-            X.positions(:,inds) = positions ;
-            Wkinds  = [positions(1,:)-x ; positions(2,:)-y] ;
+        invWW      = X.invWW(inds,inds) - X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
+        if c
+            X.invWW(inds,inds) = invWW ;
         else
-            Wkinds  = [] ;
+            X.invWW = invWW ;
         end
-        X.positions(:,j)    = [x;y] ;
+        %         X.WW    = X.WW(inds,inds) ;
+        X.state(x,y)= 0 ;
+        X.N_cones   = X.N_cones - 1 ;
         
-        colors      = X.colors ;
-        X.colors    = zeros(1,X.N_cones + 1) ;
-        X.colors(inds) = colors ;
-        X.colors(j)    = c  ;
+    else                     % update inverse by adding row/column
+        j = j + 1 ;
+        X.N_cones     = X.N_cones + 1 ;
+        inds = [1:j-1 j+1:X.N_cones] ;
+        A = X.invWW ;
+                
+        % reconstruct W(k,X.state) using coneConv
+        Wkk     = X.coneConv(Nconv,Nconv) ;
         
-        overlap = zeros(1,X.N_cones) ;
+        Wkinds  = [posX-x ; posY-y] ;
+        
+        overlap = zeros(1,X.N_cones-1) ;
         Wkstate = overlap ;
         where   = max(abs(Wkinds),[],1)<Nconv ;
         if sum(where)
-            Nc   = size(coneConv,1) ;
+            Nc   = size(X.coneConv,1) ;
             here = (Nconv+Wkinds(2,where) - 1)*Nc + Nconv+Wkinds(1,where) ;
-            overlap(where) = coneConv(here) ;
-            Wkstate(where) = overlap(where) .* colorDot(c,colors(where)) ;
+            overlap(where) = X.coneConv(here) ;
+            Wkstate(where) = overlap(where) .* X.colorDot(c,colors(where)) ;
         end
         
-        Wkkc = Wkk * colorDot(c,c) ;
+        Wkkc = Wkk * X.colorDot(c,c) ;
         
         %         WW                  = X.WW ;
         %         X.WW                = zeros(n+1) ;
@@ -73,43 +78,53 @@ for i=1:size(flips,1)
         %         X.WW(j,j)           = Wkkc ;
         
         O                     = X.overlaps ;
-        X.overlaps            = zeros(X.N_cones+1) ;
+        X.overlaps            = zeros(X.N_cones) ;
         X.overlaps(inds,inds) = O ;
         X.overlaps(inds,j)    = overlap ;
         X.overlaps(j,inds)    = overlap ;
         X.overlaps(j,j)       = Wkk ;
         
         r = Wkstate * A ;
-        q = 1/( Wkkc - r*Wkstate' ) ;
-        c = A * Wkstate' * q ;
-        X.invWW = zeros(X.N_cones+1) ;
-        X.invWW(inds,inds) = A+c*r ;
-        X.invWW(inds,j)    = -c    ;
-        X.invWW(j,inds)    = -r*q  ;
-        X.invWW(j,j)       = q     ;
         
-        X.state(k)  = true ;
+        X.invWW = zeros(X.N_cones) ;
+        if ~isempty(r)
+            q = 1/( Wkkc - r*Wkstate' ) ;
+            cc= A * Wkstate' * q ;
+            X.invWW(inds,inds) = A+cc*r  ;
+            X.invWW(inds,j)    = -cc     ;
+            X.invWW(j,inds)    = -r*q    ;
+        else
+            q = 1/Wkkc ;
+        end
+        X.invWW(j,j)       = q ;
+        X.state(x,y)       = c ;
         
     end
 end
-X.state = logical(X.state) ;
 
 % recalculate data log-likelihood
-Ncones = sum(X.state) ;
-if Ncones>0
+if X.N_cones>0
     
     invWW = X.invWW ;
     invWW(abs(invWW)<abs(invWW(1,1))*1e-17) = 0 ;
     invWW = sparse(invWW) ;
     ldet  = 2 * sum(log(diag(chol(invWW))));
     
-    STA_W_state = STA_W(:,X.state) ;
-
-    X.ll  = X.beta * full(- Ncones * X.sumLconst + ldet + ...
+    [x,y,c] = find(X.state) ;
+    
+    STA_W_state = STA_W( x+X.M0*(y-1)+X.M0*X.M1*(c-1) , : )' ;
+    
+    try
+    ll  = X.beta * full(- X.N_cones * X.sumLconst + ldet + ...
         sum( cell_consts .* sum( (STA_W_state * invWW) .* STA_W_state ,2) )/2) ;
-
+    catch
+       'blah' 
+    end
 else
-    X.ll = 0 ;
+    ll = 0 ;
 end
+
+X.dll = ll - X.ll ;
+X.ll  = ll ;
 
 end

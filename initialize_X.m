@@ -1,11 +1,13 @@
-function X = initialize_X(M0,M1,N_colors,cell_consts,STA_W,coneConv,colorDot,D,maxcones,beta)
+function X = initialize_X(M0,M1,N_colors,SS,cell_consts,coneConv,colorDot,D,maxcones,beta)
 
 X.masks     = make_masks(D) ;
-X.M0        = M0 ;
-X.M1        = M1 ;
+X.M0        = M0 * SS ;
+X.M1        = M1 * SS ;
+X.SS        = SS ;
 X.N_colors  = N_colors ;
 X.N_cones   = 0  ;
 X.ll        = 0 ;
+X.dll       = 0 ;
 X.n_moves   = 0 ;
 
 X.beta      = beta ;
@@ -17,18 +19,18 @@ X.colorDot  = colorDot ;
 X.maxcones  = maxcones ;
 
 % sparse int matrix, representing cone positions and colors
-X.state     = sparse([],[],[],M0,M1,X.maxcones) ;
+X.state     = sparse([],[],[],X.M0,X.M1,X.maxcones) ;
 
 % map from cone position to id
-X.id        = sparse([],[],[],M0,M1,X.maxcones) ;
+X.id        = sparse([],[],[],X.M0,X.M1,X.maxcones) ;
 
 % which ids are already assigned to cones
 X.taken_ids = false(X.maxcones,1) ;
 
 % sparse int matrix, with number of out-of-border adjacencies
-X.outofbounds = sparse([],[],[],M0,M1,2*(M0+M1)) ;
-X.outofbounds(:,[1 M1]) = 1 ;
-X.outofbounds([1 M0],:) = X.outofbounds([1 M0],:) + 1 ;
+X.outofbounds = sparse([],[],[],X.M0,X.M1,2*(X.M0+X.M1)) ;
+X.outofbounds(:,[1 X.M1]) = 1 ;
+X.outofbounds([1 X.M0],:) = X.outofbounds([1 X.M0],:) + 1 ;
 
 % contact forces at four cardinal adjacent positions, indexed by id
 for d=1:4
@@ -41,13 +43,13 @@ for d=1:4
 end
 
 % FROM old flip_color_LL.m !!!
-X.state     = sparse([],[],[],1,size(STA_W,2),maxcones) ;
 X.invWW     = [] ;
 X.overlaps  = [] ;
 %     X.WW        = [] ;
 X.positions = [] ;
 X.colors    = [] ;
 X.sumLconst = length(cell_consts) * log(2*pi) + sum(log(cell_consts)) ;
+
 %     X = flip_color_LL( temp_X , find(X.state) , prior_ll , cell_consts , ...
 %                       STA_W , coneConv , colorDot , sizes , beta ) ;
 

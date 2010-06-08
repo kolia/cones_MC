@@ -64,7 +64,7 @@ cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
 
 %% SETUP for Log-LIKELIHOOD calculations
 
-try load('LL2')  % calculating LL takes a while, check for LL.mat
+try load('STA_W')  % calculating LL takes a while, check for LL.mat
 catch
     
 STA_W = zeros(NROI,N_GC) ;
@@ -86,11 +86,12 @@ STA_W = STA_W .* repmat( (N_spikes ./ cell_consts)' ,NROI,1) ;
 LL = (STA_W .^ 2) * diag(cell_consts) ;
 LL = reshape( sum(LL , 2)/2 , [M0*SS M1*SS 3] ) ;
 
-save('LL2','LL')
+save('STA_W','STA_W')
 end
 
 coneConv    = conv2(cone_RF,cone_RF) ;
 
+cone_map.STA_W          = STA_W ;
 cone_map.LL             = LL ;
 cone_map.N_cones_factor = sum(log(2*pi*cell_consts)) ;
 cone_map.M0             = M0 ;

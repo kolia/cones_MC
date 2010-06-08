@@ -4,10 +4,16 @@ function cone_map = cones( cone_map )
 
 % addpath('../libraries/swaps')
 
-LL = cone_map.LL ;
-N_cones_factor = cone_map.N_cones_factor ;
+LL          = cone_map.LL ;
 
-[M0,M1,N_colors] = size(LL) ;
+STA_W       = cone_map.STA_W ;
+cell_consts = cone_map.cell_consts ;
+M0          = cone_map.M0 ;
+M1          = cone_map.M1 ;
+SS          = cone_map.SS ;
+N_colors    = cone_map.N_colors ;
+coneConv    = cone_map.coneConv ;
+colorDot    = cone_map.colorDot ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
 plot_every      = 20 ;
@@ -21,19 +27,13 @@ display_every   = 50 ;
 % maxcones      maximum number of cones allowed
   maxcones      = 150 ;
 %   maxcones      = floor( 0.005 * M0 * M1 ) ;  
-  
-% these params shouldn't need tweaking unless the problem setup changes
-%
-% deltas        powers applied to likelihoods of instances
-  deltas        = [0.4 0.35 0.3 0.2] ;
-%   deltas        = make_deltas(0.1,0.4,4.4,20) ;
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = ones(1,length(deltas)) ;
+  betas         = ones(1,1) ;
 
-% exclusions    exclusion distance between cones of instance i
-  exclusions    = ones(1,length(betas)) * 9.2  ;
-
+% D             exclusion distance
+  D             = 9.2 ;
+  
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
   q             = 0.99 ;
@@ -47,8 +47,6 @@ N_instances     = length(betas) ;
 fprintf('\n\nSTARTING %d MCMC instances with',N_instances)
 fprintf('\ndifferent inverse temperatures beta:\n')
 fprintf('%.2f   ',betas)
-fprintf('\ntemperature powers delta:\n')
-fprintf('%.2f   ',deltas)
 fprintf('\nmaximum number of cones: %d   ',maxcones)
 
 
@@ -56,19 +54,18 @@ fprintf('\nmaximum number of cones: %d   ',maxcones)
 jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
 updater         = cell( N_instances , 1 ) ;
-LLi             = cell( N_instances , 1 ) ;
 
 for i=1:N_instances
-
-	LLi{i}          = ((1+LL).^deltas(i)-1) * betas(i) ;
-    N_factor_i      = ((1+N_cones_factor).^deltas(i)-1) * betas(i) ;
     
-    jitter{i}       = @(X)move(X  , 2 , q , LLi{i} ) ;
+    jitter{i}       = @(X)move(X  , 2 , q , cell_consts , STA_W ) ;
   
     % initialize X{i}
-    X{i}            = initialize_X( LLi{i} , N_factor_i , exclusions(i) , maxcones) ;
-    
-    updater{i}      = @(X,trial)update_X(X,trial,LLi{i}) ;
+    X{i}            = initialize_X(M0,M1,N_colors,SS,cell_consts,coneConv,...
+                                    colorDot,D,maxcones,betas(i)) ;
+
+	X{i}.SS         = cone_map.SS ;
+                                
+    updater{i}      = @(X,trial)update_X(X,trial) ;
     
 end
 
@@ -76,8 +73,8 @@ end
 accumulator  = @(X)[(X.state(:)'==1) (X.state(:)'==2) (X.state(:)'==3)] ;
 accumulated  = zeros( 1 , M0*M1*N_colors ) ;
 
-moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)] ;
-% moves = num2cell(1:N_instances) ;  % no swaps for now
+% moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)] ;
+moves = num2cell(1:N_instances) ;  % no swaps for now
 
 N_moves      = length(moves) ;
 burn_in      = ceil( burn_in / N_moves ) ;
@@ -178,12 +175,12 @@ for jj=1:N_iterations
             for c=1:3
                 [ix,iy] = find(X{i}.state == c) ;
                 for cc=1:3
-                    GGG(ix + M0*(iy-1) + M0*M1*(cc-1)) = 0 ;
+                    GGG(ix + M0*SS*(iy-1) + M0*SS*M1*SS*(cc-1)) = 0 ;
                 end
-                GGG(ix + M0*(iy-1) + M0*M1*(c-1)) = 1 ;
+                GGG(ix + M0*SS*(iy-1) + M0*SS*M1*SS*(c-1)) = 1 ;
             end
             imagesc(GGG) ;
-            titl = sprintf('\\delta %.2g',deltas(i)) ;
+            titl = sprintf('\\beta %.2g',betas(i)) ;
             if i > 1 && isswap
                 s = stats{i} ;
                 titl = sprintf('%s     acc %.2f',titl,s.accepted/s.N500) ;
@@ -219,14 +216,12 @@ end
 cone_map.code           = file2str('cones.m') ;
 
 cone_map.betas          = betas ;
-cone_map.deltas         = deltas ;
 cone_map.n_cones        = n_cones ;
 cone_map.burn_in        = burn_in ;
 cone_map.N_iterations   = N_iterations ;
 cone_map.moves          = moves ;
 cone_map.accumulated    = reshape( accumulated , [M0 M1 N_colors] ) ;
 cone_map.stats          = stats ;
-cone_map.exclusions     = exclusions ;
 
 if plot_every
     figure
