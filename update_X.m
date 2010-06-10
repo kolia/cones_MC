@@ -2,12 +2,15 @@ function X = update_X(oldX,X)
 
 check_X(oldX)
 
-deleted = X.diff.deleted(:,1) + (X.diff.deleted(:,2)-1)*X.M0 ;
-
-for d=1:4
-    X.contacts{d}(deleted,:) = false ;
-    X.contacts{d}(:,deleted) = false ;
+if ~isempty(X.diff.deleted)
+    deleted = X.diff.deleted(:,1) + (X.diff.deleted(:,2)-1)*X.M0 ;
+    
+    for d=1:4
+        X.contact{d}(deleted,:) = false ;
+        X.contact{d}(:,deleted) = false ;
+    end
 end
+
 
 for d=1:4
     for i=1:size(X.diff.added,1)
@@ -16,5 +19,8 @@ for d=1:4
 end
 
 check_X(X)
+
+X.diff.added = [] ;
+X.diff.deleted = [] ;
 
 end

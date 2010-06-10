@@ -36,7 +36,7 @@ display_every   = 50 ;
   
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
-  q             = 0.99 ;
+  q             = 0.9 ;
 
   % moves         sequence of moves at each iteration, currently:
 %               - a regular MC move for each instance

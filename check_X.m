@@ -1,34 +1,26 @@
 function check_X( Y )
 
 X = Y ;
-[x,y] = find( X.id ) ;
+[x,y] = find( X.state ) ;
 
 % check X.contact
 for d=1:4
     X.contact{d} = X.contact{d} * 0 ;
     
     for i=1:length(x)
-        X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) ) ;
+        X = make_contacts( X , x(i) , y(i) ) ;
     end    
     
     dX = find( xor( Y.contact{d} , X.contact{d}) ) ;
     if dX
+        X.diff.added
+        X.diff.deleted
         X.contact{d}
         Y.contact{d}
-        Y.id
         dX
-        d        
+        d
     end
 end
-
-% check for consistency between X.state and X.id
-for i=1:length(x)
-    if ~X.state(x(i),y(i))
-        X.state
-        X.id
-    end
-end
-
 
 
 % for i=1:length(x)
@@ -43,14 +35,6 @@ end
 % end
 
 
-% % check X.shift_dLL
-% for d=1:4
-%     f =  find( X.shift_dLL{d} ~= Y.shift_dLL{d} ) ;
-%     if ~isempty(f)
-%         'blah'
-%     end
-% end
-
 % % check that localLL is consistent with LL(inds)
 % [Xx,Xy,Xc] = find(Y.state) ;
 % [x,y,v]    = find(Y.id   ) ;
@@ -61,16 +45,11 @@ end
 
 % check if N_cones if consistent with id, state and taken_ids
 % counts = [Y.N_cones numel(find(Y.id)) numel(find(Y.state)) numel(find(Y.taken_ids)) size(Y.invWW,1)] ;
-counts = [Y.N_cones numel(find(Y.id)) numel(find(Y.state)) size(Y.invWW,1)] ;
+counts = [numel(find(Y.state)) size(Y.invWW,1)] ;
 if ~isempty(find(diff(counts)))
     counts
     'N_cones is off'
 end
 
-% % calculate Y.ll directly
-% Yll  = sum( Y.localLL ) - Y.N_cones_factor * Y.N_cones ;
-% if abs( Y.ll - Yll ) > 1
-%     'aha!'
-% end
 
 end

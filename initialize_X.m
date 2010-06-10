@@ -9,6 +9,8 @@ X.N_cones   = 0  ;
 X.ll        = 0 ;
 X.dll       = 0 ;
 X.n_moves   = 0 ;
+X.diff.added= [] ;
+X.diff.deleted = [] ;
 
 X.beta      = beta ;
 X.cell_consts = cell_consts ;
