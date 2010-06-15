@@ -1,4 +1,4 @@
-function X = initialize_X(M0,M1,N_colors,SS,cell_consts,coneConv,colorDot,D,maxcones,beta)
+function X = initialize_X(M0,M1,N_colors,SS,maxcones,D,beta)
 
 X.masks     = make_masks(D) ;
 X.M0        = M0 * SS ;
@@ -13,9 +13,6 @@ X.diff.added= [] ;
 X.diff.deleted = [] ;
 
 X.beta      = beta ;
-X.cell_consts = cell_consts ;
-X.coneConv  = coneConv ;
-X.colorDot  = colorDot ;
 
 % upper bound on anticipated number of cones
 X.maxcones  = maxcones ;
@@ -40,9 +37,5 @@ X.overlaps  = [] ;
 %     X.WW        = [] ;
 X.positions = [] ;
 X.colors    = [] ;
-X.sumLconst = length(cell_consts) * log(2*pi) + sum(log(cell_consts)) ;
-
-%     X = flip_color_LL( temp_X , find(X.state) , prior_ll , cell_consts , ...
-%                       STA_W , coneConv , colorDot , sizes , beta ) ;
 
 end

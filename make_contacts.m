@@ -10,6 +10,12 @@ for d=1:4
     X.contact{d}( xy , contacts )             = true ;
     X.contact{1+mod(d+1,4)}( contacts , xy )  = true ;
     X.contact{d}( xy , xy )                   = true ;
+
+%     if ~X.state(contacts)
+%         X.state
+%         contacts
+%     end
+
 end
 
 end

@@ -1,4 +1,4 @@
-function X = action_LL_shift(X,oxy,d,cell_consts,STA_W)
+function X = action_LL_shift(X,oxy,d,PROB)
 
 ox  = 1 + mod(oxy-1,X.M0) ;
 oy  = 1 + floor((oxy-1)/X.M0) ;
@@ -11,11 +11,11 @@ c   = X.state(ox,oy) ;
 % fprintf('\n\nMOVING cone %d at %d,%d',id,ox,oy)
 
 % delete old cone
-X = flip_LL( X , [ox oy 0] , cell_consts , STA_W ) ;
+X = flip_LL( X , [ox oy 0] , PROB ) ;
 
 % if new cone location is within bounds, add new cone
 if x>0 && x<=X.M0 && y>0 && y<=X.M1
-    X = flip_LL( X , [x y c] , cell_consts , STA_W ) ;    
+    X = flip_LL( X , [x y c] , PROB ) ;
 end
 
 end

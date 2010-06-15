@@ -22,6 +22,20 @@ for d=1:4
     end
 end
 
+% check that X.contact only concerns existing cones
+for d=1:4
+    cones = logical( max( max( X.contact{d} ,[],1) , max( X.contact{d}' ,[],1)) ) ;
+    if ~min(X.state(cones))
+        X.state
+        cones
+    end
+    if ~cones(X.state(:)>0)
+        cones
+        X.state
+    end
+end
+
+
 
 % for i=1:length(x)
 %     X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) , LL ) ;

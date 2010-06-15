@@ -35,9 +35,9 @@ sizeROI = [max(I)-min(I) max(J)-min(J)] + 1 ;
 
 % stereotyped cone receptive field
 s = cone_params.sigma ;
-r = cone_params.support_radius ;
-cone_RF = exp(-0.5 * ((-SS*r:SS*r)/(SS*s)).^2)' * exp(-0.5 * ((-SS*r:SS*r)/(SS*s)).^2) ;
-cone_RF = cone_RF / norm(cone_RF(:)) ; clear r s
+R = cone_params.support_radius * SS ;
+cone_RF = exp(-0.5 * ((-R:R)/(SS*s)).^2)' * exp(-0.5 * ((-R:R)/(SS*s)).^2) ;
+cone_RF = cone_RF / norm(cone_RF(:)) ; clear s
 
 N       = M2*(SS^2)*N_colors ;
 NROI    = sum(ROI(:)>0) ;
@@ -64,7 +64,7 @@ cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
 
 %% SETUP for Log-LIKELIHOOD calculations
 
-try load('STA_W')  % calculating LL takes a while, check for LL.mat
+try load('STA_W')  % calculating STA_W takes a while, check for STA_W.mat
 catch
     
 STA_W = zeros(NROI,N_GC) ;
@@ -83,17 +83,36 @@ for ii=1:NROI/N_colors
 end
 STA_W = STA_W .* repmat( (N_spikes ./ cell_consts)' ,NROI,1) ;
 
-LL = (STA_W .^ 2) * diag(cell_consts) ;
-LL = reshape( sum(LL , 2)/2 , [M0*SS M1*SS 3] ) ;
-
 save('STA_W','STA_W')
 end
 
-coneConv    = conv2(cone_RF,cone_RF) ;
+LL = (STA_W .^ 2) * diag(cell_consts) ;
+LL = reshape( sum(LL , 2)/2 , [M0*SS M1*SS 3] ) ;
+
+coneConv = zeros( 2*R+SS , 2*R+SS , SS , SS ) ;
+for x=1:2*R+SS
+    for y=1:2*R+SS
+        a = placeRF(4*R+SS,cone_RF,R+x,R+y,SS) ;
+        for s=1:SS
+            for t=1:SS
+                b = placeRF(4*R+SS,cone_RF,2*R+s,2*R+t,SS) ;
+                v = dot(a(:),b(:)) ;
+                coneConv(x,y,s,t) = v ;
+            end
+        end
+    end
+end
+
+cone_map.R              = R ;
+cone_map.coneConv       = coneConv ;
+
+cone_map.sumLconst      = length(cell_consts) * log(2*pi) + ...
+                          sum(log(cell_consts)) ;
+
 
 cone_map.STA_W          = STA_W ;
-cone_map.LL             = LL ;
 cone_map.N_cones_factor = sum(log(2*pi*cell_consts)) ;
+cone_map.LL             = LL ;
 cone_map.M0             = M0 ;
 cone_map.M1             = M1 ;
 cone_map.M2             = M2 ;
@@ -101,14 +120,24 @@ cone_map.N_colors       = N_colors ;
 cone_map.N_GC           = N_GC ;
 cone_map.max_overlap    = coneConv(ceil(size(coneConv,1)/2),ceil(size(coneConv,2)/2)) ;
 cone_map.cell_consts    = cell_consts ;
-cone_map.stas           = GC_stas ;
-cone_map.cone_RF        = cone_RF ;
-cone_map.cone_params    = cone_params ;
-cone_map.coneConv       = coneConv ;
 cone_map.colorDot       = cone_params.colors * cone_params.colors' ;
 cone_map.ROIlogic       = ROIlogic ;
 cone_map.ROI            = ROI ;
-cone_map.sizeROI        = sizeROI ;
 cone_map.N              = N ;
 cone_map.NROI           = NROI ;
 cone_map.SS             = SS ;
+
+end
+
+
+function a = placeRF(N,RF,x,y,SS)
+
+R = floor(size(RF,1)/2) ;
+a = zeros(N) ;
+a(x-R:x+R,y-R:y+R) = RF ;
+a = sum( reshape(a,SS,[]) ) ;
+a = reshape(a,N/SS,[])' ;
+a = sum( reshape(a,SS,[]) ) ;
+a = reshape(a',N/SS,N/SS) ;
+a = a/SS^2 ;
+end

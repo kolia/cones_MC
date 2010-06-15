@@ -1,9 +1,16 @@
 function [X,done] = propagate_action( X , xy , d , action , done )
 
 % keep track of which cones have already been visited
-if nargin<7  , done = sparse([],[],[],X.M0*X.M1,1,10) ;  end
+if nargin<5  , done = sparse([],[],[],X.M0*X.M1,1,10) ;  end
 
 if ~done(xy)
+    
+%     check_X(X)
+%     
+%     if ~X.state(xy)
+%        error('trying to act on nonexistent cell') 
+%     end
+    
     for cxy = find( X.contact{d}(xy,:) )
         if cxy ~= xy
             [X,done] = propagate_action( X , cxy , d , action , done ) ;

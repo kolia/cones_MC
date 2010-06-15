@@ -6,14 +6,11 @@ function cone_map = cones( cone_map )
 
 LL          = cone_map.LL ;
 
-STA_W       = cone_map.STA_W ;
-cell_consts = cone_map.cell_consts ;
 M0          = cone_map.M0 ;
 M1          = cone_map.M1 ;
 SS          = cone_map.SS ;
 N_colors    = cone_map.N_colors ;
-coneConv    = cone_map.coneConv ;
-colorDot    = cone_map.colorDot ;
+
 
 %% plot and display info every ? MCMC iterations  (0 for never)
 plot_every      = 20 ;
@@ -36,7 +33,7 @@ display_every   = 50 ;
   
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
-  q             = 0.9 ;
+  q             = 0.99 ;
 
   % moves         sequence of moves at each iteration, currently:
 %               - a regular MC move for each instance
@@ -57,11 +54,10 @@ updater         = cell( N_instances , 1 ) ;
 
 for i=1:N_instances
     
-    jitter{i}       = @(X)move(X  , 2 , q , cell_consts , STA_W ) ;
-  
+    jitter{i}       = @(X)move(X  , 2 , q , cone_map) ;
+    
     % initialize X{i}
-    X{i}            = initialize_X(M0,M1,N_colors,SS,cell_consts,coneConv,...
-                                    colorDot,D,maxcones,betas(i)) ;
+    X{i}            = initialize_X(M0,M1,N_colors,SS,maxcones,D,betas(i)) ;
 
 	X{i}.SS         = cone_map.SS ;
                                 
@@ -71,7 +67,7 @@ end
 
 
 accumulator  = @(X)[(X.state(:)'==1) (X.state(:)'==2) (X.state(:)'==3)] ;
-accumulated  = zeros( 1 , M0*M1*N_colors ) ;
+accumulated  = zeros( 1 , M0*SS*M1*SS*N_colors ) ;
 
 % moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)] ;
 moves = num2cell(1:N_instances) ;  % no swaps for now
@@ -220,7 +216,7 @@ cone_map.n_cones        = n_cones ;
 cone_map.burn_in        = burn_in ;
 cone_map.N_iterations   = N_iterations ;
 cone_map.moves          = moves ;
-cone_map.accumulated    = reshape( accumulated , [M0 M1 N_colors] ) ;
+cone_map.accumulated    = reshape( accumulated , [M0*SS M1*SS N_colors] ) ;
 cone_map.stats          = stats ;
 
 if plot_every

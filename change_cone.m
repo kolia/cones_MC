@@ -1,4 +1,4 @@
-function X = change_cone( X , a , cell_consts , STA_W )
+function X = change_cone( X , a , PROB )
 
 for i=1:size(a,1)
     x = a(i,1) ;
@@ -12,7 +12,7 @@ for i=1:size(a,1)
     end
 
     if free                % add or delete cone
-        X    = flip_LL( X , [x y c] , cell_consts , STA_W ) ;
+        X    = flip_LL( X , [x y c] , PROB ) ;
     else
         X.ll = -Inf ;
     end

@@ -1,6 +1,6 @@
 function X = update_X(oldX,X)
 
-check_X(oldX)
+% check_X(oldX)
 
 if ~isempty(X.diff.deleted)
     deleted = X.diff.deleted(:,1) + (X.diff.deleted(:,2)-1)*X.M0 ;
@@ -18,7 +18,7 @@ for d=1:4
     end
 end
 
-check_X(X)
+% check_X(X)
 
 X.diff.added = [] ;
 X.diff.deleted = [] ;

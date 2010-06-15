@@ -1,5 +1,5 @@
-function samples = move( X , n , q , cell_consts , STA_W )
-% samples = move( X , n , q , LL )
+function samples = move( X , n , q , PROB )
+% samples = move( X , n , q , PROB )
 % Draw n trial flips starting from state X.
 % Two types of move are produced: additions of cones, and moves or changes
 % in color of existing cones.
@@ -53,7 +53,7 @@ if X.N_cones > 0
             nj = j + X.masks.shift{d}(2) ;
             if ni > 0   &&  ni <= M0  &&  nj>0  &&  nj <= M1
                 ns = ns+1 ;
-                samples{ns} = move_cone( X , i , j , d , cell_consts , STA_W ) ;
+                samples{ns} = move_cone( X , i , j , d , PROB ) ;
                 samples{ns}.forward_prob   = p/nforward ;
             end
         end
@@ -61,13 +61,13 @@ if X.N_cones > 0
         % change of color, without moving
         for cc=setdiff( 1:X.N_colors , color )
             ns = ns+1 ;
-            samples{ns} = change_cone( X , [i j 0 ; i j cc] , cell_consts , STA_W ) ;
+            samples{ns} = change_cone( X , [i j 0 ; i j cc] , PROB ) ;
             samples{ns}.forward_prob    = p/nforward ;
         end
         
         % cone deletion
         ns = ns+1 ;
-        samples{ns} = change_cone( X , [i j 0] , cell_consts , STA_W ) ;
+        samples{ns} = change_cone( X , [i j 0] , PROB ) ;
         samples{ns}.forward_prob    = p/nforward ;
         
     end
@@ -95,7 +95,7 @@ while ns <= n + nns
         % propose addition of new cone of each color
         for c=1:X.N_colors
             ns = ns+1 ;
-            samples{ns} = change_cone( X , [l1 ; i j c] , cell_consts , STA_W ) ;
+            samples{ns} = change_cone( X , [l1 ; i j c] , PROB ) ;
             samples{ns}.forward_prob    = p ;
         end
     end
