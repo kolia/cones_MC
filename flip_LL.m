@@ -96,7 +96,7 @@ if X.N_cones>0
     
     STA_W_state = PROB.STA_W( x+X.M0*(y-1)+X.M0*X.M1*(c-1) , : )' ;
     
-    ll  = X.beta * full(- X.N_cones * PROB.sumLconst * 4 + ldet + ...
+    ll  = X.beta * full(- X.N_cones * PROB.sumLconst + ldet + ...
         sum( PROB.cell_consts .* sum( (STA_W_state * invWW) .* STA_W_state ,2) )/2) ;
 else
     ll = 0 ;

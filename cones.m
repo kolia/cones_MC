@@ -13,7 +13,7 @@ N_colors    = cone_map.N_colors ;
 
 
 %% plot and display info every ? MCMC iterations  (0 for never)
-plot_every      = 20 ;
+plot_every      = 500 ;
 display_every   = 50 ;
 
 

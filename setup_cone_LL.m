@@ -39,7 +39,6 @@ R = cone_params.support_radius * SS ;
 cone_RF = exp(-0.5 * ((-R:R)/(SS*s)).^2)' * exp(-0.5 * ((-R:R)/(SS*s)).^2) ;
 cone_RF = cone_RF / norm(cone_RF(:)) ; clear s
 
-N       = M2*(SS^2)*N_colors ;
 NROI    = sum(ROI(:)>0) ;
 
 
@@ -47,15 +46,10 @@ NROI    = sum(ROI(:)>0) ;
 N_GC = length(GC_stas) ;
 STA_norm = zeros(N_GC,1) ;
 N_spikes = zeros(N_GC,1) ;
-STA      = zeros(N,N_GC) ;
+STA      = zeros(M2*N_colors,N_GC) ;
 for i=1:N_GC
     N_spikes(i) = length(GC_stas(i).spikes) ;
-    temp = cell(N_colors,1) ;
-    for c=1:N_colors
-        temp{c} = kron(GC_stas(i).spatial(:,:,c),ones(SS,SS)) ;
-        temp{c} = temp{c}(:) ;
-    end
-    STA(:,i)    = cell2mat(temp) ;
+    STA(:,i)    = GC_stas(i).spatial(:) ;
     STA_norm(i) = norm(STA(:,i)) ;
 end
 
@@ -74,7 +68,9 @@ for ii=1:NROI/N_colors
     j = J(ii) ;
     BW      = zeros(M0*SS,M1*SS) ;
     BW(i,j) = 1 ;
-%     BW      = imfilter(BW,cone_RF) ;
+    BW      = imfilter(BW,cone_RF) ;
+    BW      = BW/norm(BW) ;
+    BW      = subsample(BW,SS) ;
     
     for c=1:N_colors
         filter  = kron(cone_params.colors(c,:),BW(:)') ;
@@ -92,10 +88,14 @@ LL = reshape( sum(LL , 2)/2 , [M0*SS M1*SS 3] ) ;
 coneConv = zeros( 2*R+SS , 2*R+SS , SS , SS ) ;
 for x=1:2*R+SS
     for y=1:2*R+SS
-        a = placeRF(4*R+SS,cone_RF,R+x,R+y,SS) ;
+        a = zeros(4*R+SS) ;
+        a(x:x+2*R,y:y+2*R) = cone_RF ;
+        a = subsample(a,SS) ;
         for s=1:SS
             for t=1:SS
-                b = placeRF(4*R+SS,cone_RF,2*R+s,2*R+t,SS) ;
+                b = zeros(4*R+SS) ;
+                b(s+R:s+3*R,t+R:t+3*R) = cone_RF ;
+                b = subsample(b,SS) ;
                 v = dot(a(:),b(:)) ;
                 coneConv(x,y,s,t) = v ;
             end
@@ -105,10 +105,8 @@ end
 
 cone_map.R              = R ;
 cone_map.coneConv       = coneConv ;
-
 cone_map.sumLconst      = length(cell_consts) * log(2*pi) + ...
                           sum(log(cell_consts)) ;
-
 
 cone_map.STA_W          = STA_W ;
 cone_map.N_cones_factor = sum(log(2*pi*cell_consts)) ;
@@ -123,21 +121,19 @@ cone_map.cell_consts    = cell_consts ;
 cone_map.colorDot       = cone_params.colors * cone_params.colors' ;
 cone_map.ROIlogic       = ROIlogic ;
 cone_map.ROI            = ROI ;
-cone_map.N              = N ;
 cone_map.NROI           = NROI ;
 cone_map.SS             = SS ;
 
 end
 
 
-function a = placeRF(N,RF,x,y,SS)
+function a = subsample(a,SS)
 
-R = floor(size(RF,1)/2) ;
-a = zeros(N) ;
-a(x-R:x+R,y-R:y+R) = RF ;
+[N,M] = size(a) ;
+
 a = sum( reshape(a,SS,[]) ) ;
 a = reshape(a,N/SS,[])' ;
 a = sum( reshape(a,SS,[]) ) ;
-a = reshape(a',N/SS,N/SS) ;
-a = a/SS^2 ;
+a = reshape(a,M/SS,N/SS)' ;
+a = a/SS ;
 end

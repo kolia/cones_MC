@@ -18,7 +18,7 @@ for d=1:4
     end
 end
 
-% check_X(X)
+check_X(X)
 
 X.diff.added = [] ;
 X.diff.deleted = [] ;

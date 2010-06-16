@@ -35,8 +35,6 @@ for d=1:4
     end
 end
 
-
-
 % for i=1:length(x)
 %     X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) , LL ) ;
 % % check exclusion
