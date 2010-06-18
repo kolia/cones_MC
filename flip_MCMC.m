@@ -25,7 +25,6 @@ L = exp( ll - max(ll) ) ;
 L = L/sum(L) ;
 
 % choose next state
-% if n_trials>1       
 
 % symmetric rule
 trans_prior = zeros(n_trials+1,1) ;
@@ -44,17 +43,9 @@ if i>1 , X = update( X , trials{i} ) ; end
 %         length(trials{i}.move{2}),length(trials{i}.move{3}))
 % end
 
-
-% accumulate acceptance rate statistics
-if isfield(X,'stats')
-    X.stats.N500 = (1-1/500)*X.stats.N500 + 1 ;
-    X.stats.accepted = (1 - 1/500) * X.stats.accepted + (i>1) ;
-end
-
 % accumulate observable
 if ~burn_in
-%     result = result + sum( L * cell2mat( map_cell( accumulate , trials )) , 1 ) ;
-    result = result + accumulate(X) ;
+    result = accumulate(result,X,i) ;
 end
     
 % else                % metropolis_hastings

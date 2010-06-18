@@ -61,7 +61,11 @@ for i=1:size(flips,1)
             end
         end
         
-        Wkkc    = PROB.coneConv(PROB.R+1,PROB.R+1,ssx,ssy) * PROB.colorDot(c,c) ;
+        Wkkc    = PROB.coneConv(PROB.R+1,PROB.R+1,ssx,ssy) * PROB.colorDot(c,c) ;        
+        
+        if max(Wkstate) > Wkkc
+            'blah'
+        end
         
         invWW   = X.invWW ;
         r       = Wkstate * invWW ;
@@ -90,7 +94,12 @@ if X.N_cones>0
     invWW = X.invWW ;
     invWW(abs(invWW)<abs(invWW(1,1))*1e-17) = 0 ;
     invWW = sparse(invWW) ;
+
+    try
     ldet  = 2 * sum(log(diag(chol(invWW))));
+    catch
+       'blah' 
+    end
     
     [x,y,c] = find(X.state) ;
     

@@ -10,7 +10,9 @@ seen = zeros(n,1) ;
 classes =  cell(n,1) ;
 sizes   = zeros(n,1) ;
 
-i=1 ;
+inds    = find(diag(R)>0) ;
+
+i=inds(1) ;
 k=1 ;
 while ~isempty(i)
     s = R(i,:) ;
@@ -21,9 +23,9 @@ while ~isempty(i)
     
     k = k+1 ;
     
-    oldi = i ;
-    i = find(~seen,1) ;
-    i = i(i>oldi) ;
+    inds = inds(inds>i) ;
+    
+    i = inds( find(~seen(inds),1) ) ;
 end
 
 classes = classes(1:k-1) ;

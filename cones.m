@@ -13,20 +13,20 @@ N_colors    = cone_map.N_colors ;
 
 
 %% plot and display info every ? MCMC iterations  (0 for never)
-plot_every      = 500 ;
+plot_every      = 0 ;
 display_every   = 50 ;
 
 
 %% PARAMETERS FOR MCMC
-  TOTAL_trials  = 30 * M0 * M1 ;  % number of trials after burn-in = TOTAL_trials * n_trials ;
-  burn_in       = 20 * M0 * M1 ; % number of burn-in trials
+  TOTAL_trials  = 1 * M0 * M1 ;  % number of trials after burn-in = TOTAL_trials * n_trials ;
+  burn_in       = 1 * M0 * M1 ; % number of burn-in trials
 
 % maxcones      maximum number of cones allowed
   maxcones      = 150 ;
 %   maxcones      = floor( 0.005 * M0 * M1 ) ;  
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = ones(1,1) ;
+  betas         = ones(1,2) ;
 
 % D             exclusion distance
   D             = 9.2 ;
@@ -65,23 +65,23 @@ for i=1:N_instances
     
 end
 
-
-accumulator  = @(X)[(X.state(:)'==1) (X.state(:)'==2) (X.state(:)'==3)] ;
-accumulated  = zeros( 1 , M0*SS*M1*SS*N_colors ) ;
-
-% moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)] ;
-moves = num2cell(1:N_instances) ;  % no swaps for now
+moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)] ;
+% moves = num2cell(1:N_instances) ;  % no swaps for now
 
 N_moves      = length(moves) ;
 burn_in      = ceil( burn_in / N_moves ) ;
 N_iterations = burn_in + ceil( TOTAL_trials / N_moves ) ;
 n_cones      = zeros( N_iterations , 1 ) ;
 
+
 stats = cell(N_moves,1) ;
 for j=1:N_moves
     stats{j}.N500     = 0 ;
     stats{j}.accepted = 0 ;
 end
+
+accumulated.summed  = zeros( 1 , M0*SS*M1*SS*N_colors ) ;
+
 
 if plot_every
 scrsz = get(0,'ScreenSize');
@@ -113,27 +113,27 @@ for jj=1:N_iterations
             
             % swap move if this_move has 2 indices
             if length(this_move) == 2 && isswap
-                [swapX,swaps] = swap_closure( X{i} , X{this_move(2)} , ...
-                                               LLi{i} , LLi{this_move(2)}) ;
+                swapX = swap_closure( X{i} , X{this_move(2)} , cone_map) ;
 
-                swapX.stats = stats{this_move(2)} ;
+                accumulated.stats = stats{this_move(2)} ;
 
 % figure(hswaps)
 % imagesc( xor( swaps{1}.state>0 , swapX.state>0 ) )
 % drawnow
                                            
                 [ accumulated , swapX ] = ...
-                    flip_MCMC( accumulated , swapX , accumulator , swaps , ...
-                    @(x,t)update_swap(x,t,LLi{i},LLi{this_move(2)}) , isaccumulate ) ;
+                    flip_MCMC( accumulated , swapX{1} , @accumulate_results , swapX(2:end) , ...
+                    @update_swap , isaccumulate ) ;
                 
                 X{i} = swapX.X ; X{this_move(2)} = swapX.with ;
-                stats{this_move(2)} = swapX.stats ;
+                stats{this_move(2)} = accumulated.stats ;
+                accumulated = rmfield(accumulated,'stats') ;
                 
             % regular MCMC move if this_move has one index
             elseif length(this_move) == 1
                 i = this_move ;
                 [ accumulated , X{i} ] = ...
-                    flip_MCMC( accumulated ,     X{i} ,       accumulator , ...
+                    flip_MCMC( accumulated ,     X{i} ,       @accumulate_results , ...
                                jitter{i}(X{i}) , updater{i} , isaccumulate ) ;
             end
             n_cones(jj) = numel(find(X{1}.state>0)) ;
