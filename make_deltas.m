@@ -1,6 +1,6 @@
 function deltas = make_deltas(m,M,r,N)
 
-N = max(N,5) ;
+N = max(N-1,4) ;
 
 deltas = log( 1:exp(r)/(N-1):1+exp(r) ) ;
 deltas = m + deltas*(M-m)/deltas(end) ;

@@ -18,15 +18,15 @@ display_every   = 50 ;
 
 
 %% PARAMETERS FOR MCMC
-  TOTAL_trials  = 80 * M0 * M1 ;  % number of trials after burn-in = TOTAL_trials * n_trials ;
-  burn_in       = 50 * M0 * M1 ; % number of burn-in trials
+  N_iterations  = 20 * M0 * M1 ; % number of trials including burn-in
+  burn_in       = 5  * M0 * M1 ; % number of burn-in trials
 
 % maxcones      maximum number of cones allowed
   maxcones      = 150 ;
 %   maxcones      = floor( 0.005 * M0 * M1 ) ;  
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = make_deltas(0.1,1,2,3) ;  % ones(1,2) ;
+  betas         = make_deltas(0.1,1,2,64) ;  % ones(1,2) ;
 
 % D             exclusion distance
   D             = 9.2 ;
@@ -41,19 +41,19 @@ display_every   = 50 ;
 
 %% MCMC RUN
 N_instances     = length(betas) ;
-fprintf('\n\nSTARTING %d MCMC instances with',N_instances)
-fprintf('\ndifferent inverse temperatures beta:\n')
-fprintf('%.2f   ',betas)
-fprintf('\nmaximum number of cones: %d   ',maxcones)
-
 
 moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)] ;
 % moves = num2cell(1:N_instances) ;  % no swaps for now
 
 N_moves      = length(moves) ;
-burn_in      = ceil( burn_in / N_moves ) ;
-N_iterations = burn_in + ceil( TOTAL_trials / N_moves ) ;
 n_cones      = zeros( N_iterations , 1 ) ;
+
+
+fprintf('\n\nSTARTING %d MCMC instances with',N_instances)
+fprintf('\n\n+ different inverse temperatures beta:\n')
+fprintf('%.2f   ',betas)
+fprintf('\n\n+ maximum number of cones: %d',maxcones)
+fprintf('\n\n+ burn-in:                 %d iterations',burn_in)
 
 
 % initializing variables

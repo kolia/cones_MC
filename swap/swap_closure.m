@@ -50,11 +50,6 @@ for i=1:length(XS)
     if X.maxcones >= X.N_cones      + numel(Oclass)    && ...
        X.maxcones >= otherX.N_cones + numel(Xclass)
 
-        XS{i}.X     = XX ;
-        XS{i}.with  = OX ;
-        XS{i}.ll    = XX.ll + OX.ll ;
-        XS{i}.state = XX.state ;
-
             for k=1:length(Xclass)
                 XX = flip_LL( XX , [xcx(k) xcy(k) 0] , PROB ) ;
             end
@@ -67,6 +62,10 @@ for i=1:length(XS)
             for k=1:length(Xclass)
                 OX = flip_LL( OX , [xcx(k) xcy(k) xcc(k)] , PROB ) ;
             end
+            
+            XS{i}.X     = XX ;
+            XS{i}.with  = OX ;
+            XS{i}.ll    = XX.ll + OX.ll ;
             
         keep = [keep i] ;
     end
