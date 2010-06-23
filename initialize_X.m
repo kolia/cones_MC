@@ -11,6 +11,7 @@ X.dll       = 0 ;
 X.n_moves   = 0 ;
 X.diff.added= [] ;
 X.diff.deleted = [] ;
+X.version   = 0 ;
 
 X.beta      = beta ;
 
@@ -20,14 +21,9 @@ X.maxcones  = maxcones ;
 % sparse int matrix, representing cone positions and colors
 X.state     = sparse([],[],[],X.M0,X.M1,X.maxcones) ;
 
-% sparse int matrix, with number of out-of-border adjacencies
-X.outofbounds = sparse([],[],[],X.M0,X.M1,2*(X.M0+X.M1)) ;
-X.outofbounds(:,[1 X.M1]) = 1 ;
-X.outofbounds([1 X.M0],:) = X.outofbounds([1 X.M0],:) + 1 ;
-
 % contact forces at four cardinal adjacent positions, indexed by id
 for d=1:4
-    X.contact{d} = sparse([],[],[],X.M0*X.M1,X.M0*X.M1,X.maxcones) ;
+    X.contact{d} = sparse([],[],[],X.M0*X.M1,X.M0*X.M1,floor(X.maxcones/2)) ;
     X.contact{d} = logical(X.contact{d}) ;
 end
 

@@ -31,9 +31,26 @@ XS      = cell( length(classes), 1 ) ;
 
 keep = [] ;
 for i=1:length(XS)
-    XX = X ;
-    OX = otherX ;
-   
+    if i>1
+        XX       = struct ;
+        XX.state = X.state ;
+        XX.invWW = X.invWW ;
+        XX.N_cones=X.N_cones ;
+        XX.ll    = X.ll ;
+        XX.diff  = X.diff ;
+        XX.beta  = X.beta ;
+        
+        OX       = struct ;
+        OX.state = otherX.state ;
+        OX.invWW = otherX.invWW ;
+        OX.N_cones=otherX.N_cones ;
+        OX.ll    = otherX.ll ;
+        OX.diff  = otherX.diff ;
+        OX.beta  = otherX.beta ;
+    else
+        XX = X ;
+        OX = otherX ;
+    end
     Oclass   = classes{i}(classes{i}<=N) ;
     Xclass   = classes{i}(classes{i} >N) - N ;
     

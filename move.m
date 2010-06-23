@@ -17,8 +17,8 @@ function samples = move( X , n , q , PROB )
 % For speed, backward probabilities are not calculated: this sampler should
 % only be used with the symmetric rule, not with metropolis-hastings.
 
-M0 = X.M0 ;
-M1 = X.M1 ;
+M0 = PROB.M0 * PROB.SS ;
+M1 = PROB.M1 * PROB.SS ;
 
 % current cones in X
 [cx,cy]     = find(X.state) ;
@@ -45,7 +45,7 @@ if X.N_cones > 0
         p = 1/X.N_cones * q ;
         
         % number of legal moves for this cone, being careful with borders
-        nforward    = 4 - X.outofbounds(i,j) + X.N_colors ;
+        nforward    = 4 - PROB.outofbounds(i,j) + PROB.N_colors ;
 
         % for each adjacent location, add trial move to that location
         for d=1:4                 % move N , E , S , W
@@ -80,10 +80,10 @@ while ns <= n + nns
     i       = randi( M0 , 1 ) ;
     j       = randi( M1 , 1 ) ;
     
-    if ~X.state(i+X.M0*(j-1))
+    if ~X.state(i+M0*(j-1))
         l1      = [] ;
         % probability of choosing this location & color
-        p = (1-q)/((M0*M1 - X.N_cones)*X.N_colors) ;
+        p = (1-q)/((M0*M1 - X.N_cones)*PROB.N_colors) ;
 
         if X.N_cones >= X.maxcones            
         % if maxcones has been reached, delete a random cone first
@@ -93,7 +93,7 @@ while ns <= n + nns
         end
         
         % propose addition of new cone of each color
-        for c=1:X.N_colors
+        for c=1:PROB.N_colors
             ns = ns+1 ;
             samples{ns} = change_cone( X , [l1 ; i j c] , PROB ) ;
             samples{ns}.forward_prob    = p ;

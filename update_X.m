@@ -1,5 +1,9 @@
-function [results,X] = update_X(results,X,changed)
+function [results,X] = update_X(results,trials,i)
 
+changed = i>1 ;
+X       = trials{i} ;
+if i>1 , X.version = trials{1}.version+1 ;
+clear trials
 
 %% accumulate statistics
 
@@ -10,7 +14,7 @@ if ~isfield(X,'burn_in')  % only after burn_in iterations
         if changed
             results.summed = results.summed + results.change * results.times ;
             results.change = ...
-                [(X.state(:)'==1) (X.state(:)'==2) (X.state(:)'==3)] ;
+                logical( [(X.state(:)'==1) (X.state(:)'==2) (X.state(:)'==3)] ) ;
             results.times = 1 ;
         else
             results.times = results.times + 1 ;

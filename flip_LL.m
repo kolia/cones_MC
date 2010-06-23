@@ -10,6 +10,9 @@ function X = flip_LL( X , flips , PROB )
 % block matrix inverse update formulas are used to update X.invWW 
 % incrementally, for speed.
 
+M0 = PROB.M0 * PROB.SS ;
+M1 = PROB.M1 * PROB.SS ;
+
 for i=1:size(flips,1)
     
     x = flips(i,1) ;
@@ -21,11 +24,11 @@ for i=1:size(flips,1)
     if ~c && ~X.state(x,y)
         error('deleting nonexistent cone...')
     elseif c    % cone addition
-        k = x + X.M0*(y-1) + X.M0*X.M1*(c-1) ;
+        k = x + M0*(y-1) + M0*M1*(c-1) ;
     else        % cone deletion
-        k = x + X.M0*(y-1) + X.M0*X.M1*(X.state(x,y)-1) ;
+        k = x + M0*(y-1) + M0*M1*(X.state(x,y)-1) ;
     end
-    j = sum( posX + X.M0*(posY-1) + X.M0*X.M1*(colors-1) <= k ) ;
+    j = sum( posX + M0*(posY-1) + M0*M1*(colors-1) <= k ) ;
     
     % block matrix inverse update
     if ~c       % update inverse by deleting jth row/column
@@ -45,8 +48,8 @@ for i=1:size(flips,1)
         inds        = [1:j-1 j+1:X.N_cones] ;
         
         Wkinds  = [posX'-x ; posY'-y] ;
-        ssx     = 1+mod(1-x,X.SS) ;
-        ssy     = 1+mod(1-y,X.SS) ;
+        ssx     = 1+mod(1-x,PROB.SS) ;
+        ssy     = 1+mod(1-y,PROB.SS) ;
         
 %         fprintf('\t%d',min(max(abs(Wkinds),[],1)))
         
@@ -99,7 +102,7 @@ if X.N_cones>0
     
     [x,y,c] = find(X.state) ;
     
-    STA_W_state = PROB.STA_W( x+X.M0*(y-1)+X.M0*X.M1*(c-1) , : )' ;
+    STA_W_state = PROB.STA_W( x+M0*(y-1)+M0*M1*(c-1) , : )' ;
     
     ll  = X.beta * full(- X.N_cones * PROB.sumLconst + ldet * PROB.N_GC + ...
         sum( PROB.cell_consts .* sum( (STA_W_state * invWW) .* STA_W_state ,2) )/2) ;
@@ -107,7 +110,6 @@ else
     ll = 0 ;
 end
 
-X.dll = ll - X.ll ;
 X.ll  = ll ;
 
 end

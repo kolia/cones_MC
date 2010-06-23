@@ -5,28 +5,35 @@ function cone_map = cones( cone_map )
 % addpath('../libraries/swaps')
 
 LL          = cone_map.LL ;
+cone_map    = rmfield(cone_map,{'LL' 'ROI' 'ROIlogic'}) ;
 
 M0          = cone_map.M0 ;
 M1          = cone_map.M1 ;
 SS          = cone_map.SS ;
 N_colors    = cone_map.N_colors ;
 
+% sparse int matrix, with number of out-of-border adjacencies
+cone_map.outofbounds = sparse([],[],[],M0*SS,M1*SS,2*(M0+M1)*SS) ;
+cone_map.outofbounds(:,[1 M1*SS]) = 1 ;
+cone_map.outofbounds([1 M0*SS],:) = cone_map.outofbounds([1 M0*SS],:) + 1 ;
+
 
 %% plot and display info every ? MCMC iterations  (0 for never)
 plot_every      = 0 ;
 display_every   = 50 ;
-
+save_every      = 1000 ;
+track_every     = 5 ;
 
 %% PARAMETERS FOR MCMC
-  N_iterations  = 20 * M0 * M1 ; % number of trials including burn-in
-  burn_in       = 5  * M0 * M1 ; % number of burn-in trials
+  N_iterations  = 10 * M0 * M1 ; % number of trials including burn-in
+  burn_in       = 1  * M0 * M1 ; % number of burn-in trials
 
 % maxcones      maximum number of cones allowed
   maxcones      = 150 ;
 %   maxcones      = floor( 0.005 * M0 * M1 ) ;  
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = make_deltas(0.1,1,2,64) ;  % ones(1,2) ;
+  betas         = [1 0.5] ; % make_deltas(0.1,1,2,6) ;  % ones(1,2) ;
 
 % D             exclusion distance
   D             = 9.2 ;
@@ -46,7 +53,6 @@ moves = [num2cell(1:N_instances) num2cell([1:N_instances-1 ; 2:N_instances],1)] 
 % moves = num2cell(1:N_instances) ;  % no swaps for now
 
 N_moves      = length(moves) ;
-n_cones      = zeros( N_iterations , 1 ) ;
 
 
 fprintf('\n\nSTARTING %d MCMC instances with',N_instances)
@@ -61,6 +67,7 @@ jitter          = cell( N_instances , 1 ) ;
 X               = cell( N_instances , 1 ) ;
 swap_stats      = cell( N_instances , 1 ) ;
 results         = cell( N_instances , 1 ) ;
+n_cones         = 0 ;
 
 for i=1:N_instances
     
@@ -78,11 +85,13 @@ for i=1:N_instances
     swap_stats{i}.N500     = 0 ;
     swap_stats{i}.accepted = 0 ;
     
-    results{i}.summed  = zeros( 1 , M0*SS*M1*SS*N_colors ) ;
-    results{i}.change  = zeros( 1 , M0*SS*M1*SS*N_colors ) ;
-    results{i}.times   = 0 ;
-    results{i}.N_iter  = 0 ;
-
+    if ~mod(i-1,track_every)
+        results{i}.summed  = zeros( 1 , M0*SS*M1*SS*N_colors ) ;
+        results{i}.change  = false( 1 , M0*SS*M1*SS*N_colors ) ;
+        results{i}.times   = 0 ;
+        results{i}.N_iter  = 0 ;
+    end
+    
 end
 
 
@@ -118,19 +127,28 @@ for jj=1:N_iterations
 
             % swap move if this_move has 2 indices
             if length(this_move) == 2 && isswap
-                swapX = swap_closure( X{i} , X{this_move(2)} , cone_map) ;
-
+                jjj = this_move(2) ;
+                
+                if isfield(swap_stats{i},'trials')          ...
+                && X{i}.version == swap_stats{i}.version(1) ...
+                && X{jjj}.version == swap_stats{i}.version(2) 
+                    swapX = swap_stats{i}.trials ;
+                    swap_stats{i} = rmfield(swap_stats{i},'trials') ;
+                else
+                    swapX = swap_closure( X{i} , X{jjj} , cone_map) ;
+                end
+                
                 [ swap_stats{i} , swapX ] = flip_MCMC( ...
                     swap_stats{i}, swapX{1}, swapX(2:end), @update_swap ) ;
                 
-                X{i} = swapX.X ; X{this_move(2)} = swapX.with ;
+                X{i} = swapX.X ; X{jjj} = swapX.with ;
                 
             % regular MCMC move if this_move has one index
             elseif length(this_move) == 1
                 [ results{i} , X{i} ] = flip_MCMC( ...
                     results{i}, X{i}, jitter{i}(X{i}), @update_X) ;
             end
-            n_cones(jj) = numel(find(X{1}.state>0)) ;
+            n_cones = numel(find(X{1}.state>0)) ;
         end
     end
 
@@ -147,7 +165,7 @@ for jj=1:N_iterations
             swapstring = [swapstring '     '] ;
         end
         fprintf('\nIteration:%4d of %d \t %s\t  %4d cones \t%8.2f sec',...
-                            jj,N_iterations,swapstring,n_cones(jj),toc)
+                            jj,N_iterations,swapstring,n_cones,toc)
         tic
     end
     
@@ -183,6 +201,9 @@ for jj=1:N_iterations
         drawnow
     end
     
+    if ~mod(jj,save_every)
+        save stats results swap_stats
+    end
 end
 fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
 

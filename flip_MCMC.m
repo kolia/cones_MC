@@ -9,13 +9,13 @@ function [results , X] = flip_MCMC( results , X , trials , update )
 if isempty(trials) ,  return ; end
 
 % prepend current X to samples
+trials   = [{X} ; trials] ;
 n_trials = length(trials) ;
-nomove.ll = X.ll ;
-trials   = [{nomove} ; trials] ;
+clear X
 
 % calculate the log-likelihoods of proposed trials
-ll      = zeros(1,n_trials+1) ;
-for i=1:n_trials+1
+ll      = zeros(1,n_trials) ;
+for i=1:n_trials
     ll(i) = trials{i}.ll ;
 end
 
@@ -26,17 +26,16 @@ L = L/sum(L) ;
 % choose next state
 
 % symmetric rule
-trans_prior = zeros(n_trials+1,1) ;
-for i=2:n_trials+1
+trans_prior = zeros(n_trials,1) ;
+for i=2:n_trials
     trans_prior(i) = trials{i}.forward_prob ;
 end
-trans_prior(1) = sum(trans_prior)/(n_trials+1) ;
+trans_prior(1) = sum(trans_prior)/(n_trials) ;
 p = L./trans_prior' ;
 p = cumsum(p) ;
 p = p/p(end) ;
 i = randiscrete( p ) ;
-if i>1 , [results , X] = update( results , trials{i} , 1 ) ;
-else     [results , X] = update( results , X         , 0 ) ; end
+[results , X] = update( results , trials , i ) ;
 
 
 % else                % metropolis_hastings
