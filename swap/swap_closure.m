@@ -24,14 +24,17 @@ clear i j
 % get equivalence classes / connected components
 [classes,sizes] = equivalence_classes(R) ;
 classes = classes( sizes>2 ) ;
+
+% classes = [{[]} ; {[i' N+j']}] ;
 classes = [{[]} ; classes] ;
+
 XS      = cell( length(classes), 1 ) ;
 
 % fprintf('\n#swaps: %d',length(XS))
 
 keep = [] ;
-for i=1:length(XS)
-    if i>1
+for m=1:length(XS)
+    if m>Inf
         XX       = struct ;
         XX.state = X.state ;
         XX.invWW = X.invWW ;
@@ -51,22 +54,22 @@ for i=1:length(XS)
         XX = X ;
         OX = otherX ;
     end
-    Oclass   = classes{i}(classes{i}<=N) ;
-    Xclass   = classes{i}(classes{i} >N) - N ;
+    Oclass   = classes{m}(classes{m}<=N) ;
+    Xclass   = classes{m}(classes{m} >N) - N ;
     
 %     fprintf('\t %d,%d',numel(Xclass),numel(Oclass)) ;
         
-    xcx      = 1+mod(Xclass-1,X.M0) ;
-    xcy      = 1+floor((Xclass-1)/X.M0) ;
-    xcc      = XX.state(Xclass) ;
-    
-    ocx      = 1+mod(Oclass-1,X.M0) ;
-    ocy      = 1+floor((Oclass-1)/X.M0) ;
-    occ      = OX.state(Oclass) ;
-    
     if X.maxcones >= X.N_cones      + numel(Oclass)    && ...
        X.maxcones >= otherX.N_cones + numel(Xclass)
 
+            xcx      = 1+mod(Xclass-1,X.M0) ;
+            xcy      = 1+floor((Xclass-1)/X.M0) ;
+            xcc      = XX.state(Xclass) ;
+            
+            ocx      = 1+mod(Oclass-1,X.M0) ;
+            ocy      = 1+floor((Oclass-1)/X.M0) ;
+            occ      = OX.state(Oclass) ;
+   
             for k=1:length(Xclass)
                 XX = flip_LL( XX , [xcx(k) xcy(k) 0] , PROB ) ;
             end
@@ -80,14 +83,15 @@ for i=1:length(XS)
                 OX = flip_LL( OX , [xcx(k) xcy(k) xcc(k)] , PROB ) ;
             end
             
-            XS{i}.X     = XX ;
-            XS{i}.with  = OX ;
-            XS{i}.ll    = XX.ll + OX.ll ;
+            XS{m}.X     = XX ;
+            XS{m}.with  = OX ;
+            XS{m}.ll    = XX.ll + OX.ll ;
             
-        keep = [keep i] ;
+        keep = [keep m] ;
     end
 end
 XS = XS(keep) ;
+
 
 N = length(XS) ;
 for i=1:N

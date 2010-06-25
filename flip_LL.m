@@ -23,12 +23,10 @@ for i=1:size(flips,1)
 
     if ~c && ~X.state(x,y)
         error('deleting nonexistent cone...')
-    elseif c    % cone addition
-        k = x + M0*(y-1) + M0*M1*(c-1) ;
     else        % cone deletion
-        k = x + M0*(y-1) + M0*M1*(X.state(x,y)-1) ;
+        k = x + M0*(y-1) ;
     end
-    j = sum( posX + M0*(posY-1) + M0*M1*(colors-1) <= k ) ;
+    j = sum( posX + M0*(posY-1) <= k ) ;
     
     % block matrix inverse update
     if ~c       % update inverse by deleting jth row/column
@@ -48,8 +46,8 @@ for i=1:size(flips,1)
         inds        = [1:j-1 j+1:X.N_cones] ;
         
         Wkinds  = [posX'-x ; posY'-y] ;
-        ssx     = 1+mod(1-x,PROB.SS) ;
-        ssy     = 1+mod(1-y,PROB.SS) ;
+        ssx     = 1+mod(x-1,PROB.SS) ;
+        ssy     = 1+mod(y-1,PROB.SS) ;
         
 %         fprintf('\t%d',min(max(abs(Wkinds),[],1)))
         
@@ -64,7 +62,7 @@ for i=1:size(flips,1)
             end
         end
         
-        Wkkc    = PROB.coneConv(PROB.R+1,PROB.R+1,ssx,ssy) * PROB.colorDot(c,c) ;        
+        Wkkc    = PROB.coneConv(PROB.R+ssx,PROB.R+ssy,ssx,ssy) * PROB.colorDot(c,c) ;        
         
         if max(Wkstate) > Wkkc
             error('This is absurd.')

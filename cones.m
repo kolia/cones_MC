@@ -25,15 +25,15 @@ save_every      = 1000 ;
 track_every     = 5 ;
 
 %% PARAMETERS FOR MCMC
-  N_iterations  = 10 * M0 * M1 ; % number of trials including burn-in
-  burn_in       = 1  * M0 * M1 ; % number of burn-in trials
+  N_iterations  = 20 * M0 * M1 ; % number of trials including burn-in
+  burn_in       = 2  * M0 * M1 ; % number of burn-in trials
 
 % maxcones      maximum number of cones allowed
   maxcones      = 150 ;
 %   maxcones      = floor( 0.005 * M0 * M1 ) ;  
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = [1 0.5] ; % make_deltas(0.1,1,2,6) ;  % ones(1,2) ;
+  betas         = [1 0.7 0.3 0.1] ; % make_deltas(0.1,1,2,6) ;
 
 % D             exclusion distance
   D             = 9.2 ;

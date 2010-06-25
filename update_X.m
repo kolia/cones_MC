@@ -45,7 +45,7 @@ if changed
         end
     end
     
-    % check_X(X)
+%     check_X(X)
     
     X.diff.added    = [] ;
     X.diff.deleted  = [] ;
