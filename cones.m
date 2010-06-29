@@ -1,4 +1,4 @@
-function cone_map = cones( cone_map )
+function cone_map = cones( cone_map , ID )
 %% cone_map = cones( LL )
 %  Run MCMC to find cone locations.
 
@@ -17,6 +17,8 @@ cone_map.outofbounds = sparse([],[],[],M0*SS,M1*SS,2*(M0+M1)*SS) ;
 cone_map.outofbounds(:,[1 M1*SS]) = 1 ;
 cone_map.outofbounds([1 M0*SS],:) = cone_map.outofbounds([1 M0*SS],:) + 1 ;
 
+if nargin<2 , ID = 0 ; end
+cone_map.ID = ID ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
 plot_every      = 0 ;
@@ -33,7 +35,7 @@ track_every     = 5 ;
 %   maxcones      = floor( 0.005 * M0 * M1 ) ;  
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = [1 0.7 0.3 0.1] ; % make_deltas(0.1,1,2,6) ;
+  betas         = make_deltas(0.1,1,2,25) ;
 
 % D             exclusion distance
   D             = 9.2 ;
@@ -85,11 +87,14 @@ for i=1:N_instances
     swap_stats{i}.N500     = 0 ;
     swap_stats{i}.accepted = 0 ;
     
-    if ~mod(i-1,track_every)
+    if ~mod(i-1,track_every) || i==N_instances
         results{i}.summed  = zeros( 1 , M0*SS*M1*SS*N_colors ) ;
         results{i}.change  = false( 1 , M0*SS*M1*SS*N_colors ) ;
         results{i}.times   = 0 ;
         results{i}.N_iter  = 0 ;
+        results{i}.N500    = 0 ;
+        results{i}.LL_mean = 0 ;
+        results{i}.LL_mean_square = 0 ;
     end
     
 end
@@ -119,7 +124,7 @@ for jj=1:N_iterations
         this_move   = moves{j} ;
         i           = this_move(1) ;
         
-        if jj == floor(burn_in) && isfield(X{i},'burn_in')
+        if jj > burn_in && isfield(X{i},'burn_in')
             X{i} = rmfield(X{i},'burn_in') ;
         end
 
@@ -134,8 +139,10 @@ for jj=1:N_iterations
                 && X{jjj}.version == swap_stats{i}.version(2) 
                     swapX = swap_stats{i}.trials ;
                     swap_stats{i} = rmfield(swap_stats{i},'trials') ;
+%                     fprintf('-')
                 else
                     swapX = swap_closure( X{i} , X{jjj} , cone_map) ;
+%                     fprintf('+')
                 end
                 
                 [ swap_stats{i} , swapX ] = flip_MCMC( ...
@@ -175,7 +182,7 @@ for jj=1:N_iterations
         for i=1:N_instances
             NN = ceil(sqrt(N_instances)) ;
             subplot(NN,ceil(N_instances/NN),i)
-%             subplot(1,N_instances,i)
+            % subplot(1,N_instances,i)
             colormap('pink')
             GGG = GG0 ;
             for c=1:3
@@ -196,13 +203,35 @@ for jj=1:N_iterations
             else
                 title( titl , 'FontSize',16)
             end
-            %             set(get(gca,'Title'),'Visible','on')
+            % set(get(gca,'Title'),'Visible','on')
         end
         drawnow
+
+%         for i=1:N_instances
+%             if isfield(results{i},'summed')
+%                 cone_map.stats{i}   = rmfield(results{i},'change') ;
+%                 cone_map.stats{i}.summed = ...
+%                     reshape( results{i}.summed , [M0*SS M1*SS N_colors] ) ;
+%                 cone_map.stats{i}.N_iter = results{i}.N_iter ;
+%             end
+%         end
+%         
+%         MAX = max(cone_map.stats{1}.summed(:)) ;
+%         if MAX>0
+%             acc = cone_map.stats{1}.summed ./ MAX ;
+%             imagesc(acc)
+%             titl = sprintf('X_%d   \\beta %.2g',i,betas(1)) ;
+%             if i == ceil(N_instances/4)
+%                 title({sprintf('Iteration %d',jj) ; titl },'FontSize',16)
+%             else
+%                 title( titl , 'FontSize',16)
+%             end
+%             drawnow
+%         end
     end
     
     if ~mod(jj,save_every)
-        save stats results swap_stats
+        save(sprintf('stats_%d',ID), 'results' , 'swap_stats')
     end
 end
 fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
@@ -216,6 +245,7 @@ cone_map.N_iterations   = N_iterations ;
 cone_map.moves          = moves ;
 for i=1:N_instances
     if isfield(results{i},'summed')
+        cone_map.stats{i}   = rmfield(results{i},'change') ;
         cone_map.stats{i}.summed = ...
             reshape( results{i}.summed , [M0*SS M1*SS N_colors] ) ;
         cone_map.stats{i}.N_iter = results{i}.N_iter ;

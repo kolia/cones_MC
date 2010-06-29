@@ -5,37 +5,37 @@ global cone_map
 X = Y ;
 [x,y,c] = find( X.state ) ;
 
-% % check X.contact
-% for d=1:4
-%     X.contact{d} = X.contact{d} * 0 ;
-%     
-%     for i=1:length(x)
-%         X = make_contacts( X , x(i) , y(i) ) ;
-%     end    
-%     
-%     dX = find( xor( Y.contact{d} , X.contact{d}) ) ;
-%     if dX
-%         X.diff.added
-%         X.diff.deleted
-%         X.contact{d}
-%         Y.contact{d}
-%         dX
-%         d
-%     end
-% end
-% 
-% % check that X.contact only concerns existing cones
-% for d=1:4
-%     cones = logical( max( max( X.contact{d} ,[],1) , max( X.contact{d} ,[],2)') ) ;
-%     if ~min(X.state(cones))
-%         X.state
-%         cones
-%     end
-%     if ~cones(X.state(:)>0)
-%         cones
-%         X.state
-%     end
-% end
+% check X.contact
+for d=1:4
+    X.contact{d} = X.contact{d} * 0 ;
+    
+    for i=1:length(x)
+        X = make_contacts( X , x(i) , y(i) ) ;
+    end    
+    
+    dX = find( xor( Y.contact{d} , X.contact{d}) ) ;
+    if dX
+        X.diff.added
+        X.diff.deleted
+        X.contact{d}
+        Y.contact{d}
+        dX
+        d
+    end
+end
+
+% check that X.contact only concerns existing cones
+for d=1:4
+    cones = logical( max( max( X.contact{d} ,[],1) , max( X.contact{d} ,[],2)') ) ;
+    if ~min(X.state(cones))
+        X.state
+        cones
+    end
+    if ~cones(X.state(:)>0)
+        cones
+        X.state
+    end
+end
 
 % check that ll is consistent   % NEEDS cone_map TO BE GLOBAL
 if isfield(X,'contact') ,  X = rmfield(X,'contact') ; end

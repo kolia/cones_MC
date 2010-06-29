@@ -34,7 +34,7 @@ XS      = cell( length(classes), 1 ) ;
 
 keep = [] ;
 for m=1:length(XS)
-    if m>Inf
+    if m>1
         XX       = struct ;
         XX.state = X.state ;
         XX.invWW = X.invWW ;

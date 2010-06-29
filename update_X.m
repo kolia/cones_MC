@@ -22,7 +22,15 @@ if ~isfield(X,'burn_in')  % only after burn_in iterations
         results.N_iter  = results.N_iter + 1 ;
     end
     
-
+    if isfield(results,'LL_mean')
+        results.N500     = (1-1/500)*results.N500     + 1 ;
+        results.LL_mean  = (1-1/500)*results.LL_mean  + X.ll ;
+    end
+    
+    if isfield(results,'LL_mean_square')
+        results.LL_mean_square = (1-1/500)*results.LL_mean_square + X.ll^2 ;
+    end
+    
 end
 
 if changed
