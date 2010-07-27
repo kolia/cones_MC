@@ -22,5 +22,4 @@ for i=1:size(a,1)
     
 end
 
-
 end

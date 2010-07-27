@@ -32,9 +32,6 @@ if i>1
     X.with.diff    = trials{i}.with.diff ;
     X.with.beta    = trials{i}.with.beta ;
     
-    [dummy,X.X   ]  = update_X(struct,{trials{1}.X    X.X   },2) ;
-    [dummy,X.with]  = update_X(struct,{trials{1}.with X.with},2) ;
-    
 %     check_X(X.X)
 %     check_X(X.with)
     
@@ -46,11 +43,16 @@ else
     X = trials{1} ;
 end
 
+% update both X
+ii = 2*(i>1) + (i==1) ;
+[results.results{1},X.X   ]  = update_X(results.results{1},{trials{1}.X    X.X   },ii) ;
+[results.results{2},X.with]  = update_X(results.results{2},{trials{1}.with X.with},ii) ;    
+
+results.results{1}.swap(results.results{1}.iteration) = true ;
+results.results{2}.swap(results.results{2}.iteration) = true ;
+
 results.trials = trials ;
 results.version = [X.X.version X.with.version] ;
-
-% X.X    = xX ;
-% X.with = xwith ;
 
 % fprintf('\t swapped ')
 

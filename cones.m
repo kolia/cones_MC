@@ -1,14 +1,15 @@
-function cone_map = cones( cone_map , ID )
+function [cone_map,results] = cones( cone_map , ID )
 %% cone_map = cones( LL )
 %  Run MCMC to find cone locations.
 
 % addpath('../libraries/swaps')
 
 LL          = cone_map.LL ;
-cone_map    = rmfield(cone_map,{'LL' 'ROI' 'ROIlogic'}) ;
+cone_map    = rmfield(cone_map,{'LL' 'ROI'}) ;
 
 M0          = cone_map.M0 ;
 M1          = cone_map.M1 ;
+cone_map.SS = cone_map.cone_params.supersample ;
 SS          = cone_map.SS ;
 N_colors    = cone_map.N_colors ;
 
@@ -21,22 +22,26 @@ if nargin<2 , ID = 0 ; end
 cone_map.ID = ID ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
-plot_every      = 0 ;
-display_every   = 50 ;
+plot_every      = 100 ;
+plot_skip       = 4  ;
+display_every   = 100 ;
 save_every      = 1000 ;
 track_every     = 5 ;
 
 %% PARAMETERS FOR MCMC
-  N_iterations  = 20 * M0 * M1 ; % number of trials including burn-in
-  burn_in       = 2  * M0 * M1 ; % number of burn-in trials
+  N_iterations  = 10 * M0 * M1 ; % number of trials including burn-in
+  burn_in       = 2 * M0 * M1 ; % number of burn-in trials
 
 % maxcones      maximum number of cones allowed
   maxcones      = 150 ;
 %   maxcones      = floor( 0.005 * M0 * M1 ) ;  
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = make_deltas(0.1,1,2,25) ;
+  betas         = make_deltas(0.1,1,2,16) ;
 
+% FACTOR        arbitrary factor for W
+  FACTOR        = 0.1 ;
+  
 % D             exclusion distance
   D             = 9.2 ;
   
@@ -47,6 +52,8 @@ track_every     = 5 ;
   % moves         sequence of moves at each iteration, currently:
 %               - a regular MC move for each instance
 
+cone_map.STA_W      = cone_map.STA_W    * FACTOR    ;
+cone_map.coneConv   = cone_map.coneConv * FACTOR^2  ;
 
 %% MCMC RUN
 N_instances     = length(betas) ;
@@ -82,10 +89,11 @@ for i=1:N_instances
     
     X{i}.i          = i ;
     
-	X{i}.SS         = cone_map.SS ;
+	X{i}.SS         = cone_map.cone_params.supersample ;
     
     swap_stats{i}.N500     = 0 ;
     swap_stats{i}.accepted = 0 ;
+    swap_stats{i}.dSwap    = logical( sparse([],[],[],N_iterations,1) ) ;
     
     if ~mod(i-1,track_every) || i==N_instances
         results{i}.summed  = zeros( 1 , M0*SS*M1*SS*N_colors ) ;
@@ -96,6 +104,9 @@ for i=1:N_instances
         results{i}.LL_mean = 0 ;
         results{i}.LL_mean_square = 0 ;
     end
+    results{i}.iteration    = 0 ;
+    results{i}.swap         = logical( sparse([],[],[],N_iterations,1) ) ;
+    results{i}.dX           = sparse([],[],[],N_iterations,3*maxcones) ;
     
 end
 
@@ -145,8 +156,14 @@ for jj=1:N_iterations
 %                     fprintf('+')
                 end
                 
+                swap_stats{i}.results{1} = results{i  } ;
+                swap_stats{i}.results{2} = results{jjj} ;
+                                
                 [ swap_stats{i} , swapX ] = flip_MCMC( ...
                     swap_stats{i}, swapX{1}, swapX(2:end), @update_swap ) ;
+                
+                results{i  } = swap_stats{i}.results{1} ;
+                results{jjj} = swap_stats{i}.results{2} ;
                 
                 X{i} = swapX.X ; X{jjj} = swapX.with ;
                 
@@ -179,9 +196,9 @@ for jj=1:N_iterations
     % DISPLAY plot
     if ~mod(jj,plot_every)
         figure(h)
-        for i=1:N_instances
-            NN = ceil(sqrt(N_instances)) ;
-            subplot(NN,ceil(N_instances/NN),i)
+        for i=[1:plot_skip:(N_instances-plot_skip) N_instances]
+            NN = ceil(sqrt(N_instances/plot_skip)) ;
+            subplot(NN,ceil(N_instances/(plot_skip*NN)),1+floor((i-1)/plot_skip))
             % subplot(1,N_instances,i)
             colormap('pink')
             GGG = GG0 ;
@@ -235,6 +252,8 @@ for jj=1:N_iterations
     end
 end
 fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
+
+save(sprintf('stats_%d',ID), 'results' , 'swap_stats')
 
 cone_map.X              = X ;
 cone_map.code           = file2str('cones.m') ;

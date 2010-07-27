@@ -6,36 +6,40 @@ function [results , X] = flip_MCMC( results , X , trials , update )
 % then the metropolis-hastings rule is used. For more than one trial, the
 % symmetric MC rule is used.
 
-if isempty(trials) ,  return ; end
-
-% prepend current X to samples
-trials   = [{X} ; trials] ;
-n_trials = length(trials) ;
-clear X
-
-% calculate the log-likelihoods of proposed trials
-ll      = zeros(1,n_trials) ;
-for i=1:n_trials
-    ll(i) = trials{i}.ll ;
+if ~isempty(trials)
+    
+    % prepend current X to samples
+    trials   = [{X} ; trials] ;
+    n_trials = length(trials) ;
+    clear X
+    
+    % calculate the log-likelihoods of proposed trials
+    ll      = zeros(1,n_trials) ;
+    for i=1:n_trials
+        ll(i) = trials{i}.ll ;
+    end
+    
+    % get likelihood vector of trials
+    L = exp( ll - max(ll) ) ;
+    L = L/sum(L) ;
+    
+    % choose next state
+    
+    % symmetric rule
+    trans_prior = zeros(n_trials,1) ;
+    for i=2:n_trials
+        trans_prior(i) = trials{i}.forward_prob ;
+    end
+    trans_prior(1) = sum(trans_prior)/(n_trials) ;
+    p = L./trans_prior' ;
+    p = cumsum(p) ;
+    p = p/p(end) ;
+    i = randiscrete( p ) ;
+    [results , X] = update( results , trials , i ) ;
+else
+    [results , X] = update( results , {X} , 1 ) ;
 end
 
-% get likelihood vector of trials
-L = exp( ll - max(ll) ) ;
-L = L/sum(L) ;
-
-% choose next state
-
-% symmetric rule
-trans_prior = zeros(n_trials,1) ;
-for i=2:n_trials
-    trans_prior(i) = trials{i}.forward_prob ;
-end
-trans_prior(1) = sum(trans_prior)/(n_trials) ;
-p = L./trans_prior' ;
-p = cumsum(p) ;
-p = p/p(end) ;
-i = randiscrete( p ) ;
-[results , X] = update( results , trials , i ) ;
 
 
 % else                % metropolis_hastings

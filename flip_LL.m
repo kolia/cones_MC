@@ -13,6 +13,9 @@ function X = flip_LL( X , flips , PROB )
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
 
+% WC = PROB.cone_params.weight_C ;  % covariance of prior weights
+% Wm = PROB.cone_params.weight_m ;  % mean of prior weights
+
 for i=1:size(flips,1)
     
     x = flips(i,1) ;
@@ -38,7 +41,7 @@ for i=1:size(flips,1)
         
         X.state(x,y)= 0 ;
         
-        X.diff.deleted = [X.diff.deleted ; x y] ;
+        X.diff = [X.diff ; x y 0] ;
         
     else        % update inverse by adding row/column
         j           = j + 1 ;
@@ -84,7 +87,7 @@ for i=1:size(flips,1)
         X.invWW(j,j)       = q ;
         
         X.state(x,y)       = c ;        
-        X.diff.added = [X.diff.added ; x y] ;
+        X.diff = [X.diff ; x y c] ;
 
     end
 end
@@ -94,6 +97,7 @@ if X.N_cones>0
 
     invWW = X.invWW ;
     invWW(abs(invWW)<abs(invWW(1,1))*1e-17) = 0 ;
+
     invWW = sparse(invWW) ;
 
     ldet  = 2 * sum(log(diag(chol(invWW))));

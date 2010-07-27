@@ -1,9 +1,11 @@
 function [results,X] = update_X(results,trials,i)
 
-changed = i>1 ;
-X       = trials{i} ;
-if i>1 , X.version = trials{1}.version+1 ;
+changed             = i>1 ;
+X                   = trials{i} ;
+if i>1 , X.version  = trials{1}.version+1 ; end
+results.iteration   = results.iteration+1 ;
 clear trials
+
 
 %% accumulate statistics
 
@@ -33,12 +35,24 @@ if ~isfield(X,'burn_in')  % only after burn_in iterations
     
 end
 
+%% track all changes
+if isfield(results,'dX')
+    if changed
+        diffX = X.diff' ;
+        results.dX(results.iteration,1:numel(diffX)) = diffX(:)' ;
+    else
+        results.dX(results.iteration,1) = 0 ;
+    end
+end
+
+
 if changed
+        
     %% update contacts
-    
-    
-    if ~isempty(X.diff.deleted)
-        deleted = X.diff.deleted(:,1) + (X.diff.deleted(:,2)-1)*X.M0 ;
+
+    deleted = find( ~X.diff(:,3) ) ;
+    if ~isempty(deleted)
+        deleted = X.diff(deleted,1) + (X.diff(deleted,2)-1)*X.M0 ;
         
         for d=1:4
             X.contact{d}(deleted,:) = false ;
@@ -46,17 +60,16 @@ if changed
         end
     end
     
-    
+    added   = find( X.diff(:,3) ) ;
     for d=1:4
-        for i=1:size(X.diff.added,1)
-            X = make_contacts(X , X.diff.added(i,1) , X.diff.added(i,2)) ;
+        for i=1:numel(added)
+            X = make_contacts(X , X.diff(added(i),1) , X.diff(added(i),2)) ;
         end
     end
     
 %     check_X(X)
     
-    X.diff.added    = [] ;
-    X.diff.deleted  = [] ;
+    X.diff    = [] ;
     
 end
 end
