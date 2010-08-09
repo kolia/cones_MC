@@ -105,9 +105,13 @@ if X.N_cones>0
     [x,y,c] = find(X.state) ;
     
     STA_W_state = PROB.STA_W( x+M0*(y-1)+M0*M1*(c-1) , : )' ;
-    
+
+    try
     ll  = X.beta * full(- X.N_cones * PROB.sumLconst + ldet * PROB.N_GC + ...
         sum( PROB.cell_consts .* sum( (STA_W_state * invWW) .* STA_W_state ,2) )/2) ;
+    catch
+        'ha!'
+    end
 else
     ll = 0 ;
 end

@@ -1,47 +1,31 @@
-function X = greedy( X , flip_LL )
-% X = greedy( X , flip_LL )
-% propagate configuration X through a greedy iteration:
-%   - calculate log-likelihood flip_LL of every single flip move
-%   - apply to X the move with highest log-likelihood increase
+function [result , X] = greedy( result , X , PROB , update_X )
 
-N = length(X.state(:)) ;
+M0 = PROB.M0 * PROB.SS ;
+M1 = PROB.M1 * PROB.SS ;
 
-% initialize bit location history f necessary
-if ~isfield(X,'history')
-    h = [] ;
-else
-    h = X.history ;
+old_ll  = X.ll ;
+ll      = zeros(M0,M1,PROB.N_colors) ;
+
+for x=1:M0
+    for y=1:M1
+        % propose addition of new cone of each color
+        for c=1:PROB.N_colors
+            sample = change_cone( X , [x y c] , PROB ) ;
+            ll(x,y,c) = sample.ll ;
+        end
+    end
 end
 
-% initialize output aux
-Y0 = flip_LL( X , [] ) ;
+m = max(ll(:)) ;
 
-% initialize trial configurations y and log-likelihoods
-ll      = zeros(1,N+1) ;
-ll(1)   = Y0.ll ;
-clear X
-
-% calculate the log-likelihoods for each bit flip, and populate y
-for i=2:N+1
-    Y = flip_LL( Y0 , i-1 ) ;
-    ll(i) = Y.ll ;
-end
-
-% choose next state
-[dummy,i] = max(ll) ;
-if i(1)>1
-    X = flip_LL( Y0 , i(1)-1 ) ;
-else
-    X = Y0 ;
-end
-
-% imagesc(reshape(X.state,26,46,3))
-% drawnow
-
-if ismember(i,h)
-    X.history = h( h ~= i-1 ) ;
-elseif i>1
-    X.history = [h i-1] ;
+if m>old_ll
+    [mx,my] = find(ll == m) ;
+    
+    mc = 1+floor((my-1)/M1) ;
+    my = 1+mod(my-1,M1) ;
+    
+    X = change_cone( X , [mx my mc] , PROB ) ;
+    [result,X] = update_X(result,{X}) ;
 end
 
 end

@@ -37,32 +37,32 @@ for d=1:4
     end
 end
 
-% check that ll is consistent   % NEEDS cone_map TO BE GLOBAL
-if isfield(X,'contact') ,  X = rmfield(X,'contact') ; end
-X.N_cones   = 0  ;
-X.invWW     = [] ;
-X.state     = 0 * X.state ;
-for k=1:length(x)
-    X = flip_LL( X , [x(k) y(k) c(k)] , cone_map ) ;
-end
-
-if abs(X.ll - Y.ll)>1e-8
-    X.ll - Y.ll
-    X.diff
-    [x y c]
-    'll is off'
-end
-
-% for i=1:length(x)
-%     X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) , LL ) ;
-% % check exclusion
-% %     [~,indices] = place_mask( X.M0 , X.M1 , x(i) , y(i) , X.masks.exclusion ) ;
-% %     
-% %     overlap = find( X.state(indices)>0 , 1) ;
-% %     if ~isempty( overlap )  &&   indices(overlap) ~= x(i) + X.M0*(y(i)-1)
-% %         [x(i) y(i)]
-% %     end
+% % check that ll is consistent   % NEEDS cone_map TO BE GLOBAL
+% if isfield(X,'contact') ,  X = rmfield(X,'contact') ; end
+% X.N_cones   = 0  ;
+% X.invWW     = [] ;
+% X.state     = 0 * X.state ;
+% for k=1:length(x)
+%     X = flip_LL( X , [x(k) y(k) c(k)] , cone_map ) ;
 % end
+% 
+% if abs(X.ll - Y.ll)>1e-8
+%     X.ll - Y.ll
+%     X.diff
+%     [x y c]
+%     'll is off'
+% end
+
+for i=1:length(x)
+%     X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) , LL ) ;
+% check exclusion
+    [dummy,indices] = place_mask( X.M0 , X.M1 , x(i) , y(i) , X.masks.exclusion ) ;
+    
+    overlap = find( X.state(indices)>0 , 1) ;
+    if ~isempty( overlap )  &&   indices(overlap) ~= x(i) + X.M0*(y(i)-1)
+        [x(i) y(i)]
+    end
+end
 
 
 % % check that localLL is consistent with LL(inds)

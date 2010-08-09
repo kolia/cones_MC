@@ -22,15 +22,15 @@ if nargin<2 , ID = 0 ; end
 cone_map.ID = ID ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
-plot_every      = 0 ;
-plot_skip       = 4 ;
+plot_every      = 500 ;
+plot_skip       = 4  ;
 display_every   = 10 ;
 save_every      = 500 ;
 track_every     = 5 ;
 
 %% PARAMETERS FOR MCMC
-  N_iterations  = 15 * M0 * M1 ; % number of trials
-  start_swap    = 4  * M0 * M1 ; % iteration where swapping starts
+  N_iterations  = 5    * M0 * M1 ; % number of trials
+  start_swap    = 1/4  * M0 * M1 ; % iteration where swapping starts
 
 % maxcones      maximum number of cones allowed
   maxcones      = 150 ;
@@ -39,8 +39,8 @@ track_every     = 5 ;
 % betas         temperatures of independent instances run simultaneously
   betas         = make_deltas(0.1,1,2,16) ;
 
-% FACTOR        arbitrary factor for W
-  FACTOR        = 0.1 ;
+% % FACTOR        arbitrary factor for W
+%   FACTOR        = 0.1 ;
   
 % D             exclusion distance
   D             = 9.2 ;
@@ -52,8 +52,8 @@ track_every     = 5 ;
   % moves         sequence of moves at each iteration, currently:
 %               - a regular MC move for each instance
 
-cone_map.STA_W      = cone_map.STA_W    * FACTOR    ;
-cone_map.coneConv   = cone_map.coneConv * FACTOR^2  ;
+% cone_map.STA_W      = cone_map.STA_W    * FACTOR    ;
+% cone_map.coneConv   = cone_map.coneConv * FACTOR^2  ;
 
 %% MCMC RUN
 N_instances     = length(betas) ;
@@ -120,6 +120,9 @@ end
 GG0 = LL - min(LL(:)) ;
 GG0 = ( GG0 / max(GG0(:))) .^ 0.7 ; % !!! enhance low values visually
 
+% CHECK log
+logged_state = zeros(M0*SS,M1*SS) ;
+last_iter    = 0 ;
 
 % MAIN MCMC LOOP
 % fprintf('\n\n      MCMC progress:|0%%              100%%|\n ')
@@ -146,28 +149,83 @@ for jj=1:N_iterations
                 && X{jjj}.version == swap_stats{i}.version(2) 
                     swapX = swap_stats{i}.trials ;
                     swap_stats{i} = rmfield(swap_stats{i},'trials') ;
-%                     fprintf('-')
+                    fprintf('-')
                 else
                     swapX = swap_closure( X{i} , X{jjj} , cone_map) ;
-%                     fprintf('+')
+                    fprintf('+')
                 end
                 
                 swap_stats{i}.results{1} = results{i  } ;
                 swap_stats{i}.results{2} = results{jjj} ;
                                 
-                [ swap_stats{i} , swapX ] = flip_MCMC( ...
+                [ swap_stats{i} , SWX ] = flip_MCMC( ...
                     swap_stats{i}, swapX{1}, swapX(2:end), @update_swap ) ;
                 
                 results{i  } = swap_stats{i}.results{1} ;
                 results{jjj} = swap_stats{i}.results{2} ;
                 
-                X{i} = swapX.X ; X{jjj} = swapX.with ;
+     
+                X{i} = SWX.X ; X{jjj} = SWX.with ;
+%                 X{i} = swapX.X ; X{jjj} = swapX.with ;
                 
-                                                
+                
+                
+                
+                % CHECK log consistency
+                for aye=last_iter+1:results{1}.iteration
+                    dX = results{1}.dX(aye,:) ;
+                    n = find(dX(1:3:end),1,'last') ;
+                    if ~isempty(n)
+                        for jay=0:n-1
+                            logged_state(dX(1+3*jay),dX(2+3*jay)) = dX(3+3*jay) ;
+                        end
+                    end
+                end
+                last_iter = results{1}.iteration ;
+                if numel(find(logged_state)) ~= numel(find(X{1}.state))
+                    fprintf('\nlog inconsistent')
+                    fprintf('\n')
+                end
+
+                swapX = SWX ;
+                
+                
+                
             % regular MCMC move if this_move has one index
             elseif length(this_move) == 1
-                [ results{i}, X{i} ] = flip_MCMC( ...
-                    results{i}, X{i}, jitter{i}(X{i}), @update_X) ;            
+                [ RES , XXX ] = flip_MCMC( ...
+                    results{i}, X{i}, jitter{i}(X{i}), @update_X) ;
+
+            
+            
+            
+            
+                            % CHECK log consistency
+                for aye=last_iter+1:results{1}.iteration
+                    dX = results{1}.dX(aye,:) ;
+                    n = find(dX(1:3:end),1,'last') ;
+                    if ~isempty(n)
+                        for jay=0:n-1
+                            logged_state(dX(1+3*jay),dX(2+3*jay)) = dX(3+3*jay) ;
+                        end
+                    end
+                end
+                last_iter = results{1}.iteration ;
+                if numel(find(logged_state)) ~= numel(find(X{1}.state))
+                    fprintf('\nlog inconsistent!')
+                    fprintf('\n')
+                end
+
+                X{i}        = XXX ;
+                results{i}  = RES ;
+
+            
+            
+            
+            
+            
+            
+            
             
             end
             n_cones = numel(find(X{1}.state>0)) ;

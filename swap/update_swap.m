@@ -1,7 +1,10 @@
 function [results,X] = update_swap(results,trials,i)
 
-% check_X(XLL,X.X)
-% check_X(OLL,X.with)
+% if isfield(results,'results')       && ...
+%    isfield(results.results{1},'i')  && results.results{1}.i == 1
+%     check_X(trials{1}.X)
+%     check_X(trials{1}.with)
+% end
 
 % accumulate acceptance rate statistics
 if isfield(results,'N500')
@@ -35,10 +38,8 @@ if i>1
 %     check_X(X.X)
 %     check_X(X.with)
     
-    if i>1
-        X.X.version     = X.X.version    + 1 ;
-        X.with.version  = X.with.version + 1 ;
-    end
+    X.X.version     = X.X.version    + 1 ;
+    X.with.version  = X.with.version + 1 ;
 else
     X = trials{1} ;
 end
@@ -48,15 +49,23 @@ ii = 2*(i>1) + (i==1) ;
 [results.results{1},X.X   ]  = update_X(results.results{1},{trials{1}.X    X.X   },ii) ;
 [results.results{2},X.with]  = update_X(results.results{2},{trials{1}.with X.with},ii) ;    
 
-results.results{1}.swap(results.results{1}.iteration) = true ;
-results.results{2}.swap(results.results{2}.iteration) = true ;
+if isfield(results.results{1},'swap')
+    results.results{1}.swap(results.results{1}.iteration) = true ;
+end
 
-results.trials = trials ;
-results.version = [X.X.version X.with.version] ;
+if isfield(results.results{2},'swap')
+    results.results{2}.swap(results.results{2}.iteration) = true ;
+end
 
-% fprintf('\t swapped ')
+if i==1
+    results.trials = trials ;
+    results.version = [X.X.version X.with.version] ;
+end
 
-% check_X(XLL,X.X)
-% check_X(OLL,X.with)
+% if isfield(results,'results')       && ...
+%    isfield(results.results{1},'i')  && results.results{1}.i == 1
+%     check_X(X.X)
+%     check_X(X.with)
+% end
 
 end
