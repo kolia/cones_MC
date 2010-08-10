@@ -30,14 +30,14 @@ track_every     = 5 ;
 
 %% PARAMETERS FOR MCMC
   N_iterations  = 15 * M0 * M1 ; % number of trials
-  start_swap    = 4  * M0 * M1 ; % iteration where swapping starts
+  start_swap    = 1  * M0 * M1 ; % iteration where swapping starts
 
 % maxcones      maximum number of cones allowed
   maxcones      = 150 ;
 %   maxcones      = floor( 0.005 * M0 * M1 ) ;  
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = make_deltas(0.1,1,2,16) ;
+  betas         = make_deltas(0.1,1,2,36) ;
 
 % FACTOR        arbitrary factor for W
   FACTOR        = 0.1 ;

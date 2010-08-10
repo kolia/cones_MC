@@ -1,13 +1,11 @@
-function replay(num,speed,skip)
-% speed in iterations/sec
+function replay(num,skip)
 
-if nargin<1 ,   num = 1 ;     end
-if nargin<2 ,   speed = 100 ; end
-if nargin<3 ,   skip  = 10  ; end
+if nargin<1 ,   num   = 3      ; end
+if nargin<3 ,   skip  = 10     ; end
 
 load('/Users/kolia/Desktop/QC.mat')
 load(sprintf('/Users/kolia/Desktop/stats_%d.mat',num))
-load('/Users/kolia/Documents/github/cones_MC/gcm.mat')
+load('/Users/kolia/Documents/github/cones_MC/gcm01.mat')
 
 M0 = 26 ;
 M1 = 46 ;
@@ -25,7 +23,7 @@ clear results swap_stas
 %     GQC(ix + M0*SS*(iy-1) + M0*SS*M1*SS*(c-1)) = 1 ;
 % end
 
-[gx,gy] = find(gcm.X.state) ;
+[gx,gy] = find(gcm01.X.state) ;
 
 scrsz = get(0,'ScreenSize');
 h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
@@ -36,21 +34,18 @@ state = zeros(M0*SS,M1*SS) ;
 
 n     = numel(max(dX(:,1:3:end))) ;
 
-for ii=1:size(dX,1)
+N = find(max(dX,[],2),1,'last') ;
 
-    i = 1+mod(ii-1,7000) ;
-    if i == 1
-        state = zeros(M0*SS,M1*SS) ;
-    end
-    
-    tic ;
+for i=1:N
+        
     for j=0:n-1
         if dX(i,1+3*j)
             state(dX(i,1+3*j),dX(i,2+3*j)) = dX(i,3+3*j) ;
         end
     end
     
-    if ~mod(i,skip)
+    if i>4500  && ~mod(i,skip)
+        tic ;
         colormap('pink')
         GGG = QC ;
         for c=1:3
@@ -69,10 +64,8 @@ for ii=1:size(dX,1)
         title(sprintf('Iteration %d',i),'FontSize',16)
         drawnow
 
-        if ii>=3500
-            waitforbuttonpress
-        end
-    
+%         if ii>=3500
+%             waitforbuttonpress
+%         end
     end    
-    pause( max( 1/speed - toc , 0 ) )
 end
