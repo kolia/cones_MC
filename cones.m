@@ -4,8 +4,7 @@ function [cone_map,results] = cones( cone_map , ID )
 
 % addpath('../libraries/swaps')
 
-LL          = cone_map.LL ;
-cone_map    = rmfield(cone_map,{'LL' 'ROI'}) ;
+cone_map    = rmfield(cone_map,{'ROI'}) ;
 
 M0          = cone_map.M0 ;
 M1          = cone_map.M1 ;
@@ -23,10 +22,10 @@ cone_map.ID = ID ;
 
 %% plot and display info every ? MCMC iterations  (0 for never)
 plot_every      = 0 ;
-plot_skip       = 4 ;
+plot_skip       = 100 ;
 display_every   = 10 ;
 save_every      = 500 ;
-track_every     = 5 ;
+track_every     = 1000 ;
 
 %% PARAMETERS FOR MCMC
   N_iterations  = 15 * M0 * M1 ; % number of trials
@@ -37,7 +36,7 @@ track_every     = 5 ;
 %   maxcones      = floor( 0.005 * M0 * M1 ) ;
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = make_deltas(0.1,1,2,50) ;
+  betas         = make_deltas(0.1,1,2,800) ;
 
 % FACTOR        arbitrary factor for W
   FACTOR        = 1 ;
@@ -83,7 +82,7 @@ for i=1:N_instances
     jitter{i}       = @(X)move(X  , 2 , q , cone_map) ;
     
     % initialize X{i}
-    X{i}            = initialize_X(M0,M1,N_colors,SS,maxcones,D,betas(i)) ;
+    X{i}            = initialize_X(M0,M1,N_colors,SS,D,betas(i),maxcones) ;
     
     X{i}.i          = i ;
     
@@ -117,7 +116,7 @@ end
 
 % hswaps = figure ;
 
-GG0 = LL - min(LL(:)) ;
+GG0 = cone_map.NICE - min(cone_map.NICE(:)) ;
 GG0 = ( GG0 / max(GG0(:))) .^ 0.7 ; % !!! enhance low values visually
 
 
