@@ -85,7 +85,7 @@ while ns <= n + nns
         % probability of choosing this location & color
         p = (1-q)/((M0*M1 - X.N_cones)*PROB.N_colors) ;
 
-        if X.N_cones >= X.maxcones            
+        if X.N_cones >= X.maxcones
         % if maxcones has been reached, delete a random cone first
             cone = randi( X.N_cones , 1 , 1 ) ;
             l1   = [cx(cone) cy(cone) 0] ;

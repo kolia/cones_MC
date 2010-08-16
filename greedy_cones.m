@@ -35,7 +35,7 @@ fprintf('\n\nSTARTING greedy search')
 
 % initializing variables
 n_cones = 0 ;
-X       = initialize_X(M0,M1,N_colors,SS,maxcones,D,1) ;
+X       = initialize_X(M0,M1,N_colors,SS,D,1,maxcones) ;
 X       = rmfield(X,'contact') ;
 X.SS    = cone_map.cone_params.supersample ;
     

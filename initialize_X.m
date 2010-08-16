@@ -1,4 +1,8 @@
-function X = initialize_X(M0,M1,N_colors,SS,maxcones,D,beta)
+function X = initialize_X(M0,M1,N_colors,SS,D,beta,maxcones)
+
+if nargin<7
+    maxcones = floor( 0.03 * M0 * M1 ) ;
+end
 
 X.masks     = make_masks(D) ;
 X.M0        = M0 * SS ;

@@ -98,4 +98,14 @@ for i=1:N
     XS{i}.forward_prob = 1/N ;
 end
 
+if N==0
+    X
+    otherX
+    keep
+    numel(classes)
+    classes{1}
+    classes
+    save(sprintf('crash_dump_%d.mat',randi(100)),'X','otherX','keep','classes','PROB')
+end
+
 end

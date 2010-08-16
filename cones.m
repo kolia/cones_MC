@@ -33,14 +33,14 @@ track_every     = 5 ;
   start_swap    = 1  * M0 * M1 ; % iteration where swapping starts
 
 % maxcones      maximum number of cones allowed
-  maxcones      = 150 ;
-%   maxcones      = floor( 0.005 * M0 * M1 ) ;  
+  maxcones      = 300 ;
+%   maxcones      = floor( 0.005 * M0 * M1 ) ;
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = make_deltas(0.1,1,2,36) ;
+  betas         = make_deltas(0.1,1,2,50) ;
 
 % FACTOR        arbitrary factor for W
-  FACTOR        = 0.1 ;
+  FACTOR        = 1 ;
   
 % D             exclusion distance
   D             = 9.2 ;
@@ -141,22 +141,30 @@ for jj=1:N_iterations
             if length(this_move) == 2 && isswap
                 jjj = this_move(2) ;
                 
-                if isfield(swap_stats{i},'trials')          ...
-                && X{i}.version == swap_stats{i}.version(1) ...
-                && X{jjj}.version == swap_stats{i}.version(2) 
-                    swapX = swap_stats{i}.trials ;
-                    swap_stats{i} = rmfield(swap_stats{i},'trials') ;
-%                     fprintf('-')
-                else
+%                 if isfield(swap_stats{i},'trials')          ...
+%                 && X{i}.version == swap_stats{i}.version(1) ...
+%                 && X{jjj}.version == swap_stats{i}.version(2) 
+%                     swapX = swap_stats{i}.trials ;
+%                     swap_stats{i} = rmfield(swap_stats{i},'trials') ;
+% %                     fprintf('-')
+%                 else
                     swapX = swap_closure( X{i} , X{jjj} , cone_map) ;
 %                     fprintf('+')
-                end
+%                 end
                 
                 swap_stats{i}.results{1} = results{i  } ;
                 swap_stats{i}.results{2} = results{jjj} ;
-                                
-                [ swap_stats{i} , swapX ] = flip_MCMC( ...
-                    swap_stats{i}, swapX{1}, swapX(2:end), @update_swap ) ;
+
+                try
+                    [ swap_stats{i} , swapX ] = flip_MCMC( ...
+                        swap_stats{i}, swapX{1}, swapX(2:end), @update_swap ) ;
+                catch
+                    i
+                    size(swap_stats)
+                    swap_stats
+                    size(swapX)
+                    swapX
+                end
                 
                 results{i  } = swap_stats{i}.results{1} ;
                 results{jjj} = swap_stats{i}.results{2} ;

@@ -78,6 +78,11 @@ end
 
 LL = (STA_W .^ 2) * diag(cell_consts) ;
 LL = reshape( sum(LL , 2)/2 , [M0*SS M1*SS 3] ) ;
+IC = inv(cone_params.colors) ;
+QC = reshape( reshape(LL,[],3) * IC' , size(LL) ) ;
+QC = QC - min(QC(:)) ;
+NICE = QC ./ max(QC(:)) ;
+
 
 coneConv = zeros( 2*R+SS , 2*R+SS , SS , SS ) ;
 
@@ -108,7 +113,7 @@ cone_map.R              = R ;
 cone_map.coneConv       = coneConv ;
 cone_map.sumLconst      = sum(log(2*pi*cell_consts)) ;
 cone_map.STA_W          = STA_W ;
-cone_map.LL             = LL ;
+cone_map.NICE           = NICE ;
 cone_map.M0             = M0 ;
 cone_map.M1             = M1 ;
 cone_map.N_colors       = N_colors ;

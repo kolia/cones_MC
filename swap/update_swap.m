@@ -57,10 +57,10 @@ if isfield(results.results{2},'swap')
     results.results{2}.swap(results.results{2}.iteration) = true ;
 end
 
-if i==1
-    results.trials = trials ;
-    results.version = [X.X.version X.with.version] ;
-end
+% if i==1
+%     results.trials = trials ;
+%     results.version = [X.X.version X.with.version] ;
+% end
 
 % if isfield(results,'results')       && ...
 %    isfield(results.results{1},'i')  && results.results{1}.i == 1

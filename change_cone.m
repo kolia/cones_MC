@@ -18,6 +18,7 @@ for i=1:size(a,1)
 %         check_X(X)
     else
         X.ll = -Inf ;
+        break
     end
     
 end
