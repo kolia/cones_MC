@@ -42,6 +42,7 @@ for m=1:length(XS)
         XX.ll    = X.ll ;
         XX.diff  = X.diff ;
         XX.beta  = X.beta ;
+        XX.delta = X.delta ;
         
         OX       = struct ;
         OX.state = otherX.state ;
@@ -50,6 +51,7 @@ for m=1:length(XS)
         OX.ll    = otherX.ll ;
         OX.diff  = otherX.diff ;
         OX.beta  = otherX.beta ;
+        OX.delta = otherX.delta ;
     else
         XX = X ;
         OX = otherX ;

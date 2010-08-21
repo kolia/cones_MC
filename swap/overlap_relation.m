@@ -9,7 +9,7 @@ R       = sparse([],[],[],numel(X.state),numel(X.state),100) ;
 xx      = find(X.state) ;
 
 for i=1:length(x)
-    [dum,indices] = place_mask( Y.M0 , Y.M1 , x(i) , y(i) , Y.masks.exclusion ) ;
+    [dum,indices] = place_mask( Y.M0 , Y.M1 , x(i) , y(i) , Y.masks{1,1}.exclusion ) ;
     R(xx(i),indices( Y.state(indices)>0 )) = true ;
 end
 

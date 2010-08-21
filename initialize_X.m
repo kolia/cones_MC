@@ -1,10 +1,10 @@
-function X = initialize_X(M0,M1,N_colors,SS,D,beta,maxcones)
+function X = initialize_X(M0,M1,N_colors,SS,repulsion,beta,delta,maxcones)
 
-if nargin<7
-    maxcones = floor( 0.03 * M0 * M1 ) ;
+if nargin<8
+    maxcones = floor( 0.3 * M0 * M1 ) ;
 end
 
-X.masks     = make_masks(D) ;
+X.masks     = make_masks(repulsion*SS) ;
 X.M0        = M0 * SS ;
 X.M1        = M1 * SS ;
 X.SS        = SS ;
@@ -16,7 +16,8 @@ X.n_moves   = 0 ;
 X.diff      = [] ;
 X.version   = 0 ;
 
-X.beta      = beta ;
+X.beta      = beta  ;
+X.delta     = delta ;
 
 % upper bound on anticipated number of cones
 X.maxcones  = maxcones ;

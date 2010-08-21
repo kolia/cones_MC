@@ -1,7 +1,11 @@
-function X = make_contacts( X , x , y )
+function X = make_contacts( X , xyc )
+
+x = xyc(1) ;
+y = xyc(2) ;
+c = xyc(3) ;
 
 for d=1:4
-    shift        = X.masks.cardinal{d} ;
+    shift        = X.masks{1,1}.cardinal{d} ;
     [dummy,inds] = place_mask( X.M0 , X.M1 , x , y , shift ) ;
     contacts     = inds(X.state(inds)>0) ;
     

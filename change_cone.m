@@ -9,7 +9,7 @@ for i=1:size(a,1)
     free = ~X.state(x,y) ;
     
     if  c && ~X.state(x,y)  % check exclusion before adding cone
-        [mask,indices] = place_mask( X.M0 , X.M1 , x , y , X.masks.exclusion ) ;
+        [mask,indices] = place_mask( X.M0 , X.M1 , x , y , X.masks{1,1}.exclusion ) ;
         free    = isempty( find( X.state(indices)>0 , 1) ) ;
     end
 

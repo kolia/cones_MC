@@ -99,15 +99,15 @@ if X.N_cones>0
     invWW(abs(invWW)<abs(invWW(1,1))*1e-17) = 0 ;
 
     invWW = sparse(invWW) ;
-
-    ldet  = 2 * sum(log(diag(chol(invWW))));
     
     [x,y,c] = find(X.state) ;
     
     STA_W_state = PROB.STA_W( x+M0*(y-1)+M0*M1*(c-1) , : )' ;
+    STA_W_state = (STA_W_state-PROB.min_STA_W).^X.delta + PROB.min_STA_W ;
 
-    ll  = X.beta * full(- X.N_cones * PROB.sumLconst + ldet * PROB.N_GC + ...
-        sum( PROB.cell_consts .* sum( (STA_W_state * invWW) .* STA_W_state ,2) )/2) ;
+    ll  = 0.5 * X.beta * full( X.N_cones * PROB.N_cones_term + ...
+            sum( PROB.quad_factor .* ...
+                sum( (STA_W_state * invWW) .* STA_W_state ,2) )) ;
 else
     ll = 0 ;
 end

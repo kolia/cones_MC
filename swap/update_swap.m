@@ -14,6 +14,13 @@ if isfield(results,'N500')
 %               floor(results.N500),floor(results.accepted),changed)
 end
 
+if isfield(results,'N50')
+    results.N50      = (1-1/50)*results.N50     + 1 ;
+    results.accepted = (1-1/50)*results.accepted + (i>1) ;
+%     fprintf('\tX.i=%d,%d:%d,%d:%d',X.X.i,X.with.i,...
+%               floor(results.N50),floor(results.accepted),changed)
+end
+
 if i>1
 
 %     check_X(trials{1}.X)
@@ -26,6 +33,7 @@ if i>1
     X.X.ll      = trials{i}.X.ll ;
     X.X.diff    = trials{i}.X.diff ;
     X.X.beta    = trials{i}.X.beta ;
+    X.X.delta   = trials{i}.X.delta ;
     
     X.with         = trials{1}.with ;
     X.with.state   = trials{i}.with.state ;
@@ -34,6 +42,7 @@ if i>1
     X.with.ll      = trials{i}.with.ll ;
     X.with.diff    = trials{i}.with.diff ;
     X.with.beta    = trials{i}.with.beta ;
+    X.with.delta   = trials{i}.with.delta ;
     
 %     check_X(X.X)
 %     check_X(X.with)

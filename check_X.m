@@ -10,7 +10,7 @@ for d=1:4
     X.contact{d} = X.contact{d} * 0 ;
     
     for i=1:length(x)
-        X = make_contacts( X , x(i) , y(i) ) ;
+        X = make_contacts( X , [x(i) y(i) c(i)]) ;
     end    
     
     dX = find( xor( Y.contact{d} , X.contact{d}) ) ;
@@ -56,11 +56,11 @@ end
 for i=1:length(x)
 %     X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) , LL ) ;
 % check exclusion
-    [dummy,indices] = place_mask( X.M0 , X.M1 , x(i) , y(i) , X.masks.exclusion ) ;
+    [dummy,indices] = place_mask( X.M0 , X.M1 , x(i) , y(i) , X.masks{1,1}.exclusion ) ;
     
     overlap = find( X.state(indices)>0 , 1) ;
     if ~isempty( overlap )  &&   indices(overlap) ~= x(i) + X.M0*(y(i)-1)
-        [x(i) y(i)]
+        [x(i) y(i) c(i)]
     end
 end
 

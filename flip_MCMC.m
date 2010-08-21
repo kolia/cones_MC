@@ -34,7 +34,11 @@ if ~isempty(trials)
     p = L./trans_prior' ;
     p = cumsum(p) ;
     p = p/p(end) ;
+    try
     i = randiscrete( p ) ;
+    catch
+       'oups' 
+    end
     [results , X] = update( results , trials , i ) ;
 else
     [results , X] = update( results , {X} , 1 ) ;

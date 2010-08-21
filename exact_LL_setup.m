@@ -43,8 +43,11 @@ cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
 
 % memoized(?) function returning gaussian mass in a box
 gaus_in_box = gaus_in_a_box( cone_params.sigma , SS ) ;
-    
 
+prior_cov   = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
+
+cone_map.N_cones_term = sum( log( prior_cov) - log(cell_consts(:)+prior_cov) ) ;
+cone_map.quad_factor  = cell_consts.^2 ./ (cell_consts+prior_cov) ;
 
 % % stereotyped cone receptive field
 % s = cone_params.sigma ;
@@ -111,14 +114,16 @@ end
 
 cone_map.R              = R ;
 cone_map.coneConv       = coneConv ;
-cone_map.sumLconst      = sum(log(2*pi*cell_consts)) ;
+% cone_map.sumLconst      = sum(log(2*pi*cell_consts)) ;
 cone_map.STA_W          = STA_W ;
+cone_map.min_STA_W      = min(STA_W(:)) ;
 cone_map.NICE           = NICE ;
 cone_map.M0             = M0 ;
 cone_map.M1             = M1 ;
 cone_map.N_colors       = N_colors ;
 cone_map.N_GC           = N_GC ;
 cone_map.cell_consts    = cell_consts ;
+cone_map.prior_cov      = prior_cov ;
 cone_map.colorDot       = cone_params.colors * cone_params.colors' ;
 cone_map.NROI           = NROI ;
 cone_map.cone_params    = cone_params ;

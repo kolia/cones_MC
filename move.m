@@ -49,8 +49,8 @@ if X.N_cones > 0
 
         % for each adjacent location, add trial move to that location
         for d=1:4                 % move N , E , S , W
-            ni = i + X.masks.shift{d}(1) ;
-            nj = j + X.masks.shift{d}(2) ;
+            ni = i + X.masks{1,1}.shift{d}(1) ;
+            nj = j + X.masks{1,1}.shift{d}(2) ;
             if ni > 0   &&  ni <= M0  &&  nj>0  &&  nj <= M1
                 ns = ns+1 ;
                 samples{ns} = move_cone( X , i , j , d , PROB ) ;
