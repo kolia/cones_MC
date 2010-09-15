@@ -28,14 +28,14 @@ save_every      = 500 ;
 track_every     = 1000 ;
 
 %% PARAMETERS FOR MCMC
-  N_iterations  = 15  * M0 * M1 ; % number of trials
+  N_iterations  = 6   * M0 * M1 ; % number of trials
   start_swap    = 1/4 * M0 * M1 ; % iteration where swapping starts
 
 % betas         temperatures of independent instances run simultaneously
-  betas         = make_deltas(0.1,1,5,100) ;
+  betas         = make_deltas(0.1,1,2,5000) ;
 
 % deltas        temperatures of independent instances run simultaneously
-  deltas        = make_deltas(0.3,1,30,length(betas)) ;
+  deltas        = make_deltas(0.3,1,3,length(betas)) ;
   
 % q             probability of trying to move an existing cone vs. placing
 %               a new one.
