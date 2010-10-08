@@ -18,17 +18,61 @@ for i=1:NN
     states{i} = zeros(M0,M1) ;
 end
 
+% scrsz = get(0,'ScreenSize');
+% hf = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
+% 
+% colormap('pink')
+% imagesc( cone_map.NICE ) ;
+% hold on
+% 
+% symbols = {'.' ; 's' ; '*' ; 'x' ; 'p' ; 'h' ; 'd' ; 'o'} ;
+% colors  = {'r' ; 'g' ; 'b' } ;
+% 
+% h = cell(3,NN) ;
+% 
+% for i=1:N
+%     for j=0:n-1
+%         for ii=1:NN
+%             if dX{ii}(i,1+3*j)
+%                 states{ii}(dX{ii}(i,1+3*j),dX{ii}(i,2+3*j)) = dX{ii}(i,3+3*j) ;
+%             end
+%         end
+%     end
+%     
+%     if ~mod(i,skip)
+%         tic ;
+% 
+%         figure(hf)
+%         
+%         for ii=1:NN
+%             s = symbols{ii} ;
+%             for cc=1:3
+%                 c = colors{cc} ;
+%                 
+%                 [ix,iy] = find(states{ii} == cc) ;
+%                 h{cc,ii} = plot(iy,ix,sprintf('%s%s',c,s),'MarkerSize',5) ;
+%             end
+%         end        
+%         plot(gy,gx,'w+','MarkerSize',7)
+%         
+%         title(sprintf('Iteration %d',i),'FontSize',16)
+%         drawnow expose
+%         pause(1/speed - toc) ;        
+%         if i<N-skip ,  delete(cell2mat(h(:))) ; end        
+%         
+%     end    
+% end
+
+
+
+
+
 scrsz = get(0,'ScreenSize');
 hf = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
 
 colormap('pink')
-imagesc( cone_map.NICE ) ;
+imagesc( cone_map.NICE.^(0.6) ) ;
 hold on
-
-symbols = {'.' ; 's' ; '*' ; 'x' ; 'p' ; 'h' ; 'd' ; 'o'} ;
-colors  = {'r' ; 'g' ; 'b' } ;
-
-h = cell(3,NN) ;
 
 for i=1:N
     for j=0:n-1
@@ -44,17 +88,8 @@ for i=1:N
 
         figure(hf)
         
-        for ii=1:NN
-            s = symbols{ii} ;
-            for cc=1:3
-                c = colors{cc} ;
-                
-                [ix,iy] = find(states{ii} == cc) ;
-                h{cc,ii} = plot(iy,ix,sprintf('%s%s',c,s),'MarkerSize',5) ;
-            end
-        end        
-        plot(gy,gx,'w+','MarkerSize',7)
-        
+        h = plot_cones( states , greedy ) ;
+
         title(sprintf('Iteration %d',i),'FontSize',16)
         drawnow expose
         pause(1/speed - toc) ;        

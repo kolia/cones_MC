@@ -10,7 +10,7 @@ end
 sample=zeros(1,m);
 for j=1:m
     uni=rand();
-    sample(j)=find( uni<=cumprob , 1 ) ;
+    sample(j) = find( uni<=cumprob , 1 ) ;
 end
 
 % note
