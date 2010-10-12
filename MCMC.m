@@ -2,6 +2,8 @@ function bestX = MCMC( cone_map , ID )
 
 if nargin>1 ,   cone_map.ID = ID ;     end
 
+cone_map
+
 M0          = cone_map.M0 ;
 M1          = cone_map.M1 ;
 cone_map.SS = cone_map.cone_params.supersample ;
@@ -20,8 +22,7 @@ default( cone_map , 'plot_skip'     , 100   )
 default( cone_map , 'display_every' , 100   )
 default( cone_map , 'save_every'    , 200   )
 default( cone_map , 'ID'            , 0     )
-default( cone_map , 'N_best'        , 1     )
-default( cone_map , 'max_time'      , 1000  )
+default( cone_map , 'max_time'      , 2000  )
 
 
 % sparse int matrix, with number of out-of-border adjacencies
@@ -30,63 +31,49 @@ cone_map.outofbounds(:,[1 M1*SS]) = 1 ;
 cone_map.outofbounds([1 M0*SS],:) = cone_map.outofbounds([1 M0*SS],:) + 1 ;
 
 
-% initializing variables
-bestX = cell(N_best,1) ;
-for i=1:N_best
-    bestX{i} = X ;
-end
-
 if plot_every
 scrsz = get(0,'ScreenSize');
 h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
 end
 
 % MAIN MCMC LOOP
-fprintf('\n\nStochastic Tunneling with alpha = %g  :\n',aleph)
+fprintf('\n\nMCMC at temperature 1 :\n')
 t = cputime ;
 tic
 
-jj = 0 ;
-while 1
+n_runs = 1 ;
 
-    if mean_f<0
-        if - mean_f < 0.1
-            beta = beta/0.96 + 0.01 ;
-        else
-            beta = beta*0.9 ;
-        end
-    end
-    
-    % reinitialize if stuck
-    if beta>1e20
-        X       = initX ;
-        beta    = init_beta ;
-    end
+runbest     = X ;
+runbest.i   = 1 ;
+jj = 1 ;
+while 1
     
     [ d, X ] = flip_MCMC( struct, X, move( X , 2 , q , cone_map ),...
-                          @update_X , @(trial)get_ll(trial,beta) ) ;
+                          @update_X , @(trial)trial.ll ) ;
     n_cones = numel(find(X.state>0)) ;
 
-    N_mean = 50 ;
-    mean_f = ( mean_f * (N_mean-1) - (X.ll - bestX{1}.ll) )/N_mean ;    
-    
-    if N_best
-        for b=1:N_best
-            if X.ll>bestX{b}.ll && ...
-                    ( b==1 || X.ll<bestX{b-1}.ll)
-                for bb=b+1:N_best
-                    bestX{bb} = bestX{bb-1} ;
-                end
-                bestX{b} = X ;
-            end
-        end
+    if X.ll>runbest.ll
+        runbest = X ;
+        runbest.i = jj ;
+    end
+        
+    % reinitialize if stuck
+    if jj - runbest.i > 400
+        X       = initX ;
+        runbest = initX ;
+        runbest.i = jj ;
+        bestX{n_runs} = runbest ;
+        n_runs  = n_runs + 1 ;
+        bestX{n_runs} = X ;
+        mean_f  = 0.05 ;
+        beta    = 1 ;
     end
     
     % DISPLAY stdout
     if ~mod(jj,display_every)
-        fprintf('Iteration:%4d of %d  %4d cones    %6.0f L   %6.0f best   %10g beta   %10g dLL   %8.2f sec\n',...
+        fprintf('Iteration:%4d of %d  %4d cones    %6.0f L   %6.0f best   %8.2f sec\n',...
                             jj,N_iterations,n_cones,X.ll,...
-                            bestX{1}.ll,beta,mean_f,toc)
+                            runbest.ll,toc)
         tic
     end
     
@@ -94,25 +81,29 @@ while 1
     if ~mod(jj,plot_every)
         figure(h)
         plot_cones( X.state , cone_map ) ;
-        title( sprintf('After %d Stochastic Tunneling iterations',jj),...
+        title( sprintf('After %d MCMC iterations',jj),...
                'FontSize' , 24 )
         % set(get(gca,'Title'),'Visible','on')
         drawnow
     end
     
     if ~mod(jj,save_every)
+        if n_runs == 1
+            bestX{1} = runbest ;
+        end
+        
         save(sprintf('bestX_%d',ID), 'bestX')
     end
     
     jj = jj + 1 ;
-
+    
     if jj>N_iterations || cputime-t>max_time ,  break ;  end
 end
 fprintf('\ndone in %.1f sec\n\n', cputime - t) ;
 
 cone_map.X              = X ;
 cone_map.bestX          = bestX ;
-cone_map.code.tunnel    = file2str('tunnel.m') ;
+cone_map.code.MCMC      = file2str('MCMC.m') ;
 save(sprintf('bestX_%d',ID), 'bestX')
 
 end

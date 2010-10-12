@@ -1,38 +1,49 @@
-function cluster = main( cone_map , greedy )
+function main( cone_map )
 
-if nargin>1
-    cone_map.SS = cone_map.cone_params.supersample ;
-    X = initialize_X(cone_map.M0,...
-                     cone_map.M1,...
-                     cone_map.N_colors,...
-                     cone_map.SS,...
-                     cone_map.cone_params.replusion_radii,1,1) ;
-    [x,y,c] = find( greedy.X.state ) ;
-    for i=1:numel(x)
-        X = change_cone( X , [x(i) y(i) c(i)] , cone_map ) ;
-        [dummy,X] = update_X({},{X X},2) ;
-    end
-end
+% if nargin>1
+%     cone_map.SS = cone_map.cone_params.supersample ;
+%     X = initialize_X(cone_map.M0,...
+%                      cone_map.M1,...
+%                      cone_map.N_colors,...
+%                      cone_map.SS,...
+%                      cone_map.cone_params.replusion_radii,1,1) ;
+%     [x,y,c] = find( greedy.X.state ) ;
+%     for i=1:numel(x)
+%         X = change_cone( X , [x(i) y(i) c(i)] , cone_map ) ;
+%         [dummy,X] = update_X({},{X X},2) ;
+%     end
+% end
 
-cone_map.betas          = make_deltas( 0.5,1,1,50) ;
-cone_map.deltas         = make_deltas(0.85,1,1,length(cone_map.betas)) ;
-cone_map.N_iterations   = Inf ;
-cone_map.max_time       = 3600 ;
+% cone_map.betas          = make_deltas( 0.5,1,1,50) ;
+% cone_map.deltas         = make_deltas(0.85,1,1,length(cone_map.betas)) ;
+% cone_map.N_iterations   = Inf ;
+% cone_map.max_time       = 3600 ;
 
-N = 160 ;
+N = 60 ;
+
+cone_map.max_time = 2000 ;
 
 ids = cell(1,N) ;
 for i=1:length(ids) , ids{i} = {i} ; end
-cluster = sow( 'init_greedy' , @(ID)MCMC( cone_map , ID ), ids ) ;
+initMC = sow( 'initMC' , @(ID)MCMC( cone_map , ID ), ids ) ;
+
+pause( cone_map.max_time + 100 )
+
+reap ;
+
+X = {} ;
+
+for i=1:length(initMC)
+    X = [X initMC{i}.bestX] ;
+end
 
 sow( 'cool' , ...
-      @(ID,instances)coalesce(cm, ['../' cluster.id], instances, ID ), ...
+      @(ID,instances)coalesce(cm, ['../' initMC.id], X , ID ), ...
       { { 1 ; 1:floor(N/2) }  { 2 ; floor(N/2)+1:N }  { 3 ; 1:2:N } ...
       { 4 ; 2:2:N } {5 ; [(1:floor(N/4)) (floor(N/2)+1:floor(3*N/4))]} ...
       {6 ; [(floor(N/4)+1:floor(N/2)) (floor(3*N/4):N)]} ...
       {7 ; [1:4:N 2:4:N]} {8  ; [3:4:N 4:4:N]} ...
       {9 ; [1:4:N 3:4:N]} {10 ; [2:4:N 4:4:N]}} )
-
 
 end
 
