@@ -59,12 +59,11 @@ while 1
         
     % reinitialize if stuck
     if jj - runbest.i > 400
+        bestX{n_runs} = runbest ;
         X       = initX ;
         runbest = initX ;
         runbest.i = jj ;
-        bestX{n_runs} = runbest ;
         n_runs  = n_runs + 1 ;
-        bestX{n_runs} = X ;
         mean_f  = 0.05 ;
         beta    = 1 ;
     end
@@ -88,10 +87,7 @@ while 1
     end
     
     if ~mod(jj,save_every)
-        if n_runs == 1
-            bestX{1} = runbest ;
-        end
-        
+        bestX{n_runs} = runbest ;        
         save(sprintf('bestX_%d',ID), 'bestX')
     end
     

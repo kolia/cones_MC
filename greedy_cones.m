@@ -66,7 +66,7 @@ for jj=1:maxcones
     if n_cones<jj
         break ;
     end
-    save('results_f01','results','cone_map')
+    save('results','results','cone_map')
 end
 fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
 

@@ -19,47 +19,89 @@ function main( cone_map )
 % cone_map.N_iterations   = Inf ;
 % cone_map.max_time       = 3600 ;
 
-N = 60 ;
-
-cone_map.max_time = 2000 ;
+N = 60 ;    % MULTIPLE OF 4 !!!
 
 ids = cell(1,N) ;
 for i=1:length(ids) , ids{i} = {i} ; end
-initMC = sow( 'initMC' , @(ID)MCMC( cone_map , ID ), ids ) ;
 
-pause( cone_map.max_time + 100 )
+% cone_map.max_time = 2000 ;
+% initID = sow( 'initMC' , @(ID)MCMC( cone_map , ID ), ids ) ;
+% pause( cone_map.max_time + 60 )
 
-reap ;
 
-X = {} ;
+% initID.id = 'cluster___initMC___Tue-12-Oct-2010__15-34-20' ;
+% 
+% cone_map.max_time = 10000 ;
+% oneID  = sow( 'one', @(ID)MCMC_parallel_tempering( ...
+%         coalescer(cone_map, ['../' initID.id], 'bestX_[0-9]+.mat' , ...
+%         ID , @prep_cool , ID )), ids ) ;
+% 
+% pause( cone_map.max_time + 60 )
+    
+oneID.id = 'cluster___one___Wed-13-Oct-2010__15-35-07' ;
 
-for i=1:length(initMC)
-    X = [X initMC{i}.bestX] ;
+cone_map.max_time = 30000 ;
+
+INDS =  { { 1 ; 1:floor(N/2) }  { 2 ; floor(N/2)+1:N }  { 3 ; 1:2:N } ...
+        { 4 ; 2:2:N } {5 ; [(1:floor(N/4)) (floor(N/2)+1:floor(3*N/4))]} ...
+        { 6 ; [(floor(N/4)+1:floor(N/2)) (floor(3*N/4):N)]} ...
+        { 7 ; [1:4:N 2:4:N]} {8  ; [3:4:N 4:4:N]} ...
+        { 9 ; [1:4:N 3:4:N]} {10 ; [2:4:N 4:4:N]}} ;
+
+% coolID = sow( 'cool', @(ID,is)MCMC_parallel_tempering( ...
+%         coalescer(cone_map, ['../' oneID.id], 'stats_[0-9]+.mat' , is , ...
+%         @prep_cool , ID )), INDS )
+
+coolID.id = 'cluster___cool___Thu-14-Oct-2010__18-17-24' ;
+
+sow( 'PT', @(ID)MCMC_parallel_tempering( ...
+      coalescer(cone_map, ['../' coolID.id], 'stats_[0-9]+.mat' , ID , ...
+      @prep_PT , ID )), ids(1:length(INDS)) )
+
 end
 
-sow( 'cool' , ...
-      @(ID,instances)coalesce(cm, ['../' initMC.id], X , ID ), ...
-      { { 1 ; 1:floor(N/2) }  { 2 ; floor(N/2)+1:N }  { 3 ; 1:2:N } ...
-      { 4 ; 2:2:N } {5 ; [(1:floor(N/4)) (floor(N/2)+1:floor(3*N/4))]} ...
-      {6 ; [(floor(N/4)+1:floor(N/2)) (floor(3*N/4):N)]} ...
-      {7 ; [1:4:N 2:4:N]} {8  ; [3:4:N 4:4:N]} ...
-      {9 ; [1:4:N 3:4:N]} {10 ; [2:4:N 4:4:N]}} )
+
+
+function cone_map = prep_cool( cone_map )
+
+M0          = cone_map.M0 ;
+M1          = cone_map.M1 ;
+N_instances = length(cone_map.X) ;
+
+%% PARAMETERS FOR MCMC
+cone_map.N_iterations  = 1000 ; %1   * M0 * M1 ; % number of trials
+cone_map.start_swap    = 0 ;
+
+% betas         temperatures of independent instances run simultaneously
+cone_map.betas         = make_deltas( 0.4, 1, 1, N_instances ) ;
+
+% moves         sequence of moves at each iteration, currently:
+%               - a regular MC move for each instance
+% cone_map.moves = num2cell([ones(1,N_instances-1) ; 2:N_instances],1) ;  % al
+cone_map.moves = [num2cell([1:N_instances-1 ; 2:N_instances],1)] ;    % line
+
+cone_map.N_best = 1 ;
 
 end
 
 
-% sow( 'cool' , ...
-%     @(ID,instances)coalesce( cm , '../init___Sun-26-Sep-2010__23-22-39' , instances, ID ), ...
-%     { { 1 ; 1:floor(N/2) }  { 2 ; floor(N/2)+1:N }  { 3 ; 1:2:N } ...
-%     { 4 ; 2:2:N } {5 ; [(1:floor(N/4)) (floor(N/2)+1:floor(3*N/4))]} ...
-%     {6 ; [(floor(N/4)+1:floor(N/2)) (floor(3*N/4):N)]} ...
-%     {7 ; [1:4:N 2:4:N]} {8  ; [3:4:N 4:4:N]} ...
-%     {9 ; [1:4:N 3:4:N]} {10 ; [2:4:N 4:4:N]}} )
+function cone_map = prep_PT( cone_map )
 
-% sow( 'cool_greedy' , ...
-%     @(ID,instances)coalesce( cm , '../init_greedy___Mon-27-Sep-2010__02-26-50' , instances, ID ), ...
-%     { { 1 ; 1:floor(N/2) }  { 2 ; floor(N/2)+1:N }  { 3 ; 1:2:N } ...
-%     { 4 ; 2:2:N } {5 ; [(1:floor(N/4)) (floor(N/2)+1:floor(3*N/4))]} ...
-%     {6 ; [(floor(N/4)+1:floor(N/2)) (floor(3*N/4):N)]} ...
-%     {7 ; [1:4:N 2:4:N]} {8  ; [3:4:N 4:4:N]} ...
-%     {9 ; [1:4:N 3:4:N]} {10 ; [2:4:N 4:4:N]}} )
+M0          = cone_map.M0 ;
+M1          = cone_map.M1 ;
+N_instances = 200 ;
+
+%% PARAMETERS FOR MCMC
+cone_map.N_iterations   = 20000 ;
+cone_map.max_time       = 1000000 ;
+cone_map.start_swap     = 10 ;
+
+% betas         temperatures of independent instances run simultaneously
+cone_map.betas         = make_deltas( 0.4, 1, 1, N_instances ) ;
+
+% deltas        temperatures of independent instances run simultaneously
+cone_map.deltas        = make_deltas(0.3,1,3,length(cone_map.betas)) ;
+  
+cone_map.N_best = 1 ;
+
+end

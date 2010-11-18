@@ -60,6 +60,10 @@ for i=1:N_instances
                                 betas(i),deltas(i)) ;
     end
     
+    if ~isfield(X{i},'maxcones')
+        X{i}.maxcones = floor( 0.3 * M0 * M1 ) ;
+    end
+    
     X{i}.i          = i ;
     X{i}.SS         = cone_map.cone_params.supersample ;
     
@@ -80,7 +84,7 @@ end
 
 bestX = cell(N_best,1) ;
 for i=1:N_best
-    bestX{i} = X{i} ;
+    bestX{i} = X{1} ;
 end
 
 if plot_every
@@ -88,13 +92,14 @@ scrsz = get(0,'ScreenSize');
 h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
 end
 
+initial_X = X ;
 
 % MAIN MCMC LOOP
 fprintf('\n\nMCMC progress:\n')
 t = cputime ;
 tic
 
-jj = 0 ;
+jj = 1 ;
 while 1
 
     isswap = jj>start_swap ;
@@ -207,20 +212,23 @@ while 1
     if ~mod(jj,save_every)
         allX = X ;
         X    = X(track_instance) ;
-        save(sprintf('stats_%d',ID), 'results', 'swap_stats', 'X', 'bestX')
+        save(sprintf('stats_%d',ID), 'results', 'swap_stats', 'initial_X' , 'X', 'bestX')
         X    = allX ;
         clear allX
     end
+    
+    jj = jj + 1 ;
     
     if jj>N_iterations || cputime-t>max_time ,  break ;  end
 end
 fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
 
+cone_map.initial_X      = initial_X ;
 cone_map.X              = X ;
 cone_map.bestX          = bestX ;
-cone_map.code.run_MCMC  = file2str('run_MCMC.m') ;
+cone_map.code.run_MCMC  = file2str('MCMC_parallel_tempering.m') ;
 X           = X(track_instance) ;
-save(sprintf('stats_%d',ID), 'results' , 'swap_stats', 'X', 'bestX')
+save(sprintf('stats_%d',ID), 'results' , 'swap_stats', 'initial_X' , 'X', 'bestX')
 
 end
 
