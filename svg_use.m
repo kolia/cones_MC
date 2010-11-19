@@ -9,9 +9,9 @@ N = length(x) ;
 if length(y) ~= N, error('svg_use: numel(args) must be ==.') ; end
 
 svg = '' ;
-for i=1:min(length(x),length(y))
+for i=1:min([numel(x) numel(y)])
     svg = sprintf('%s<use xlink:href="#%d" transform="translate(%f %f)"/>\n',...
-                   svg,                  id,                  x(i), y(i) ) ;
+                   svg,                id(i),                 x(i), y(i) ) ;
 end
 
 end
