@@ -56,11 +56,3 @@ for i=1:size(xycs,1)
 end
 if ~isempty(js) ,  js = js(1:end-5) ; end
 end
-
-
-function string = insert_string(s,filename,position)
-fid = fopen(filename) ;
-begin = fread(fid, position , '*char')' ;
-ending = fread(fid, '*char')' ; fclose(fid) ;
-string = [begin s ending] ;
-end

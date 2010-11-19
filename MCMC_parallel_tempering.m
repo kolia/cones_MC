@@ -147,16 +147,14 @@ while 1
         end
     end
 
-    if N_best 
-        for inst=1:N_instances
-            for b=1:N_best
-                if X{inst}.ll>bestX{b}.ll && ...
-                    ( b==1 || X{inst}.ll<bestX{b-1}.ll)
-                    for bb=b+1:N_best
-                        bestX{bb} = bestX{bb-1} ;
-                    end
-                    bestX{b} = X{inst} ;
+    if N_best
+        for b=1:N_best
+            if X{1}.ll>bestX{b}.ll && ...
+                    ( b==1 || X{1}.ll<bestX{b-1}.ll)
+                for bb=b+1:N_best
+                    bestX{bb} = bestX{bb-1} ;
                 end
+                bestX{b} = X{1} ;
             end
         end
     end
