@@ -25,7 +25,7 @@ function dt(){
     t = 0 ;
     while(cones.hasChildNodes()) cones.removeChild(cones.firstChild);
   }
-  window.setTimeout("dt()",20)
+  window.setTimeout("dt()",10)
 }
 function iter(){
   for (i=0; i<data[t].length; i++){
@@ -42,7 +42,12 @@ function iter(){
 	cone.setAttributeNS(null,'id',dcone[0]+'_'+dcone[1]+'_'+dcone[3]) ;
       }
       cone.setAttribute('stroke',colors[dcone[2]-1]) ;
+      cone.setAttribute('fill','none') ;
       cones.appendChild(cone) ;
     }
   }
+}
+function toggle(id){
+  instance = svgDocument.getElementById(id) ;
+  instance.setAttributeNS(null,'visibility','hidden') ;
 }
