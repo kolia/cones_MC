@@ -39,7 +39,8 @@ for i=1:N_GC
     STA_norm(i) = norm(STA(:,i)) ;
 end
 
-cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
+% cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
+cell_consts = N_spikes * cone_params.stimulus_variance ;
 
 % memoized(?) function returning gaussian mass in a box
 gaus_in_box = gaus_in_a_box( cone_params.sigma , SS ) ;
@@ -74,7 +75,7 @@ catch
             STA_W((c-1)*NROI + ii , :) = filter * STA ;
         end
     end
-    STA_W = STA_W .* repmat( (N_spikes ./ cell_consts)' ,NROI*N_colors,1) ;
+    STA_W = STA_W ./ cone_params.stimulus_variance ; % repmat( (N_spikes ./ cell_consts)' ,NROI*N_colors,1) ;
 
 save('STA_W','STA_W')
 end
@@ -123,7 +124,7 @@ cone_map.M1             = M1 ;
 cone_map.N_colors       = N_colors ;
 cone_map.N_GC           = N_GC ;
 cone_map.cell_consts    = cell_consts ;
-cone_map.prior_cov      = prior_cov ;
+cone_map.prior_cov      = prior_cov / max(coneConv(:));
 cone_map.colorDot       = cone_params.colors * cone_params.colors' ;
 cone_map.NROI           = NROI ;
 cone_map.cone_params    = cone_params ;

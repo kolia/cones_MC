@@ -21,7 +21,8 @@
     <use xlink:href="#1" transform="translate(80 0)" stroke="red"/>
     <use xlink:href="#2" transform="translate(167 0)" stroke="red"/>
   </g>
-  
+  <text x="38" y="17" font-size="6" fill="white">1</text>
+  <text x="95" y="70" font-size="6" fill="white">2</text>
                                          
     <!--  -->
                                          
