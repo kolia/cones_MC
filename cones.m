@@ -1,6 +1,6 @@
 function [cone_map,results] = cones( cone_map , ID )
 %% cone_map = cones( cone_map , ID )
-%  Run MCMC to find cone locations.
+%  Run MCMC to find cone locations. 
 
 cone_map    = rmfield(cone_map,'ROI') ;
 
@@ -9,11 +9,11 @@ M0 = cone_map.M0 ;
 M1 = cone_map.M1 ;
 
 %% PARAMETERS FOR MCMC
-  cone_map.N_iterations  = 50 ; %6   * M0 * M1 ; % number of trials
-  cone_map.start_swap    = 10 ;  %1/4 * M0 * M1 ; % iteration w/ swapping starts
+  cone_map.N_iterations  = 10000 ; %6   * M0 * M1 ; % number of trials
+  cone_map.start_swap    = 10 ; %1/2 * M0 * M1 ; % iteration w/ swapping starts
 
 % betas         temperatures of independent instances run simultaneously
-  cone_map.betas         = make_deltas(0.1,1,1,10) ;
+  cone_map.betas         = make_deltas(0.1,1,1,20) ;
 
 % deltas        temperatures of independent instances run simultaneously
   cone_map.deltas        = make_deltas(0.75,1,2,length(cone_map.betas)) ;

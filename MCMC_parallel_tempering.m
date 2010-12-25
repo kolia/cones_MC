@@ -1,5 +1,7 @@
 function [cone_map,results,swap_stats] = MCMC_parallel_tempering( cone_map , ID )
 
+global it
+
 if nargin>1
     cone_map.ID     = ID ;
 end
@@ -24,7 +26,7 @@ default( cone_map , 'save_every'    , 200  )
 default( cone_map , 'track_instance', [1]  )
 default( cone_map , 'ID'            , 0    )
 default( cone_map , 'N_best'        , 3    )
-default( cone_map , 'max_time'      , 1000  )
+default( cone_map , 'max_time'      , 2000 )
 
 
 M0          = cone_map.M0 ;
@@ -101,7 +103,7 @@ tic
 
 jj = 1 ;
 while 1
-
+    
     isswap = jj>start_swap ;
 
     for j=1:length(moves)
@@ -110,6 +112,8 @@ while 1
 
         if isnumeric(this_move)
 
+            ttt = cputime ;
+            
             % swap move if this_move has 2 indices
             if length(this_move) == 2 && isswap
                 jjj = this_move(2) ;
@@ -136,15 +140,24 @@ while 1
                 
                 X{i} = swapX.X ; X{jjj} = swapX.with ;
 
+                it(X{i}.N_cones,1) = it(X{i}.N_cones,1) + cputime-ttt ;
+                it(X{i}.N_cones,2) = it(X{i}.N_cones,2) + 1 ;
+
             % regular MCMC move if this_move has one index
             elseif length(this_move) == 1
                 [ results{i}, X{i} ] = flip_MCMC( ...
                     results{i}, X{i}, ...
                     move( X{i} , 2 , q , cone_map ), @update_X ) ;
-            
+
+                if X{i}.N_cones > 0
+                    it(X{i}.N_cones,3) = it(X{i}.N_cones,3) + cputime-ttt ;
+                    it(X{i}.N_cones,4) = it(X{i}.N_cones,4) + 1 ;
+                end
+
             end
             n_cones = numel(find(X{1}.state>0)) ;
         end
+        
     end
 
     if N_best
@@ -218,6 +231,7 @@ while 1
     jj = jj + 1 ;
     
     if jj>N_iterations || cputime-t>max_time ,  break ;  end
+    
 end
 fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
 

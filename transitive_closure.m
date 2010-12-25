@@ -9,13 +9,17 @@ function R = transitive_closure( R , inds , sym)
 % to R has been to add some entries, then inds need only be the indices of
 % those entries.
 
-% non-symmetrical relation
+global tct
+
+tic
+
+% non-symmetric relation
 if nargin<3 || ~sym
     for k=inds(:)'
         R( R(:,k) , R(k,:) ) = true ;
     end
     
-% symmetrical relation
+% symmetric relation
 else    
     for k=inds(:)'
         i = R(:,k) ;
@@ -26,5 +30,7 @@ else
     
 end
 
+tct(numel(inds),1) = tct(numel(inds),1) + toc ;
+tct(numel(inds),2) = tct(numel(inds),2) + 1 ;
 
 end
