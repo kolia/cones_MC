@@ -36,7 +36,8 @@ for i=1:size(flips,1)
         inds       = [1:j-1 j+1:X.N_cones] ;
         X.N_cones  = X.N_cones - 1 ;
         
-        invWW      = X.invWW(inds,inds) - X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
+        invWW      = X.invWW(inds,inds) - ...
+                     X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
         X.invWW    = invWW ;
         
         X.state(x,y)= 0 ;
@@ -65,7 +66,7 @@ for i=1:size(flips,1)
             end
         end
         
-        Wkkc    = PROB.coneConv(PROB.R+ssx,PROB.R+ssy,ssx,ssy) * PROB.colorDot(c,c) ;        
+        Wkkc = PROB.coneConv(PROB.R+ssx,PROB.R+ssy,ssx,ssy) * PROB.colorDot(c,c) ;
         
 %         if max(Wkstate) > Wkkc
 %             error('This is absurd.')
