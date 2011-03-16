@@ -1,4 +1,4 @@
-function [sta,r] = denoised_sta( X , dX , PROB , truecolor )
+function [sta,r] = denoised_sta( X , dX , PROB , signif , truecolor )
 % [sta,samples] = denoised_sta( X , dX , PROB , truecolor )
 % Integrate over MCMC sample path starting at X with moves dX, to produce
 % denoised STAs for all ganglion cells.  PROB contains parameters, as
@@ -7,8 +7,12 @@ function [sta,r] = denoised_sta( X , dX , PROB , truecolor )
 % otherwise 
 
 
-if nargin<1
+if nargin<5
     truecolor = true ;
+end
+
+if nargin<4
+    signif = 0 ;
 end
     
 N = PROB.M0 * PROB.SS ;
@@ -22,7 +26,7 @@ for c=1:3
 end
 r{4} = 0 ;
 
-r = fold_X(X,dX,PROB,r,@(r,x)accumulate_stas(r,x,PROB)) ;
+r = fold_X(X,dX,PROB,r,@(r,x)accumulate_stas(r,x,PROB,signif)) ;
 
 % gauscdf = gaus_in_a_box( cone_params.sigma ) ;
 
@@ -56,7 +60,7 @@ end
 end
 
 
-function r = accumulate_stas( r , X , PROB )
+function r = accumulate_stas( r , X , PROB , signif )
 
 NGC = size(PROB.STA_W,2) ;
 
@@ -68,10 +72,15 @@ invWW = sparse(invWW) ;
 [x,y,c] = find(X.state) ;
 
 inds = x+PROB.M0*PROB.SS*(y-1)+PROB.M0*PROB.M1*PROB.SS*PROB.SS*(c-1) ;
-
 STA_W_state = PROB.STA_W( inds , : ) ;
 
-A = invWW * STA_W_state .* repmat( PROB.A_factor' , [numel(x) 1] ) ;
+factor = repmat( PROB.cell_consts' ./ PROB.cov_factor' , [numel(x) 1] ) ;
+A   = (invWW * STA_W_state) .* factor ;
+
+STD = sqrt(diag(invWW) * (1./PROB.cov_factor')) ;
+B   = A ./ STD ;
+
+A( abs(B) < signif ) = 0 ;
 
 % for each GC, add sample contribution.
 for i=1:NGC

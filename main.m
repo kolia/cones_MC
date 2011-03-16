@@ -19,27 +19,23 @@ function main( cone_map )
 % cone_map.N_iterations   = Inf ;
 % cone_map.max_time       = 3600 ;
 
-N = 60 ;    % MULTIPLE OF 4 !!!
+N = 60 ;    % MULTIPLE OF 4, because of splits in INDS below !!!
 
 ids = cell(1,N) ;
 for i=1:length(ids) , ids{i} = {i} ; end
 
-% cone_map.max_time = 2000 ;
-% initID = sow( 'initMC' , @(ID)MCMC( cone_map , ID ), ids ) ;
-% pause( cone_map.max_time + 60 )
+cone_map.max_time = 2000 ;
+initID = sow( 'initMC' , @(ID)MCMC( cone_map , ID ), ids ) ;
+pause( cone_map.max_time + 60 )
 
 
-% initID.id = 'cluster___initMC___Tue-12-Oct-2010__15-34-20' ;
-% 
-% cone_map.max_time = 10000 ;
-% oneID  = sow( 'one', @(ID)MCMC_parallel_tempering( ...
-%         coalescer(cone_map, ['../' initID.id], 'bestX_[0-9]+.mat' , ...
-%         ID , @prep_cool , ID )), ids ) ;
-% 
-% pause( cone_map.max_time + 60 )
+cone_map.max_time = 10000 ;
+oneID  = sow( 'one', @(ID)MCMC_parallel_tempering( ...
+        coalescer(cone_map, ['../' initID.id], 'bestX_[0-9]+.mat' , ...
+        ID , @prep_cool , ID )), ids ) ;
+
+pause( cone_map.max_time + 60 )
     
-oneID.id = 'cluster___one___Wed-13-Oct-2010__15-35-07' ;
-
 cone_map.max_time = 30000 ;
 
 INDS =  { { 1 ; 1:floor(N/2) }  { 2 ; floor(N/2)+1:N }  { 3 ; 1:2:N } ...
@@ -48,15 +44,13 @@ INDS =  { { 1 ; 1:floor(N/2) }  { 2 ; floor(N/2)+1:N }  { 3 ; 1:2:N } ...
         { 7 ; [1:4:N 2:4:N]} {8  ; [3:4:N 4:4:N]} ...
         { 9 ; [1:4:N 3:4:N]} {10 ; [2:4:N 4:4:N]}} ;
 
-% coolID = sow( 'cool', @(ID,is)MCMC_parallel_tempering( ...
-%         coalescer(cone_map, ['../' oneID.id], 'stats_[0-9]+.mat' , is , ...
-%         @prep_cool , ID )), INDS )
+coolID = sow( 'cool', @(ID,is)MCMC_parallel_tempering( ...
+        coalescer(cone_map, ['../' oneID.id], 'stats_[0-9]+.mat' , is , ...
+        @prep_cool , ID )), INDS ) ;
 
-coolID.id = 'cluster___cool___Thu-14-Oct-2010__18-17-24' ;
-
-sow( 'PT', @(ID)MCMC_parallel_tempering( ...
-      coalescer(cone_map, ['../' coolID.id], 'stats_[0-9]+.mat' , ID , ...
-      @prep_PT , ID )), ids(1:length(INDS)) )
+% sow( 'PT', @(ID)MCMC_parallel_tempering( ...
+%       coalescer(cone_map, ['../' coolID.id], 'stats_[0-9]+.mat' , ID , ...
+%       @prep_PT , ID )), ids(1:length(INDS)) )
 
 end
 

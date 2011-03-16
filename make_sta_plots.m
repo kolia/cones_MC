@@ -1,4 +1,4 @@
-function make_sta_plots( sta )
+function make_sta_plots( sta , filenames )
 % Given a cell struct of stas, for example as output by denoised_sta, save
 % imagesc plots to current directory.  Negative regions in STA are overlaid
 % with red dots.
@@ -6,20 +6,23 @@ function make_sta_plots( sta )
 NGC = numel(sta) ;
 [N,M] = size( sta{1} ) ;
 
-chec = 1:20:N*M ;
-checker = zeros(N,M) ;
-checker(chec) = 1 ;
+h = figure ;
 
 for i=1:NGC
     st = sta{i} ;
     z = sum(st,3) ;
-    z = z<0 ;
-    z = z & checker ;
+    inds  = logical(z<0) ;
+    inds  = inds(:) ;
+    inds3 = [inds ; inds ; inds] ;
+    st(inds3) = -[z(inds) ; z(inds) ; z(inds)] ;
+    
     st = st-min(st(:)) ;
     st = st / max(st(:)) ;
-    st( z ) = 1 ;
+
+    st = st.^(0.5) ;
+    
     imagesc(st) ;
-    saveas(h,sprintf('cell%d',i),'jpg') ;
+    saveas(h,sprintf('%s%d',filenames,i),'jpg') ;
 end
 
 end

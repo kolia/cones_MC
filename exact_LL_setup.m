@@ -46,12 +46,15 @@ cell_consts = N_spikes * cone_params.stimulus_variance ;
 gaus_in_box = gaus_in_a_box( cone_params.sigma ) ;
 
 prior_cov   = cone_params.stimulus_variance^2*N_GC/sum(STA_norm.^2) ;
+% prior_cov   = 42 * cone_params.stimulus_variance^2*N_GC/sum(STA_norm.^2) ;
 
 cone_map.N_cones_term = sum( log( prior_cov) - log(cell_consts(:)+prior_cov) ) ;
 cone_map.quad_factor  = N_spikes.^2 ./ (cell_consts+prior_cov) ;
 
 cone_map.A_factor  = N_spikes .* cone_params.stimulus_variance ./ ...
                      (cell_consts+prior_cov) ;
+
+cone_map.cov_factor = cell_consts+prior_cov ;
 
 % % stereotyped cone receptive field
 % s = cone_params.sigma ;
