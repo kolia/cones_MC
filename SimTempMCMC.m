@@ -18,8 +18,8 @@ di = 2* ( unifrnd(0,1)>0.5 ) - 1 ;
 proposed_i = min( max( 1 , ST.i + di ) , length(ST.T) ) ;
 
 %calculate probability of accepting new T
-paccept = min(1, LL(X, PROB, ST.T{proposed_i})* g(ST.i      ) ...
-               /(LL(X, PROB,         T       )* g(proposed_i)));
+paccept = min(1, LL(X, PROB, ST.T{proposed_i})* ST.g(ST.i      ) ...
+               /(LL(X, PROB, ST.T{ST.i      })* ST.g(proposed_i)));
 
 %accept new state with probability p
 if unifrnd(0,1) < paccept

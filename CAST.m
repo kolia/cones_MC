@@ -51,6 +51,8 @@ fprintf('\n\nMCMC progress:\n')
 t = cputime ;
 tic
 
+% LL = @(x)get_LL(x,cone_map,T) ;
+
 jj = 1 ;
 while 1
 
@@ -63,12 +65,14 @@ while 1
     if ST.i == 1  &&  X{1}.N_cones>10  && X{2}.N_cones>10
         [X{1},X{2}] = swap_step( X{1}, X{2}, [1 1], cone_map ) ;
     end
+
+    ST = SimTempMCMC( X{2}, cone_map, @get_LL, ST) ;
     
     if X{1}.ll>bestX.ll ,  bestX = X{1} ; end
 
     % DISPLAY stdout
     if ~mod(jj,display_every)
-        fprintf('Iteration:%4d of %d  %4d cones   %6.0f   ST.i:%d  %8.2f sec\n',...
+        fprintf('Iteration:%4d of %d  %4d cones   %6.0f   ST.i:%2d  %8.2f sec\n',...
                      jj,N_iterations,numel(find(X{1}.state>0)),X{1}.ll,ST.i,toc)
         tic
     end

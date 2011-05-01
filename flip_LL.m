@@ -93,11 +93,6 @@ for i=1:size(flips,1)
     end
 end
 
-if X.N_cones>0
-    [x,y,c] = find(X.state) ;
-    X.STA_W_state = PROB.STA_W( x+M0*(y-1)+M0*M1*(c-1) , : )' ; 
-end
-
 % recalculate data log-likelihood
 ll = calculate_LL( X , PROB , T ) ;
 X.T   = T  ;
