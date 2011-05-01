@@ -1,4 +1,4 @@
-function X = move_cone( X , x , y , d , PROB )
+function X = move_cone( X , x , y , d , PROB , T )
 
 c = X.state(x,y) ;
 if ~c  ,  error('trying to move_cone nonexistent cone') ; end

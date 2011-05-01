@@ -1,6 +1,6 @@
 function X = update_X(trials,i)
 
-if nargin<3 ,  i = 1 ; end
+if nargin<2 ,  i = 1 ; end
 changed             = i>1 ;
 X                   = trials{i} ;
 if i>1 , X.version  = trials{1}.version+1 ; end

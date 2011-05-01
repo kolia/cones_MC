@@ -32,7 +32,7 @@ ns       = 0 ;
 % propose moves of existing cones
 if X.N_cones > 0
     % draw n_moved existing cones
-    n_moved     = binornd(n,q) ;
+    n_moved     = binornd(n,PROB.q) ;
     cones       = randi( X.N_cones , 1 , n_moved ) ;
     
 %     cones       = 1:X.n_cones ;
@@ -44,7 +44,7 @@ if X.N_cones > 0
         color   = X.state(i,j) ;
         
         % probability of choosing this location
-        p = 1/X.N_cones * q ;
+        p = 1/X.N_cones * PROB.q ;
         
         % number of legal moves for this cone, being careful with borders
         nforward    = 4 - PROB.outofbounds(i,j) + PROB.N_colors ;
