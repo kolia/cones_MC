@@ -57,10 +57,9 @@ jj = 1 ;
 while 1
 
     % regular MCMC for all instances
-    for i=1:length(X)
-        X{i} = MCMC_step( X{i}, cone_map, X{i}.T ) ;
-    end
-    
+    X{1} = MCMC_step( X{1}, cone_map, [1 1]      ) ;
+    X{2} = MCMC_step( X{2}, cone_map, ST.T{ST.i} ) ;
+
     % swap move if X{2} is at T=1
     if ST.i == 1  &&  X{1}.N_cones>10  && X{2}.N_cones>10
         [X{1},X{2}] = swap_step( X{1}, X{2}, [1 1], cone_map ) ;
