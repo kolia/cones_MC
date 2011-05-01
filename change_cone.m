@@ -6,7 +6,7 @@ for i=1:size(a,1)
     x = a(i,1) ;
     y = a(i,2) ;
     c = a(i,3) ;
-    free = ~X.state(x,y) ;
+    free = ~c || ~X.state(x,y) ;
     
     if  c && ~X.state(x,y)  % check exclusion before adding cone
         [mask,indices] = place_mask( X.M0 , X.M1 , x , y , X.masks{1,1}.exclusion ) ;

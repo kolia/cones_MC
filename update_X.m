@@ -20,11 +20,11 @@ if isfield(X,'dX')
 end
 
 
-if changed
+if changed && ~isempty(X.diff)
         
     %% update contacts
     if isfield(X,'contact')
-    
+        
         deleted = find( ~X.diff(:,3) ) ;
         if ~isempty(deleted)
             deleted = X.diff(deleted,1) + (X.diff(deleted,2)-1)*X.M0 ;

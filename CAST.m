@@ -79,7 +79,7 @@ while 1
     % DISPLAY plot
     if ~mod(jj,plot_every)
         figure(h)
-        plot_cones( X.state , cone_map ) ;
+        plot_cones( X{1}.state , cone_map ) ;
         title( sprintf('After %d MCMC iterations',jj),'FontSize' , 24 )
         drawnow
     end
