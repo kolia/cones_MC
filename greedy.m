@@ -1,4 +1,4 @@
-function [result , X] = greedy( result , X , PROB , update_X )
+function X = greedy( X , PROB , update_X )
 
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
@@ -11,7 +11,7 @@ for x=1:M0
         % propose addition of new cone of each color
         for c=1:PROB.N_colors
             if X.state(x,y) ~= c
-                sample = change_cone( X , [x y c] , PROB ) ;
+                sample = change_cone( X , [x y c] , PROB , [1 1]) ;
                 ll(x,y,c) = sample.ll ;
             end
         end
@@ -29,8 +29,8 @@ if m>old_ll
     mc = 1+floor((my-1)/M1) ;
     my = 1+mod(my-1,M1) ;
     
-    X = change_cone( X , [mx my mc] , PROB ) ;
-    [result,X] = update_X(result,{X}) ;
+    X = change_cone( X , [mx my mc] , PROB , [1 1]) ;
+    X = update_X({X}) ;
 end
 
 end

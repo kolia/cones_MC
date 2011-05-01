@@ -9,8 +9,8 @@ function main( cone_map )
 %                      cone_map.cone_params.replusion_radii,1,1) ;
 %     [x,y,c] = find( greedy.X.state ) ;
 %     for i=1:numel(x)
-%         X = change_cone( X , [x(i) y(i) c(i)] , cone_map ) ;
-%         [dummy,X] = update_X({},{X X},2) ;
+%         X = change_cone( X , [x(i) y(i) c(i)] , cone_map , [1 1]) ;
+%         X = update_X({X X},2) ;
 %     end
 % end
 

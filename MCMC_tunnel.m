@@ -25,7 +25,7 @@ default( cone_map , 'max_time'      , 500  )
 
 n_runs = 1 ;
 
-runbest     = X ;
+runbest     = initX ;
 runbest.i   = 1 ;
 
 default( cone_map , 'get_ll'        , ...
@@ -63,7 +63,7 @@ while 1
         beta = beta*0.9 ;
     end
     
-    [ d, X ] = flip_MCMC( struct, X, move( X , 2 , q , cone_map ),...
+    [ d, X ] = flip_MCMC( struct, X, move( X , cone_map ),...
                           @update_X , @(trial)get_ll(trial,beta,runbest) ) ;
     n_cones = numel(find(X.state>0)) ;
 
@@ -122,16 +122,5 @@ cone_map.X              = X ;
 cone_map.bestX          = bestX ;
 cone_map.code.tunnel    = file2str('MCMC_tunnel.m') ;
 save(sprintf('bestX_%d',ID), 'bestX')
-
-end
-
-
-function default( s , name , value )
-
-if isfield( s , name )
-    assignin( 'caller' , name , s.(name) ) ;
-else
-    assignin( 'caller' , name , value ) ;
-end
 
 end

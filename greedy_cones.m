@@ -31,22 +31,17 @@ n_cones = 0 ;
 X       = initialize_X(M0,M1,N_colors,SS,cone_map.cone_params.replusion_radii,1,1) ;
 X       = rmfield(X,'contact') ;
 X.SS    = cone_map.cone_params.supersample ;
-    
-results.iteration = 0 ;
-results.dX        = sparse([],[],[],maxcones,3*maxcones) ;
-
 
 if plot_every
 scrsz = get(0,'ScreenSize');
 h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
 end
 
-
 % MAIN MCMC LOOP
 t = cputime ;
 tic
 for jj=1:maxcones
-    [results,X] = greedy(results,X,cone_map,@update_X) ;
+    X = greedy(X,cone_map,@update_X) ;
     n_cones = numel(find(X.state>0)) ;
      
     % DISPLAY stdout

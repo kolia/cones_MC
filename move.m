@@ -1,11 +1,11 @@
-function samples = move( X , n , q , PROB )
-% samples = move( X , n , q , PROB )
+function samples = move( X , PROB , T , n )
+% samples = move( X , PROB , n )
 % Draw n trial flips starting from state X.
 % Two types of move are produced: additions of cones, and moves or changes
 % in color of existing cones.
 % First, n spatial locations are drawn. They are drawn from existing cone
-% locations with probability q, and from the uniform distribution with
-% probability (1-q).
+% locations with probability PROB.q, and from the uniform distribution with
+% probability (1-PROB.q).
 % For each trial location i, if no cone of any color is at that position,
 % then the corresponding trial is a placement of a single randomly colored
 % cone at that location.
@@ -16,6 +16,8 @@ function samples = move( X , n , q , PROB )
 % adjacent positions that are within the border.
 % For speed, backward probabilities are not calculated: this sampler should
 % only be used with the symmetric rule, not with metropolis-hastings.
+
+if nargin<4 ,  n = 2 ; end
 
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
@@ -53,7 +55,7 @@ if X.N_cones > 0
             nj = j + X.masks{1,1}.shift{d}(2) ;
             if ni > 0   &&  ni <= M0  &&  nj>0  &&  nj <= M1
                 ns = ns+1 ;
-                samples{ns} = move_cone( X , i , j , d , PROB ) ;
+                samples{ns} = move_cone( X , i , j , d , PROB , T ) ;
                 samples{ns}.forward_prob   = p/nforward ;
             end
         end
@@ -61,13 +63,13 @@ if X.N_cones > 0
         % change of color, without moving
         for cc=setdiff( 1:X.N_colors , color )
             ns = ns+1 ;
-            samples{ns} = change_cone( X , [i j 0 ; i j cc] , PROB ) ;
+            samples{ns} = change_cone( X , [i j 0 ; i j cc] , PROB , T ) ;
             samples{ns}.forward_prob    = p/nforward ;
         end
         
         % cone deletion
         ns = ns+1 ;
-        samples{ns} = change_cone( X , [i j 0] , PROB ) ;
+        samples{ns} = change_cone( X , [i j 0] , PROB , T ) ;
         samples{ns}.forward_prob    = p/nforward ;
         
     end
@@ -83,7 +85,7 @@ while ns <= n + nns
     if ~X.state(i+M0*(j-1))
         l1      = [] ;
         % probability of choosing this location & color
-        p = (1-q)/((M0*M1 - X.N_cones)*PROB.N_colors) ;
+        p = (1-PROB.q)/((M0*M1 - X.N_cones)*PROB.N_colors) ;
 
         if X.N_cones >= X.maxcones
         % if maxcones has been reached, delete a random cone first
@@ -95,7 +97,7 @@ while ns <= n + nns
         % propose addition of new cone of each color
         for c=1:PROB.N_colors
             ns = ns+1 ;
-            samples{ns} = change_cone( X , [l1 ; i j c] , PROB ) ;
+            samples{ns} = change_cone( X , [l1 ; i j c] , PROB , T ) ;
             samples{ns}.forward_prob    = p ;
         end
     end

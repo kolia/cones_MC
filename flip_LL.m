@@ -1,5 +1,5 @@
-function X = flip_LL( X , flips , PROB )
-% X = flip_LL( X , flips , cell_consts , STA_W )
+function X = flip_LL( X , flips , PROB , T )
+% X = flip_LL( X , flips , PROB , T )
 %
 % pardon my appearance, i've been optimized for speed, not prettiness
 %
@@ -93,26 +93,13 @@ for i=1:size(flips,1)
     end
 end
 
-% recalculate data log-likelihood
 if X.N_cones>0
-
-    invWW = X.invWW ;
-    invWW(abs(invWW)<abs(invWW(1,1))*1e-17) = 0 ;
-
-    invWW = sparse(invWW) ;
-    
-    [x,y,c] = find(X.state) ;
-    
-    STA_W_state = PROB.STA_W( x+M0*(y-1)+M0*M1*(c-1) , : )' ;
-    STA_W_state = (STA_W_state-PROB.min_STA_W).^X.delta + PROB.min_STA_W ;
-
-    ll  = 0.5 * X.beta * full( X.N_cones * PROB.N_cones_term + ...
-            sum( PROB.quad_factor .* ...
-                sum( (STA_W_state * invWW) .* STA_W_state ,2) )) ;
-else
-    ll = 0 ;
+    X.STA_W_state = PROB.STA_W( x+M0*(y-1)+M0*M1*(c-1) , : )' ; 
 end
 
+% recalculate data log-likelihood
+ll = calculate_LL( X , PROB , T ) ;
+X.T   = T  ;
 X.ll  = ll ;
 
 end

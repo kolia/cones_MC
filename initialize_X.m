@@ -31,6 +31,8 @@ for d=1:4
     X.contact{d} = logical(X.contact{d}) ;
 end
 
+X.T = [1 1] ;
+
 % FROM old flip_color_LL.m !!!
 X.invWW     = [] ;
 % X.overlaps  = [] ;

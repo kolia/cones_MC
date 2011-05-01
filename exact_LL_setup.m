@@ -64,6 +64,14 @@ cone_map.cov_factor = cell_consts+prior_cov ;
 
 
 
+% sparse int matrix, with number of out-of-border adjacencies
+cone_map.outofbounds = sparse([],[],[],M0*SS,M1*SS,2*(M0+M1)*SS) ;
+cone_map.outofbounds(:,[1 M1*SS]) = 1 ;
+cone_map.outofbounds([1 M0*SS],:) = cone_map.outofbounds([1 M0*SS],:) + 1 ;
+
+
+
+
 %% SETUP for Log-LIKELIHOOD calculations
 
 try load('STA_W')  % calculating STA_W takes a while, check for STA_W.mat
@@ -136,6 +144,22 @@ cone_map.NROI           = NROI ;
 cone_map.cone_params    = cone_params ;
 cone_map.N_spikes       = N_spikes ;
 cone_map.SS             = SS ;
+
+% Some default values
+cone_map.N_iterations   = 100000 ;
+cone_map.q              = 0.999  ;
+cone_map.plot_every     = 0   ;
+cone_map.plot_skip      = 100 ;
+cone_map.display_every  = 100 ;
+cone_map.save_every     = 200 ;
+cone_map.ID             = 0   ;
+cone_map.max_time       = 2000;
+
+cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
+                               cone_map.N_colors, cone_map.SS, ...
+                               cone_map.cone_params.replusion_radii,...
+                               1, 1) ;
+
 
 end
 

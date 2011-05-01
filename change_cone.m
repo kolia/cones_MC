@@ -1,4 +1,4 @@
-function X = change_cone( X , a , PROB )
+function X = change_cone( X , a , PROB , T )
 
 % check_X(X)
 
@@ -14,7 +14,7 @@ for i=1:size(a,1)
     end
 
     if free                 % add or delete cone
-        X    = flip_LL( X , [x y c] , PROB ) ;
+        X    = flip_LL( X , [x y c] , PROB , T ) ;
 %         check_X(X)
     else
         X.ll = -Inf ;
