@@ -37,7 +37,7 @@ X{1}.dX   = sparse([],[],[],N_iterations,3*X{1}.maxcones) ;
 
 N_temp = length(cone_map.betas) ;
 ST.T = cell(N_temp,1) ;
-ST.i = N_temp ;
+ST.i = 1 ; %N_temp ;
 ST.n = 1 ;
 ST.g = ones(N_temp,1) ;
 for i=1:N_temp
@@ -60,17 +60,16 @@ while 1
     end
     
     % swap move if X{2} is at T=1
-    if ST.i == 1
-        [numel(find(X{1}.state>0)) numel(find(X{2}.state>0))]
-        [X{1},X{2}] = swap_step( X{1}, [1 1] ,X{2}, [1 1], cone_map ) ;
+    if ST.i == 1  &&  X{1}.N_cones>10  && X{2}.N_cones>10
+        [X{1},X{2}] = swap_step( X{1}, X{2}, [1 1], cone_map ) ;
     end
     
     if X{1}.ll>bestX.ll ,  bestX = X{1} ; end
 
     % DISPLAY stdout
     if ~mod(jj,display_every)
-        fprintf('Iteration:%4d of %d  %4d cones   %6.0f L  %8.2f sec\n',...
-                     jj,N_iterations,numel(find(X{1}.state>0)),X{1}.ll,toc)
+        fprintf('Iteration:%4d of %d  %4d cones   %6.0f   ST.i:%d  %8.2f sec\n',...
+                     jj,N_iterations,numel(find(X{1}.state>0)),X{1}.ll,ST.i,toc)
         tic
     end
 

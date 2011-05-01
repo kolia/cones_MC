@@ -1,4 +1,4 @@
-function XS = swap_closure( X , T, otherX , otherT, PROB )
+function XS = swap_closure( X , otherX , T, PROB )
 % Combine two systems into a single system, summing their log-likelihoods.
 % This is in preparation for swapping parts of the two systems'
 % configurations. For this, groups of cells that must be swapped together
@@ -76,13 +76,13 @@ for m=1:length(XS)
                 XX = flip_LL( XX , [xcx(k) xcy(k) 0] , PROB, T ) ;
             end
             for k=1:length(Oclass)
-                OX = flip_LL( OX , [ocx(k) ocy(k) 0] , PROB, otherT ) ;
+                OX = flip_LL( OX , [ocx(k) ocy(k) 0] , PROB, T ) ;
             end
             for k=1:length(Oclass)
                 XX = flip_LL( XX , [ocx(k) ocy(k) occ(k)] , PROB, T ) ;
             end
             for k=1:length(Xclass)
-                OX = flip_LL( OX , [xcx(k) xcy(k) xcc(k)] , PROB, otherT) ;
+                OX = flip_LL( OX , [xcx(k) xcy(k) xcc(k)] , PROB, T ) ;
             end
             
             XS{m}.X     = XX ;

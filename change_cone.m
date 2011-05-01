@@ -15,7 +15,6 @@ for i=1:size(a,1)
 
     if free                 % add or delete cone
         X    = flip_LL( X , [x y c] , PROB , T ) ;
-%         check_X(X)
     else
         X.ll = -Inf ;
         break

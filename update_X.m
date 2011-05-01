@@ -41,9 +41,7 @@ if changed
                 X = make_contacts(X , X.diff(added(i),:)) ;
             end
         end
-        
-%             check_X(X)        
-    end    
+    end
 end
 
 X.diff    = [] ;
