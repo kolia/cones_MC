@@ -5,7 +5,7 @@ if nargin>1 ,   cone_map.ID = ID ;     end
 cone_map
 
 default( cone_map , 'N_iterations'  , 100000)
-default( cone_map , 'max_time'      , 2000  )
+default( cone_map , 'max_time'      , 20000 )
 default( cone_map , 'plot_every'    , 0     )
 default( cone_map , 'plot_skip'     , 100   )
 default( cone_map , 'display_every' , 25    )
@@ -17,7 +17,8 @@ default( cone_map , 'deltas' , ones(1,length(cone_map.betas))) ;
 % Initialize figure
 if plot_every
 scrsz = get(0,'ScreenSize');
-h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
+h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.6 1200*0.4]) ;
+h2= figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
 end
 
 N_iterations    = cone_map.N_iterations ;
@@ -91,6 +92,15 @@ while 1
         plot_cones( X{1}.state , cone_map ) ;
         title( sprintf('After %d MCMC iterations',jj),'FontSize' , 24 )
         drawnow
+        
+        figure(h2) ; 
+        subplot(2,1,1) ; 
+        plot(X{1}.LL_history(1:X{1}.iteration)) ;
+        ylabel( sprintf('X(1) LL'),'FontSize' , 18 )
+        subplot(2,1,2) ; 
+        plot(X{2}.STi_history(1:X{1}.iteration))
+        ylabel( sprintf('X(2) Temp'),'FontSize' , 18 )
+        xlabel('Iterations','FontSize' , 18)
     end
 
     if ~mod(jj,save_every) , save_castrun( X , bestX, cone_map.ID) ; end
@@ -105,7 +115,7 @@ fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
 cone_map.X              = X ;
 cone_map.bestX          = bestX ;
 cone_map.code.string    = file2str('CAST.m') ;
-save_castrun( X{1}, bestX, cone_map.ID) ;
+save_castrun( X, bestX, cone_map.ID) ;
 
 end
 
