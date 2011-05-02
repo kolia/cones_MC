@@ -19,6 +19,13 @@ if isfield(X,'dX')
     end
 end
 
+%% track all changes
+if isfield(X,'LL_history')
+    if X.iteration>length(X.LL_history)
+       X.LL_history = [X.LL_history zeros(500,1)] ;
+    end
+    X.LL_history(X.iteration) = X.ll ;
+end
 
 if changed && ~isempty(X.diff)
         

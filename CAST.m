@@ -35,6 +35,12 @@ for i=1:2 ,  X{i} = cone_map.initX ; end
 X{1}.swap = logical( sparse([],[],[],N_iterations,1) ) ;
 X{1}.dX   = sparse([],[],[],N_iterations,3*X{1}.maxcones) ;
 
+% Tell update_X.m to save X{1}.ll whenever it updates X after an MCMC move.
+X{1}.LL_history  = zeros(cone_map.N_iterations,1) ;
+
+% Initialize array to save complete history ST.i in.
+X{2}.STi_history = zeros(cone_map.N_iterations,1) ;
+
 N_temp = length(cone_map.betas) ;
 ST.T = cell(N_temp,1) ;
 ST.i = 1 ; %N_temp ;
@@ -66,7 +72,10 @@ while 1
     end
 
     ST = SimTempMCMC( X{2}, cone_map, @get_LL, ST) ;
-    
+
+    % Save current ST.STi to X{2}.STi_history
+    X{2}.STi_history(X{2}.iteration) = ST.i ;
+     
     if X{1}.ll>bestX.ll ,  bestX = X{1} ; end
 
     % DISPLAY stdout
@@ -84,7 +93,7 @@ while 1
         drawnow
     end
 
-    if ~mod(jj,save_every) , save_castrun( X{1}, bestX, cone_map.ID) ; end
+    if ~mod(jj,save_every) , save_castrun( X , bestX, cone_map.ID) ; end
     
     jj = jj + 1 ;
     
@@ -102,5 +111,5 @@ end
 
 
 function save_castrun( X , bestX , ID)
-save(sprintf('castrun_%d',ID), 'X', 'bestX')
+save(sprintf('castrun_%d',ID), 'X', 'bestX' )
 end
