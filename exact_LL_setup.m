@@ -157,7 +157,7 @@ cone_map.plot_skip      = 100 ;
 cone_map.display_every  = 100 ;
 cone_map.save_every     = 200 ;
 cone_map.ID             = 0   ;
-cone_map.max_time       = 2000;
+cone_map.max_time       = 20000;
 
 cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.N_colors, cone_map.SS, ...
