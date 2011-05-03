@@ -84,7 +84,7 @@ while 1
 
     % DISPLAY stdout
     if ~mod(jj,display_every)
-        fprintf('\nIteration:%4d of %d  %4d cones %6.0f  ST.i:%2d %4.2f sec',...
+        fprintf('\nIteration:%4d of %d  %4d cones %6.0f  ST.i:%2d %6.2f sec',...
                      jj,N_iterations,numel(find(X{1}.state>0)),X{1}.ll,ST.i,toc)
         tic
     end
