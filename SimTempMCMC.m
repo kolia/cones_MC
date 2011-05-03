@@ -6,10 +6,9 @@ function ST = SimTempMCMC( X, PROB, LL, ST )
 %       g : current weights
 %       n : number of current iteration
     
-if ~isfield(ST,'n') , ST.n = 1 ;                    end
-if ~isfield(ST,'i') , ST.i = length(ST.T) ;         end
-if ~isfield(ST,'g') , ST.g = ones(length(ST.T),1) ; end
-    
+if ~isfield(ST,'n'   ) , ST.n = 1 ;                    end
+if ~isfield(ST,'i'   ) , ST.i = length(ST.T) ;         end
+if ~isfield(ST,'g'   ) , ST.g = ones(length(ST.T),1) ; end
 
 %step 4 (sample T)
 % proposed change in temperature index is +1 or -1 with prob 0.5
@@ -34,5 +33,8 @@ end
 %gnew(ind) = exp(logGnew(ind));
 ST.g(ST.i) = ST.g(ST.i)*(1 + 1/sqrt(1+ST.n));
 ST.n       = ST.n + 1 ;
+
+% renormalize ST.g every 100 iterations, for sanity
+if ~mod(ST.n,100) ,  ST.g = ST.g * length(ST.g) / sum(ST.g) ; end
 
 end

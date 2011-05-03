@@ -39,13 +39,14 @@ for i=1:N_GC
     STA_norm(i) = norm(STA(:,i)) ;
 end
 
-% cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
-cell_consts = N_spikes * cone_params.stimulus_variance ;
+cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
+% cell_consts = N_spikes * cone_params.stimulus_variance ;
 
 % memoized(?) function returning gaussian mass in a box
 gaus_in_box = gaus_in_a_box( cone_params.sigma ) ;
 
-prior_cov   = cone_params.stimulus_variance^2*N_GC/sum(STA_norm.^2) ;
+% prior_cov   = cone_params.stimulus_variance^2*N_GC/sum(STA_norm.^2) ;
+prior_cov   = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
 % prior_cov   = 42 * cone_params.stimulus_variance^2*N_GC/sum(STA_norm.^2) ;
 
 cone_map.N_cones_term = sum( log( prior_cov) - log(cell_consts(:)+prior_cov) ) ;
@@ -154,7 +155,7 @@ cone_map.plot_skip      = 100 ;
 cone_map.display_every  = 100 ;
 cone_map.save_every     = 200 ;
 cone_map.ID             = 0   ;
-cone_map.max_time       = 2000;
+cone_map.max_time       = 20000;
 
 cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.N_colors, cone_map.SS, ...
