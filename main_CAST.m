@@ -11,5 +11,7 @@ cone_map.deltas = make_deltas(0.3,1,1,length(cone_map.betas)) ;
 cone_map.plot_every    = 20 ;
 cone_map.display_every = 20 ;
 
+cone_map.N_fast        = 3 ;
+
 % THEN RUN THIS:
 % cone_map = CAST(cone_map) ;
