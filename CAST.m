@@ -48,7 +48,7 @@ N_temp = length(cone_map.betas) ;
 ST.T = cell(N_temp,1) ;
 ST.i = ones(cone_map.N_fast,1) ;
 ST.n = 1 ;
-ST.g = exp(-3.1035+0.2268*(1:N_temp)) ;  % from converged of previous runs
+ST.g = exp(-3.1035+0.2268*(1:N_temp)) ; % from converged g of previous runs
 for i=1:N_temp
     ST.T{i} = [cone_map.betas(i) cone_map.deltas(i)] ;
 end
