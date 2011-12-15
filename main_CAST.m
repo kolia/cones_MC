@@ -14,9 +14,9 @@ cone_map.display_every = 20 ;
 % % THEN RUN THIS to run on your own computer:
 % cone_map = CAST(cone_map) ;
 
-% % OR THIS to run 50 instances on the hpc cluster:  
-% %            INSTALL AGRICOLA FIRST
-% N = 50 ;
-% ids = cell(1,N) ;
-% for i=1:length(ids) , ids{i} = {i} ; end
-% sow('cone_map',@(ID)CAST(cone_map,ID),ids) ;
+% OR THIS to run 50 instances on the hpc cluster:  
+%            INSTALL AGRICOLA FIRST
+N = 50 ;
+ids = cell(1,N) ;
+for i=1:length(ids) , ids{i} = {i} ; end
+sow('cone_map',@(ID)CAST(cone_map,ID),ids) ;

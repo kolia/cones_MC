@@ -5,3 +5,4 @@
 *.eps
 figs
 *.m~
+cluster__*
