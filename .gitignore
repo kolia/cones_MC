@@ -5,4 +5,8 @@
 *.eps
 figs
 *.m~
+.unison.*
 cluster__*
+LL_ncones.svg
+evidence.png
+Best_Greed_MCMC_CAST.svg
