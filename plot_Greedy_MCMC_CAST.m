@@ -1,4 +1,4 @@
-function svg = plot_G_MC_PT( greed , mcmc , cast )
+function svg = plot_Greedy_MCMC_CAST( greed , mcmc , cast )
 
 [x,ll,states] = get_best( [mcmc ; cast ; {greed}] ) ;
 id = [ones(numel(mcmc),1) ; 2*ones(numel(cast),1) ; 0] ;
@@ -25,7 +25,7 @@ end
 svg = sprints('<use xlink:href="#%d" transform="translate(%f %f)" stroke="%s"/>\n', ...
                id,[y1(:);y2(:);yG],[x1(:);x2(:);xG],c) ;
 
-svg = insert_string(svg,'plot_G_MC_PT_stub.svg',-40) ;
+svg = insert_string(svg,'plot_Greedy_MCMC_CAST_stub.svg',-40) ;
 
 fid = fopen('Best_Greed_MCMC_CAST.svg','w') ;
 fwrite(fid,svg) ; fclose(fid) ;

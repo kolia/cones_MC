@@ -14,12 +14,12 @@
   <g transform="translate(5,-13)">
     <text font-size="8">
       <tspan baseline-shift="-50%">Greedy</tspan>
-      <tspan baseline-shift="-50%" dx="37">MCMC</tspan>
+      <tspan baseline-shift="-50%" dx="42">MCMC</tspan>
       <tspan baseline-shift="-50%" dx="49">CAST</tspan>
     </text>
-    <use xlink:href="#0" transform="translate(31 0)" stroke="red"/>
-    <use xlink:href="#1" transform="translate(97 0)" stroke="red"/>
-    <use xlink:href="#2" transform="translate(167 0)" stroke="red"/>
+    <use xlink:href="#0" transform="translate(33 1)" stroke="red"/>
+    <use xlink:href="#1" transform="translate(105 1)" stroke="red"/>
+    <use xlink:href="#2" transform="translate(175 1)" stroke="red"/>
   </g>
   <text x="38" y="17" font-size="6" fill="white">1</text>
   <text x="95" y="70" font-size="6" fill="white">2</text>
