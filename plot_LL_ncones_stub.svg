@@ -7,9 +7,9 @@
   <ellipse id="2" rx="4" ry="1" fill="red"/>-->
   <text id="0" fill="green" font-size="20" font-weight="bolder" text-anchor="middle" baseline-shift="-35%%" stroke="white" stroke-width="0.2">G</text>
   <text id="1" fill="blue" font-size="9" font-weight="bolder" text-anchor="middle" baseline-shift="-35%%">M</text>
-  <text id="2" fill="red" font-size="9" font-weight="bolder" text-anchor="middle" baseline-shift="-35%%" stroke="white" stroke-width="0.2">P</text>
+  <text id="2" fill="red" font-size="9" font-weight="bolder" text-anchor="middle" baseline-shift="-35%%" stroke="white" stroke-width="0.2">C</text>
   <text id="3" fill="blue" font-size="20" font-weight="bolder" text-anchor="middle" baseline-shift="-35%%" stroke="white" stroke-width="0.2">M</text>
-  <text id="4" fill="red" font-size="20" font-weight="bolder" text-anchor="middle" baseline-shift="-35%%" stroke="white" stroke-width="0.2">P</text>
+  <text id="4" fill="red" font-size="20" font-weight="bolder" text-anchor="middle" baseline-shift="-35%%" stroke="white" stroke-width="0.2">C</text>
 </defs>
 
 <g transform="scale(2 2)" font-family="Helvetica">

@@ -1,14 +1,12 @@
-function svg = plot_LL_ncones( greedy , dir1 , pattern1 , dir2 , pattern2 )
+function svg = plot_LL_ncones( greed , mcmc , cast )
 
-phase1 = load_bestX( dir1 , pattern1 ) ;
-phase2 = load_bestX( dir2 , pattern2 ) ;
+[x,y] = get_best( [mcmc ; cast ; {greed}] ) ;
+id = [ones(numel(mcmc),1) ; 2*ones(numel(cast),1) ; 0] ;
 
-[x,y] = get_N_ll( [phase1 ; phase2 ; {greedy}] ) ;
-id = [ones(numel(phase1),1) ; 2*ones(numel(phase2),1) ; 0] ;
-
-minx =  99 ;
-maxx = 119 ;
-inds = (x>minx) & (x<maxx) & (y>31000) ;
+minx = min(x) ;% 99 ;
+maxx = max(y) ;%119 ;
+%inds = (x>minx) & (x<maxx) & (y>31000) ;
+inds = (x>=minx) & (x<=maxx) ;
 
 id  = id(inds) ;
 y   = y(inds) ;
@@ -61,25 +59,13 @@ svg = [sprintf('<line x1="0" x2="%f" y1="%f" y2="%f" text-anchor="middle" stroke
        sprintf('<line x1="%f" x2="0" y1="%f" y2="%f" text-anchor="middle" stroke="black" opacity="0.3"/>\n',x(end-2),y(end-2),y(end-2)) ...
        sprintf('<text x="-5" y="%f" font-size="12" text-anchor="middle" baseline-shift="-110%%">%d</text>\n',y(end-2),ceil(M1)) ...
        sprintf('<text x="100" y="220" font-size="15" text-anchor="middle" baseline-shift="-100%%">     number of cones</text>\n') ...
-       sprintf('<g transform="translate(-10 55)rotate(-90)"><text font-size="15" text-anchor="end">log posterior</text></g>\n') ...
-       sprintf('<text x="100" y="-25" font-size="18" text-anchor="middle"><tspan fill="green">Greedy</tspan>, <tspan fill="blue">MCMC</tspan> and <tspan fill="red">Parallel tempering</tspan></text>\n') ...
+       sprintf('<g transform="translate(-40 55)rotate(-90)"><text font-size="15" text-anchor="end">log posterior (nats)</text></g>\n') ...
+       sprintf('<text x="100" y="-25" font-size="18" text-anchor="middle"><tspan fill="green">Greedy</tspan>, <tspan fill="blue">MCMC</tspan> and <tspan fill="red">CAST</tspan></text>\n') ...
        svg] ;
 
 svg = insert_string(svg,'plot_LL_ncones_stub.svg',-40) ;
 
 fid = fopen('LL_ncones.svg','w') ;
 fwrite(fid,svg) ; fclose(fid) ;
-
-end
-
-
-function [x,y] = get_N_ll( Xs )
-
-x = zeros(numel(Xs),1) ;
-y = zeros(numel(Xs),1) ;
-for i=1:numel(Xs)
-    x(i) = Xs{i}.N_cones ;
-    y(i) = Xs{i}.ll ;
-end
 
 end
