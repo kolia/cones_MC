@@ -27,7 +27,7 @@ fprintf('\n\nSTARTING greedy search')
 
 
 % initializing variables
-n_cones = 0 ;
+N_cones = 0 ;
 X       = initialize_X(M0,M1,N_colors,SS,cone_map.cone_params.replusion_radii,1,1) ;
 X       = rmfield(X,'contact') ;
 X.SS    = cone_map.cone_params.supersample ;
@@ -42,11 +42,11 @@ t = cputime ;
 tic
 for jj=1:maxcones
     X = greedy(X,cone_map,@update_X) ;
-    n_cones = numel(find(X.state>0)) ;
+    N_cones = numel(find(X.state>0)) ;
      
     % DISPLAY stdout
     if ~mod(jj,display_every)
-        fprintf('\nCones:%4d, %4d  %.0f\tin %8.2f sec',jj,n_cones,X.ll,toc)
+        fprintf('\nCones:%4d, %4d  %.0f\tin %8.2f sec',jj,N_cones,X.ll,toc)
         tic
     end
     
@@ -58,16 +58,16 @@ for jj=1:maxcones
         drawnow
     end
     
-    if n_cones<jj
+    if N_cones<jj
         break ;
     end
-    save('results','results','cone_map')
+%     save('results','cone_map')
 end
 fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
 
 cone_map.X              = X ;
 cone_map.code           = file2str('greedy_cones.m') ;
-cone_map.n_cones        = n_cones ;
-save('results','results','cone_map','X')
+cone_map.N_cones        = N_cones ;
+% save('results','cone_map','X')
 
 end

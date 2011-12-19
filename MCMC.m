@@ -1,25 +1,26 @@
-function [bestX,cone_map] = MCMC( cone_map , ID )
+function cone_map = MCMC( cone_map , ID )
 
 if nargin>1 ,   cone_map.ID = ID ;     end
 
 cone_map
+cone_map.code.string    = file2str('MCMC.m') ;
 
 default( cone_map , 'N_iterations'  , 100000)
-default( cone_map , 'max_time'      , 2000  )
 default( cone_map , 'plot_every'    , 0     )
 default( cone_map , 'plot_skip'     , 100   )
-default( cone_map , 'display_every' , 100   )
+default( cone_map , 'display_every' , 50    )
 default( cone_map , 'save_every'    , 200   )
 default( cone_map , 'ID'            , 0     )
+default( cone_map , 'max_time'      , 2000  )
 
 % Initialize figure
 if plot_every
 scrsz = get(0,'ScreenSize');
-h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
+h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*1]) ;
 end
 
 % MAIN MCMC LOOP
-fprintf('\n\nMCMC at temperature 1 :\n')
+fprintf('\n\nMCMC progress:')
 t = cputime ;
 tic
 
@@ -28,10 +29,12 @@ n_runs = 1 ;
 X           = cone_map.initX ;
 runbest     = X ;
 runbest.i   = 1 ;
-jj = 1 ;
+jj          = 1 ;
+cone_map.bestX = {} ;
+n_best      = 1 ;
 while 1
     
-    X = flip_MCMC( move(X, cone_map, [1 1]), @update_X, @(trial)trial.ll ) ;
+    X = flip_MCMC( X, move(X, cone_map, [1 1]), @update_X, @(trial)trial.ll ) ;
 
     if X.ll>runbest.ll
         runbest = X ;
@@ -40,9 +43,11 @@ while 1
         
     % reinitialize if stuck
     if jj - runbest.i > 400
-        bestX{n_runs} = runbest ;
-        X       = initX ;
-        runbest = initX ;
+        runbest = rmfield(runbest,{'invWW','masks','contact'}) ;
+        cone_map.bestX{n_best} = runbest ;
+        n_best  = n_best + 1 ;
+        X       = cone_map.initX ;
+        runbest = cone_map.initX ;
         runbest.i = jj ;
         n_runs  = n_runs + 1 ;
     end
@@ -54,7 +59,7 @@ while 1
                             runbest.ll,toc)
         tic
     end
-    
+
     % DISPLAY plot
     if ~mod(jj,plot_every)
         figure(h)
@@ -63,21 +68,14 @@ while 1
         % set(get(gca,'Title'),'Visible','on')
         drawnow
     end
-    
-    if ~mod(jj,save_every)
-        bestX{n_runs} = runbest ;        
-        save(sprintf('bestX_%d',ID), 'bestX')
-    end
-    
-    jj = jj + 1 ;
-    
-    if jj>N_iterations || cputime-t>max_time ,  break ;  end
-end
-fprintf('\ndone in %.1f sec\n\n', cputime - t) ;
 
-cone_map.X              = X ;
-cone_map.bestX          = bestX ;
-cone_map.code.MCMC      = file2str('MCMC.m') ;
-save(sprintf('bestX_%d',ID), 'bestX')
+    if ~mod(jj,save_every) || jj>N_iterations || cputime-t>max_time
+        cone_map.X          = X ;
+        save(sprintf('result_%d',ID), 'cone_map' )
+        if jj>N_iterations || cputime-t>max_time, break ; end
+    end 
+    jj = jj + 1 ;
+end
+fprintf('\n\ndone in %.1f sec\n\n',cputime - t) ;
 
 end

@@ -3,17 +3,17 @@ function cone_map = CAST( cone_map , ID )
 if nargin>1 ,   cone_map.ID = ID ;     end
 
 cone_map
+cone_map.code.string    = file2str('CAST.m') ;
 
 default( cone_map , 'N_iterations'  , 100000)
-default( cone_map , 'max_time'      , 20000 )
 default( cone_map , 'plot_every'    , 0     )
 default( cone_map , 'plot_skip'     , 100   )
-default( cone_map , 'display_every' , 25    )
+default( cone_map , 'display_every' , 50    )
 default( cone_map , 'save_every'    , 200   )
 default( cone_map , 'ID'            , 0     )
+default( cone_map , 'max_time'      , 20000 )
 default( cone_map , 'deltas' , ones(1,length(cone_map.betas))) ;
 default( cone_map , 'N_fast'        , 1     )
-
 
 % Initialize figure
 if plot_every
@@ -121,23 +121,15 @@ while 1
         end
     end
 
-    if ~mod(jj,save_every) , save_castrun( X , bestX, ST , cone_map.ID) ; end
-    
+    if ~mod(jj,save_every) || jj>N_iterations || cputime-t>max_time
+        cone_map.X          = X{1} ;
+        cone_map.bestX      = bestX ;
+        cone_map.ST         = ST ;
+        save(sprintf('result_%d',ID), 'cone_map' )
+        if jj>N_iterations || cputime-t>max_time, break ; end
+    end 
     jj = jj + 1 ;
-    
-    if jj>N_iterations || cputime-t>max_time ,  break ;  end
-    
 end
 fprintf('\n\ndone in %.1f sec\n\n',cputime - t) ;
 
-cone_map.X              = X ;
-cone_map.bestX          = bestX ;
-cone_map.code.string    = file2str('CAST.m') ;
-save_castrun( X, bestX, ST, cone_map.ID) ;
-
-end
-
-
-function save_castrun( X , bestX , ST , ID)
-save(sprintf('castrun_%d',ID), 'X', 'bestX' , 'ST' )
 end
