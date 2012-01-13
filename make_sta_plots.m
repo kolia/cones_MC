@@ -1,15 +1,14 @@
-function make_sta_plots( sta , filenames )
+function make_sta_plots( sta , invww, filenames )
 % Given a cell struct of stas, for example as output by denoised_sta, save
-% imagesc plots to current directory.  Negative regions in STA are overlaid
-% with red dots.
+% imagesc plots to current directory.  Negative regions in STA are shown in
+% white.
 
-NGC = numel(sta) ;
-[N,M] = size( sta{1} ) ;
+NGC = size( sta, 2 ) ;
 
 h = figure ;
 
 for i=1:NGC
-    st = sta{i} ;
+    st = sta{1,i} ;
     z = sum(st,3) ;
     inds  = logical(z<0) ;
     inds  = inds(:) ;
@@ -20,9 +19,27 @@ for i=1:NGC
     st = st / max(st(:)) ;
 
     st = st.^(0.5) ;
+
+    try
+        imagesc(st) ;
+        filename = sprintf('%s_%d_STA',filenames,i) ;
+        saveas(h,filename,'jpg') ;
+    catch E
+        fprintf('Error while attempting to plot %s',filename)
+        disp(E)
+    end
     
-    imagesc(st) ;
-    saveas(h,sprintf('%s%d',filenames,i),'jpg') ;
-end
+    try
+        std = sqrt( sta{2,i} - sta{1,i}.^2 + invww ) ;
+        std = std-min(std(:)) ;
+        std = std / max(std(:)) ;
+        imagesc(std)
+        filename = sprintf('%s_%d_std',filenames,i) ;
+        saveas(h,filename,'jpg') ;
+    catch E
+        fprintf('Error while attempting to plot %s',filename)
+        disp(E)
+    end
+
 
 end

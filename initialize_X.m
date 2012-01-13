@@ -5,12 +5,14 @@ if nargin<8
 end
 
 X.masks     = make_masks(repulsion*SS) ;
+X.D         = max(repulsion(:))*SS ;
+
 X.M0        = M0 * SS ;
 X.M1        = M1 * SS ;
 X.SS        = SS ;
 X.N_colors  = N_colors ;
 X.N_cones   = 0  ;
-X.ll        = 0 ;
+X.ll        = -Inf ;
 X.dll       = 0 ;
 X.n_moves   = 0 ;
 X.diff      = [] ;
@@ -24,6 +26,8 @@ X.maxcones  = maxcones ;
 
 % sparse int matrix, representing cone positions and colors
 X.state     = sparse([],[],[],X.M0,X.M1,X.maxcones) ;
+
+X.STA_W_state = [] ;
 
 % contact forces at four cardinal adjacent positions, indexed by id
 for d=1:4

@@ -17,7 +17,7 @@ function samples = move( X , PROB , T , n )
 % For speed, backward probabilities are not calculated: this sampler should
 % only be used with the symmetric rule, not with metropolis-hastings.
 
-if nargin<4 ,  n = 2 ; end
+if nargin<4 ,  n = 1 ; end
 
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
@@ -73,12 +73,12 @@ if X.N_cones > 0
         samples{ns}.forward_prob    = p/nforward ;
         
     end
+else
+    n_moved = 0 ;
 end
 
-nns = ns ;
-
 % sample unoccupied locations, propose cone additions
-while ns <= n + nns
+while ns <= n - n_moved
     i       = randi( M0 , 1 ) ;
     j       = randi( M1 , 1 ) ;
     

@@ -11,7 +11,7 @@ function X = flip_MCMC( X , trials , update , get_ll )
 if ~isempty(trials)
     
     % prepend current X to samples
-    trials   = [{X} ; trials] ;
+    trials   = [{X} ; trials(:)] ;
     n_trials = length(trials) ;
     clear X
     

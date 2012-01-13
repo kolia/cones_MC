@@ -21,7 +21,7 @@ display_every   = 1 ;
 % D             exclusion distance
   D             = 9.2 ;
 % maxcones
-  maxcones      = 150 ;
+  maxcones      = 3000 ;
   
 fprintf('\n\nSTARTING greedy search')
 

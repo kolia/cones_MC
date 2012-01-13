@@ -11,7 +11,7 @@ default( cone_map , 'plot_skip'     , 100   )
 default( cone_map , 'display_every' , 50    )
 default( cone_map , 'save_every'    , 200   )
 default( cone_map , 'ID'            , 0     )
-default( cone_map , 'max_time'      , 20000 )
+default( cone_map , 'max_time'      , 50000 )
 default( cone_map , 'deltas' , ones(1,length(cone_map.betas))) ;
 default( cone_map , 'N_fast'        , 1     )
 

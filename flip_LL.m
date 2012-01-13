@@ -40,10 +40,12 @@ for i=1:size(flips,1)
                      X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
         X.invWW    = invWW ;
         
+        X.STA_W_state = X.STA_W_state(:, inds ) ;
+        
         X.state(x,y)= 0 ;
         
         X.diff = [X.diff ; x y 0] ;
-        
+
     else        % update inverse by adding row/column
         j           = j + 1 ;
         X.N_cones   = X.N_cones + 1 ;
@@ -87,9 +89,15 @@ for i=1:size(flips,1)
         end
         X.invWW(j,j)       = q ;
         
+        STA_W_state = X.STA_W_state ;
+        X.STA_W_state = zeros(PROB.N_GC,X.N_cones) ;
+        if ~isempty(inds)
+            X.STA_W_state(:,inds) = STA_W_state ;
+        end
+        X.STA_W_state(:,j) = PROB.make_STA_W( k, c, PROB.STA, PROB.cone_params.colors ) ;
+
         X.state(x,y)       = c ;        
         X.diff = [X.diff ; x y c] ;
-
     end
 end
 

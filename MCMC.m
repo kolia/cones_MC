@@ -9,9 +9,9 @@ default( cone_map , 'N_iterations'  , 100000)
 default( cone_map , 'plot_every'    , 0     )
 default( cone_map , 'plot_skip'     , 100   )
 default( cone_map , 'display_every' , 50    )
-default( cone_map , 'save_every'    , 200   )
+default( cone_map , 'save_every'    , 2000  )
 default( cone_map , 'ID'            , 0     )
-default( cone_map , 'max_time'      , 2000  )
+default( cone_map , 'max_time'      , 200000)
 
 % Initialize figure
 if plot_every
@@ -42,7 +42,7 @@ while 1
     end
         
     % reinitialize if stuck
-    if jj - runbest.i > 400
+    if jj - runbest.i > cone_map.M0*cone_map.M1/3
         runbest = rmfield(runbest,{'invWW','masks','contact'}) ;
         cone_map.bestX{n_best} = runbest ;
         n_best  = n_best + 1 ;

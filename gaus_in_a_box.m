@@ -23,6 +23,7 @@ gf      = @gib ;
             - mvncdf([dx dy] + [O l],[],sigma.*[1 1]) ...
             - mvncdf([dx dy] + [l O],[],sigma.*[1 1]) ...
             + mvncdf([dx dy]        ,[],sigma.*[1 1]) ;
+        out = out / sqrt(0.1083) ;
     end
 
 end
