@@ -5,7 +5,7 @@ if nargin<8
 end
 
 X.masks     = make_masks(repulsion*SS) ;
-X.D         = max(repulsion(:))*SS ;
+X.D         = max(repulsion(1:2,1)*SS) ;
 
 X.M0        = M0 * SS ;
 X.M1        = M1 * SS ;

@@ -7,6 +7,7 @@
 % load george/cone_params   % contains 'cone_params'
 
 cone_params.fudge = 1 ;
+cone_params.support_radius = 3 ;
 cone_map = exact_LL_setup(stas,cone_params) ; % cone_map, aka PROB or data
 
 

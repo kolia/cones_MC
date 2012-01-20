@@ -10,6 +10,12 @@ if iscell(states) && isfield(states{1},'state')
     end
 end
 
+% if issparse(states{1})
+%     for ii=1:numel(states)
+%         states{ii} = states{ii}( states{ii}>0 ) ;
+%     end
+% end
+
 symbols = {'o' ; 's' ; '*' ; 'x' ; 'p' ; 'h' ; 'd' ; '.'} ;
 colors  = {'r' ; 'g' ; 'b' } ;
 
@@ -19,9 +25,9 @@ h  = cell(3,NN) ;
 if nargin>1 && isfield( cone_map ,'NICE' )
     colormap('pink')
     imagesc( cone_map.NICE.^(0.6) ) ;
-    hold on
 end
 
+hold on
 for ii=1:numel(states)
     s = symbols{ii} ;
     for cc=1:3
@@ -32,13 +38,13 @@ for ii=1:numel(states)
     end
 end
 
-if nargin>1 
+if nargin>1
     if isfield(cone_map,'greedy')
         cone_map = cone_map.greedy ;
     end
     if isnumeric(cone_map)
         [gx,gy] = find( cone_map ) ;
-        plot(gy,gx,'w+','MarkerSize',7)
+        plot(gy,gx,'w+','MarkerSize',7) ;
     end
 end
 

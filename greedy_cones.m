@@ -18,8 +18,6 @@ plot_every      = 0 ;
 display_every   = 1 ;
 
 %% PARAMETERS
-% D             exclusion distance
-  D             = 9.2 ;
 % maxcones
   maxcones      = 3000 ;
   
@@ -51,7 +49,7 @@ for jj=1:maxcones
     end
     
     % DISPLAY plot
-    if ~mod(jj,plot_every)
+    if plot_every && ~mod(jj,plot_every)
         figure(h)
         plot_cones( X.state , cone_map ) ;
         title(sprintf('Iteration %d',jj),'FontSize',16)        

@@ -1,7 +1,7 @@
 function ll = calculate_LL( X , PROB , T )
 
-M0 = PROB.M0 * PROB.SS ;
-M1 = PROB.M1 * PROB.SS ;
+% M0 = PROB.M0 * PROB.SS ;
+% M1 = PROB.M1 * PROB.SS ;
 
 if X.N_cones>0
     invWW = X.invWW ;
@@ -12,8 +12,7 @@ if X.N_cones>0
 
     try
         ll  = 0.5 * T(1) * full( X.N_cones * PROB.N_cones_term + ...
-            sum( PROB.quad_factor .* ...
-            sum( (STA_W_state * invWW) .* STA_W_state ,2) )) ;
+            sum( PROB.quad_factor' * ((STA_W_state * invWW) .* STA_W_state) )) ;
     catch
         'ha'
     end
