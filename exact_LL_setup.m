@@ -160,34 +160,36 @@ cone_map.NICE = QC ./ max(QC(:)) ;
 
 imagesc( cone_map.NICE )
 
-% test cone_map.make_STA_W against make_LL
-mLL = max(cone_map.LL(:)) ;
-[mk,mc] = find( reshape( cone_map.LL, NROI, N_colors) == mLL ) ;
-mx = mod( mk-1, M0*SS ) + 1 ;
-my = ceil( mk/(M0*SS) ) ;
-sta_w = cone_map.make_STA_W( mk, mc, reshape(STA,[],N_GC), cone_params.colors ) ;
-fprintf('\nLL and sta_w ll: %f,%f, %f, %f\n',mLL,cone_map.LL(mk+(mc-1)*NROI),...
-    0.5 * sum( cone_map.quad_factor' .* (sta_w / mean(WW(:))) .* sta_w  ),...
-    0.5 * sum( cone_map.quad_factor' * ((sta_w / mean(WW(:))) .* sta_w )')) ;
-
-test = zeros(10,10) ;
-% range_x = 185:232 ;
-% range_y = 457:504 ;
-mx = 194 ;
-my = 465 ;
-range_x = mx-5:mx+5 ; %1:10 ;
-range_y = my-5:my+5 ; %1:10 ;
-for iii=range_x
-    for jjj=range_y
-        sta_w = cone_map.make_STA_W( iii+M0*SS*(jjj-1), 1, ...
-                                     reshape(STA,[],N_GC), cone_params.colors ) ;
-        test(iii,jjj) = 0.5 * sum( cone_map.quad_factor' .* ...
-                                  (sta_w / mean(WW(:))) .* sta_w ) ;
-    end
-end
-
-disp(test(range_x,range_y))
-disp(cone_map.LL(range_x,range_y,1))
+% % test cone_map.make_STA_W against make_LL
+% mLL = max(cone_map.LL(:)) ;
+% [mk,mc] = find( reshape( cone_map.LL, NROI, N_colors) == mLL ) ;
+% mx = mod( mk-1, M0*SS ) + 1 ;
+% my = ceil( mk/(M0*SS) ) ;
+% sta_w = cone_map.make_STA_W( mk, mc, reshape(STA,[],N_GC), cone_params.colors ) ;
+% fprintf('\nLL and sta_w ll: %f,%f, %f, %f\n',mLL,cone_map.LL(mk+(mc-1)*NROI),...
+%     0.5 * sum( cone_map.quad_factor' .* (sta_w / mean(WW(:))) .* sta_w  ),...
+%     0.5 * sum( cone_map.quad_factor' * ((sta_w / mean(WW(:))) .* sta_w )')) ;
+% 
+% test = zeros(10,10) ;
+% % range_x = 185:232 ;
+% % range_y = 457:504 ;
+% % mx = 194 ;
+% % my = 465 ;
+% % range_x = mx-5:mx+5 ; %1:10 ;
+% % range_y = my-5:my+5 ; %1:10 ;
+% range_x = 1:10 ;
+% range_y = 1:10 ;
+% for iii=range_x
+%     for jjj=range_y
+%         sta_w = cone_map.make_STA_W( iii+M0*SS*(jjj-1), 1, ...
+%                                      reshape(STA,[],N_GC), cone_params.colors ) ;
+%         test(iii,jjj) = 0.5 * sum( cone_map.quad_factor' .* ...
+%                                   (sta_w / mean(WW(:))) .* sta_w ) ;
+%     end
+% end
+% 
+% disp(test(range_x,range_y))
+% disp(cone_map.LL(range_x,range_y,1))
 
 cone_map.R              = R ;
 cone_map.coneConv       = coneConv ;
@@ -232,8 +234,8 @@ for ii=1:SS
     for jj=1:SS
         i = supersamples(ii) ;
         j = supersamples(jj) ;
-        ox  = floor(i-support):floor(i+support) ;
-        oy  = floor(j-support):floor(j+support) ;
+        ox  = 1+(floor(i-support):floor(i+support)) ;
+        oy  = 1+(floor(j-support):floor(j+support)) ;
         x   = repmat(ox(:),numel(oy),1) ;
         y   = reshape( repmat(oy,numel(ox),1) , [] , 1 ) ;
         g   = reshape( gaus_boxed(i-x,j-y), [numel(ox) numel(oy)]) ;
@@ -241,8 +243,8 @@ for ii=1:SS
         for gc=1:cone_map.N_GC
             CC = zeros(M0*M1,N_colors) ;
             for color=1:N_colors
-                CCC = conv2( STA(:,:,color,gc), g, 'same' ) ;
-%                 CCC = CCC(ceil((SS+1)/2):M0+floor((SS+1)/2),ceil((SS+1)/2):M1+floor((SS+1)/2)) ;
+                CCC = conv2( STA(:,:,color,gc), g ) ;
+                CCC = CCC(support+1:M0+support,support+1:M1+support) ;
                 CC(:,color) = CCC(:) ;
             end
 %             C = 0.5 * cone_map.quad_factor(gc) * (C * colors').^2 / WW(SS-ii+1,SS-jj+1) ;
@@ -271,8 +273,8 @@ function make_sta_w = memoized_STA_W(M0,M1,SS,ROI,support,fudge,gaus_boxed)
             i   = ROI(k,1) ;
             j   = ROI(k,2) ;
 
-            ox    = floor(i-support):floor(i+support) ;
-            oy    = floor(j-support):floor(j+support) ;
+            ox    = 1+(floor(i-support):floor(i+support)) ;
+            oy    = 1+(floor(j-support):floor(j+support)) ;
             ix    = (ox>=1) .* (ox<=M0) ;
             iy    = (oy>=1) .* (oy<=M1) ;
 %             ox    = ox(ix>0) ;

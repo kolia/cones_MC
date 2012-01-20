@@ -1,13 +1,13 @@
 % PREPARE cone_map
 
-% load peach/peach_data    % contains 'stas'
-% load peach/cone_params
+load peach/peach_data    % contains 'stas'
+load peach/cone_params
 
 % load george/stas   % contains 'stas'
 % load george/cone_params   % contains 'cone_params'
 
 cone_params.fudge = 1 ;
-cone_params.support_radius = 3 ;
+cone_params.support_radius = 4 ;
 cone_map = exact_LL_setup(stas,cone_params) ; % cone_map, aka PROB or data
 
 
