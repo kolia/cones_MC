@@ -3,8 +3,6 @@ function X = greedy( X , PROB , update_X )
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
 
-old_ll  = X.ll ;
-
 if ~isfield(X,'greedy_ll')
     X.greedy_ll = cell(PROB.N_colors,1) ;
 %     for c=1:PROB.N_colors
@@ -25,13 +23,24 @@ else
             % propose addition of new cone of each color
             for c=1:PROB.N_colors
                 if X.state(x,y) ~= c
+%                     test0 = change_cone( X , [X.last_x X.last_y 0] , PROB , [1 1]) ;
+%                     test0 = change_cone( test0 , [x y c] , PROB , [1 1]) ;
                     sample = change_cone( X , [x y c] , PROB , [1 1]) ;
-%                     tester = change_cone( X , [X.last_x X.last_y 0] , PROB , [1 1]) ;
-%                     tester = change_cone( tester , [x y c] , PROB , [1 1]) ;
+% %                     tester = change_cone( X , [X.last_x X.last_y 0] , PROB , [1 1]) ;
+% %                     tester = change_cone( tester , [x y c] , PROB , [1 1]) ;
                     X.greedy_ll{c}(x,y) = sample.ll - (X.ll + 0.5 * PROB.N_cones_term) ;
 %                     if c == 1
-%                         fprintf('   %d,%d  %f,%f',x,y,PROB.LL(x,y,c),X.greedy_ll{c}(x,y))
-%                         disp('\n')
+%                         fprintf('   %d,%d  %f,%f,%f',x,y,PROB.LL(x,y,c),X.greedy_ll{c}(x,y),...
+%                                         test0.ll - 0.5 * PROB.N_cones_term)
+%                         fprintf('\n')
+%                         sample
+%                         test0
+%                         sample.STA_W_state'
+%                         test0.STA_W_state'
+%                         sample.state
+%                         test0.state
+%                         sample.invWW
+%                         test0.invWW
 % %                         fprintf('%d,%d  %f\n',x,y,X.greedy_ll{c}(x,y))
 %                     end
                     recalculated = recalculated + 1 ;
@@ -50,21 +59,23 @@ else
 %     fprintf('changed greedy_ll min %f median %f max %f',min(ll(:)), median(ll(:)), max(ll(:)))
 end
 
-% LL = zeros([size(X.greedy_ll{1}) PROB.N_colors]) ;
-% for c=1:PROB.N_colors
-%     LL(:,:,c) = X.greedy_ll{c} ;
+LL = zeros([size(X.greedy_ll{1}) PROB.N_colors]) ;
+for c=1:PROB.N_colors
+    LL(:,:,c) = X.greedy_ll{c} ;
+end
+% try
+%     LL(LL<0) = min(reshape(LL(LL>0),1,[])) ;
+%     fprintf('   LL min %f max %f',min(LL(:)), max(LL(:)))
+%     figure(1)
+%     imagesc(LL/max(LL(:)))
 % end
-% LL(LL<0) = min(reshape(LL(LL>0),1,[])) ;
-% fprintf('   LL min %f max %f',min(LL(:)), max(LL(:)))
-% figure(1)
-% imagesc(LL/max(LL(:)))
-% 
+
 % try
 %     figure(2)
 %     lll = PROB.LL(min(X.changed_x)+2:max(X.changed_x)-2,min(X.changed_y)+2:max(X.changed_y)-2,1) ;
 %     lll( ll == -Inf ) = -Inf ;
 %     imagesc(lll/max(lll(:)))
-%     fprintf('LL in changed area min %f median %f max %f',min(lll(:)), median(lll(:)), max(lll(:)))
+% %     fprintf('LL in changed area min %f median %f max %f',min(lll(:)), median(lll(:)), max(lll(:)))
 %     disp('done')
 % end
 
@@ -79,7 +90,7 @@ end
 mm = max(m) ;
 mc = find(m == mm) ;
 
-if mm>old_ll
+if mm+0.5 * PROB.N_cones_term>0
     [mx,my] = find(X.greedy_ll{mc} == mm) ;
     
     mx = mx(1) ;

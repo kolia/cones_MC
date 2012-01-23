@@ -1,10 +1,10 @@
 % PREPARE cone_map
 
-load peach/peach_data    % contains 'stas'
-load peach/cone_params
+% load peach/peach_data    % contains 'stas'
+% load peach/cone_params
 
-% load george/stas   % contains 'stas'
-% load george/cone_params   % contains 'cone_params'
+load george/stas   % contains 'stas'
+load george/cone_params   % contains 'cone_params'
 
 cone_params.fudge = 1 ;
 cone_params.support_radius = 4 ;
@@ -20,7 +20,7 @@ cone_map.display_every = 20 ;
 % % THEN RUN THIS to run on your own computer:
 greed = greedy_cones(cone_map) ;
 mcmc = MCMC(cone_map) ;
-% cast = CAST(cone_map) ;
+cast = CAST(cone_map) ;
 
 % OR THIS to run 50 MCMC instances and 50 CAST on the hpc cluster:
 %            INSTALL AGRICOLA FIRST

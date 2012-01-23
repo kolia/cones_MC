@@ -62,9 +62,9 @@ for i=1:size(flips,1)
         if ~isempty(where)
             xx = Wkinds(1,where)+PROB.R+ssx ;
             yy = Wkinds(2,where)+PROB.R+ssy ;
-            for k=1:length(where)
-                Wkstate(where(k)) = PROB.coneConv(xx(k),yy(k),ssx,ssy) ...
-                    .* PROB.colorDot(c,colors(where(k))) ;
+            for kk=1:length(where)
+                Wkstate(where(kk)) = PROB.coneConv(xx(kk),yy(kk),ssx,ssy) ...
+                    .* PROB.colorDot(c,colors(where(kk))) ;
             end
         end
         
