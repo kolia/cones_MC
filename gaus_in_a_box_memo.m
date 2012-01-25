@@ -1,6 +1,5 @@
 function gf = gaus_in_a_box_memo(sigma,SS,supprt)
 
-% memo    = sparse([],[],[],1000,1000, ceil( (SS*3*sigma)^2 ) ) ;
 memo    = cell(ceil(supprt+2),ceil(supprt+2)) ;
 gf      = @gib ;
 

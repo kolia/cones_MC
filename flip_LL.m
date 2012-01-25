@@ -11,7 +11,6 @@ function X = flip_LL( X , flips , PROB , T )
 % incrementally, for speed.
 
 M0 = PROB.M0 * PROB.SS ;
-M1 = PROB.M1 * PROB.SS ;
 
 % WC = PROB.cone_params.weight_C ;  % covariance of prior weights
 % Wm = PROB.cone_params.weight_m ;  % mean of prior weights
@@ -55,8 +54,6 @@ for i=1:size(flips,1)
         ssx     = 1+mod(x-1,PROB.SS) ;
         ssy     = 1+mod(y-1,PROB.SS) ;
         
-%         fprintf('\t%d',min(max(abs(Wkinds),[],1)))
-        
         Wkstate = zeros(1,X.N_cones-1) ;
         where   = find( max(abs(Wkinds),[],1) <= PROB.R ) ;
         if ~isempty(where)
@@ -69,10 +66,6 @@ for i=1:size(flips,1)
         end
         
         Wkkc = PROB.coneConv(PROB.R+ssx,PROB.R+ssy,ssx,ssy) * PROB.colorDot(c,c) ;
-        
-%         if max(Wkstate) > Wkkc
-%             error('This is absurd.')
-%         end
         
         invWW   = X.invWW ;
         r       = Wkstate * invWW ;
@@ -94,8 +87,6 @@ for i=1:size(flips,1)
         if ~isempty(inds)
             X.STA_W_state(:,inds) = STA_W_state ;
         end
-%         X.STA_W_state(:,j) = PROB.make_STA_W( k, c, PROB.STA, PROB.cone_params.colors ) ;
-%         test = PROB.make_STA_W( k, c, PROB.STA, PROB.cone_params.colors ) ;
         xi = (x-0.5)/PROB.SS ;
         yi = (y-0.5)/PROB.SS ;
         [filter,index] = filter_index( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...

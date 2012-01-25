@@ -23,26 +23,8 @@ else
             % propose addition of new cone of each color
             for c=1:PROB.N_colors
                 if X.state(x,y) ~= c
-%                     test0 = change_cone( X , [X.last_x X.last_y 0] , PROB , [1 1]) ;
-%                     test0 = change_cone( test0 , [x y c] , PROB , [1 1]) ;
                     sample = change_cone( X , [x y c] , PROB , [1 1]) ;
-% %                     tester = change_cone( X , [X.last_x X.last_y 0] , PROB , [1 1]) ;
-% %                     tester = change_cone( tester , [x y c] , PROB , [1 1]) ;
                     X.greedy_ll{c}(x,y) = sample.ll - (X.ll + 0.5 * PROB.N_cones_term) ;
-%                     if c == 1
-%                         fprintf('   %d,%d  %f,%f,%f',x,y,PROB.LL(x,y,c),X.greedy_ll{c}(x,y),...
-%                                         test0.ll - 0.5 * PROB.N_cones_term)
-%                         fprintf('\n')
-%                         sample
-%                         test0
-%                         sample.STA_W_state'
-%                         test0.STA_W_state'
-%                         sample.state
-%                         test0.state
-%                         sample.invWW
-%                         test0.invWW
-% %                         fprintf('%d,%d  %f\n',x,y,X.greedy_ll{c}(x,y))
-%                     end
                     recalculated = recalculated + 1 ;
                 end
             end
@@ -68,15 +50,6 @@ end
 %     fprintf('   LL min %f max %f',min(LL(:)), max(LL(:)))
 %     figure(1)
 %     imagesc(LL/max(LL(:)))
-% end
-
-% try
-%     figure(2)
-%     lll = PROB.LL(min(X.changed_x)+2:max(X.changed_x)-2,min(X.changed_y)+2:max(X.changed_y)-2,1) ;
-%     lll( ll == -Inf ) = -Inf ;
-%     imagesc(lll/max(lll(:)))
-% %     fprintf('LL in changed area min %f median %f max %f',min(lll(:)), median(lll(:)), max(lll(:)))
-%     disp('done')
 % end
 
 % figure(2)
