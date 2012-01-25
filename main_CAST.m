@@ -1,6 +1,6 @@
 % PREPARE cone_map
 
-type = 0 ;
+type = 1 ;
 
 if type==0
     type = 'peach' ;
