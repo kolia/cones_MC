@@ -48,7 +48,8 @@ end
 cell_consts = N_spikes * cone_params.stimulus_variance ;
 
 % memoized(?) function returning gaussian mass in a box
-gaus_in_box = gaus_in_a_box( cone_params.sigma ) ;
+% gaus_in_box = gaus_in_a_box( cone_params.sigma ) ;
+gaus_in_box_memo = gaus_in_a_box_memo( cone_params.sigma, SS, cone_params.support_radius ) ;
 
 % prior_cov   = cone_params.stimulus_variance^2*N_GC/sum(STA_norm.^2) ;
 % prior_cov   = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
