@@ -1,6 +1,6 @@
 function cone_map = greedy_cones( cone_map )
 
-cone_map    = rmfield(cone_map,{'ROI'}) ;
+% cone_map    = rmfield(cone_map,{'ROI'}) ;
 
 M0          = cone_map.M0 ;
 M1          = cone_map.M1 ;
