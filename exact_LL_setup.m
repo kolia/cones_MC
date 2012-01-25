@@ -315,7 +315,7 @@ function make_sta_w = memoized_STA_W(M0,M1,SS,ROI,support,fudge,gaus_boxed)
         
         % purge least used half of sta_w_memo if more than 100000 values
         if sum(usage>0)>100000
-            keep  = quantile(usage,0.5) ;
+            keep  = full( median(usage(:)) ) ;
             purge = find(usage<keep) ;
             sta_w_memo(purge) = cell(numel(purge),1) ;
             usage(purge) = 0 ;
