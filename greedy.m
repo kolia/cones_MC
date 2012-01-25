@@ -53,22 +53,22 @@ else
         end
     end
     
-    figure(3)
-    ll = X.greedy_ll{1}(min(X.changed_x)+2:max(X.changed_x)-2,min(X.changed_y)+2:max(X.changed_y)-2) ;
-    imagesc(ll/max(ll(:)))
-    fprintf('changed greedy_ll min %f median %f max %f',min(ll(:)), median(ll(:)), max(ll(:)))
+%     figure(3)
+%     ll = X.greedy_ll{1}(min(X.changed_x)+2:max(X.changed_x)-2,min(X.changed_y)+2:max(X.changed_y)-2) ;
+%     imagesc(ll/max(ll(:)))
+%     fprintf('changed greedy_ll min %f median %f max %f',min(ll(:)), median(ll(:)), max(ll(:)))
 end
 
-LL = zeros([size(X.greedy_ll{1}) PROB.N_colors]) ;
-for c=1:PROB.N_colors
-    LL(:,:,c) = X.greedy_ll{c} ;
-end
-try
-    LL(LL<0) = min(reshape(LL(LL>0),1,[])) ;
-    fprintf('   LL min %f max %f',min(LL(:)), max(LL(:)))
-    figure(1)
-    imagesc(LL/max(LL(:)))
-end
+% LL = zeros([size(X.greedy_ll{1}) PROB.N_colors]) ;
+% for c=1:PROB.N_colors
+%     LL(:,:,c) = X.greedy_ll{c} ;
+% end
+% try
+%     LL(LL<0) = min(reshape(LL(LL>0),1,[])) ;
+%     fprintf('   LL min %f max %f',min(LL(:)), max(LL(:)))
+%     figure(1)
+%     imagesc(LL/max(LL(:)))
+% end
 
 % try
 %     figure(2)
@@ -79,8 +79,8 @@ end
 %     disp('done')
 % end
 
-figure(2)
-plot_cones(X.state,PROB) ;
+% figure(2)
+% plot_cones(X.state,PROB) ;
 
 m = -Inf * ones(PROB.N_colors,1) ;
 for c=1:PROB.N_colors
