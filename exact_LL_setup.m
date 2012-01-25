@@ -26,10 +26,12 @@ cone_map.cone_params = cone_params ;
 if ~isfield(cone_map,'ROI')
     x = repmat( 1/(2*SS):1/SS:M0-1/(2*SS) , 1 , M1*SS ) ;
     y = repmat( 1/(2*SS):1/SS:M1-1/(2*SS) , M0*SS , 1 ) ;
-    cone_map.ROI = [x' y(:)] ;
+    ROI = [x' y(:)] ;
     clear x y
+else
+    ROI = cone_map.ROI ;
 end
-NROI  = size(cone_map.ROI,1) ;
+NROI  = size(ROI,1) ;
 
 % Unpacking GC_stas into: STA, norms of STAs and N_spikes
 N_GC = length(GC_stas) ;
