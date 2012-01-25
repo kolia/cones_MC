@@ -25,7 +25,8 @@ gf      = @gib ;
             - mvncdf([dx dy] + [O l],[],sigma.*[1 1]) ...
             - mvncdf([dx dy] + [l O],[],sigma.*[1 1]) ...
             + mvncdf([dx dy]        ,[],sigma.*[1 1]) ;
-        memo{0.5+di*SS,0.5+dj*SS} = out / sqrt(0.1083) ;
+        out = out / sqrt(0.1083) ;
+        memo{0.5+di*SS,0.5+dj*SS} = out ;
     end 
     end
 end
