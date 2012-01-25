@@ -4,6 +4,9 @@ function XS = swap_closure( X , T, otherX , oT, PROB )
 % configurations. For this, groups of cells that must be swapped together
 % are calculated.
 
+% check_X(X)
+% check_X(otherX)
+
 % calculate overlaps of X cones on otherX exclusion disks
 R = overlap_relation( otherX , X ) ;
 
@@ -38,6 +41,7 @@ for m=1:length(XS)
         XX       = struct ;
         XX.state = X.state ;
         XX.invWW = X.invWW ;
+        XX.STA_W_state = X.STA_W_state ;
         XX.N_cones=X.N_cones ;
         XX.ll    = X.ll ;
         XX.diff  = X.diff ;
@@ -47,6 +51,7 @@ for m=1:length(XS)
         OX       = struct ;
         OX.state = otherX.state ;
         OX.invWW = otherX.invWW ;
+        OX.STA_W_state = otherX.STA_W_state ;
         OX.N_cones=otherX.N_cones ;
         OX.ll    = otherX.ll ;
         OX.diff  = otherX.diff ;
@@ -95,8 +100,10 @@ end
 XS = XS(keep) ;
 
 
-N = length(XS) ;
+N = numel(XS) ;
 for i=1:N
+%     check_X(XS{i}.X)
+%     check_X(XS{i}.with)
     XS{i}.forward_prob = 1/N ;
 end
 
