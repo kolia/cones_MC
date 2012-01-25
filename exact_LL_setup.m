@@ -166,7 +166,7 @@ QC = reshape( reshape(cone_map.LL,[],3) * IC' , size(cone_map.LL) ) ;
 QC = QC - min(QC(:)) ;
 cone_map.NICE = QC ./ max(QC(:)) ;
 
-imagesc( cone_map.NICE )
+% imagesc( cone_map.NICE )
 
 % % test cone_map.make_STA_W against make_LL
 % mLL = max(cone_map.LL(:)) ;
