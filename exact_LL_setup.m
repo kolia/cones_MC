@@ -133,15 +133,19 @@ for xx=1:2*R+SS
     for yy=1:2*R+SS
         y = f(yy) ;
         
-        a = make_filter(4*R/SS+1,4*R/SS+1,x+R/SS,y+R/SS,cone_params.support_radius,gaus_in_box) ;
+%         a = make_filter(4*R/SS+1,4*R/SS+1,x+R/SS,y+R/SS,cone_params.support_radius,gaus_in_box) ;
+        a = make_filter_new(4*R/SS+1,4*R/SS+1,x+R/SS,y+R/SS,gaus_in_box_memo,...
+                        cone_map.cone_params.support_radius) ;
         
         for ss=1:SS
             s = (ss-0.5)/SS ;
             for tt=1:SS
                 t = (tt-0.5)/SS ;
                 
-                b = make_filter(4*R/SS+1,4*R/SS+1,2*R/SS+s,2*R/SS+t,...
-                    cone_params.support_radius,gaus_in_box) ;
+%                 b = make_filter(4*R/SS+1,4*R/SS+1,2*R/SS+s,2*R/SS+t,...
+%                     cone_params.support_radius,gaus_in_box) ;
+                b = make_filter_new(4*R/SS+1,4*R/SS+1,2*R/SS+s,2*R/SS+t,gaus_in_box_memo,...
+                                cone_map.cone_params.support_radius) ;
                 
                 coneConv(xx,yy,ss,tt) = dot(a(:),b(:)) ;
             end
@@ -152,10 +156,10 @@ for xx=1:2*R+SS
     end
 end
 
-cone_map.make_STA_W = memoized_STA_W(M0,M1,SS,cone_map.ROI,...
-                                     cone_params.support_radius,cone_params.fudge,gaus_in_box) ;
+% cone_map.make_STA_W = memoized_STA_W(M0,M1,SS,ROI,...
+%                                      cone_params.support_radius,cone_params.fudge,gaus_in_box) ;
                                  
-cone_map.LL = make_LL(cone_map,STA,WW,gaus_in_box) ;
+cone_map.LL = make_LL(cone_map,STA,WW,gaus_in_box_memo) ;
 
 IC = inv(cone_params.colors) ;
 QC = reshape( reshape(cone_map.LL,[],3) * IC' , size(cone_map.LL) ) ;
@@ -196,6 +200,7 @@ imagesc( cone_map.NICE )
 % disp(cone_map.LL(range_x,range_y,1))
 
 cone_map.R              = R ;
+cone_map.gaus_boxed     = gaus_in_box_memo ;
 cone_map.coneConv       = coneConv ;
 % cone_map.sumLconst      = sum(log(2*pi*cell_consts)) ;
 cone_map.STA            = reshape( STA, [M0*M1*N_colors,N_GC] ) ;
@@ -238,11 +243,12 @@ for ii=1:SS
     for jj=1:SS
         i = supersamples(ii) ;
         j = supersamples(jj) ;
-        ox  = 1+(floor(i-support):floor(i+support)) ;
-        oy  = 1+(floor(j-support):floor(j+support)) ;
-        x   = repmat(ox(:),numel(oy),1) ;
-        y   = reshape( repmat(oy,numel(ox),1) , [] , 1 ) ;
-        g   = reshape( gaus_boxed(i-x,j-y), [numel(ox) numel(oy)]) ;
+%         ox  = 1+(floor(i-support):floor(i+support)) ;
+%         oy  = 1+(floor(j-support):floor(j+support)) ;
+%         x   = repmat(ox(:),numel(oy),1) ;
+%         y   = reshape( repmat(oy,numel(ox),1) , [] , 1 ) ;
+%         g   = reshape( gaus_boxed(i-x,j-y), [numel(ox) numel(oy)]) ;
+        g   = reshape( gaus_boxed(i,j), [2*support+1 2*support+1]) ;
         g   = g(end:-1:1,end:-1:1) ;
         for gc=1:cone_map.N_GC
             CC = zeros(M0*M1,N_colors) ;
@@ -333,5 +339,10 @@ x   = repmat(ox(:),numel(oy),1) ;
 y   = reshape( repmat(oy,numel(ox),1) , [] , 1 ) ;
 g   = gaus_boxed(i-x,j-y) ;
 filter(x+(y-1)*M0) = g ;
+end
 
+function filter = make_filter_new(M0,M1,i,j,gaus_boxed, support)
+filter = zeros(M0,M1) ;
+[g,index] = filter_index( i, j, M0, M1, gaus_boxed, support) ;
+filter(index) = g ;
 end
