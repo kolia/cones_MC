@@ -94,8 +94,19 @@ for i=1:size(flips,1)
         if ~isempty(inds)
             X.STA_W_state(:,inds) = STA_W_state ;
         end
-        X.STA_W_state(:,j) = PROB.make_STA_W( k, c, PROB.STA, PROB.cone_params.colors ) ;
+%         X.STA_W_state(:,j) = PROB.make_STA_W( k, c, PROB.STA, PROB.cone_params.colors ) ;
+%         test = PROB.make_STA_W( k, c, PROB.STA, PROB.cone_params.colors ) ;
+        xi = (x-0.5)/PROB.SS ;
+        yi = (y-0.5)/PROB.SS ;
+        [filter,index] = filter_index( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
+                                       PROB.cone_params.support_radius) ;
 
+        filter  = kron(PROB.cone_params.colors(c,:),filter) ;
+        X.STA_W_state(:,j) = (filter * ...
+            PROB.STA([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:)) *...
+            PROB.cone_params.fudge ;
+
+        
         X.state(x,y)       = c ;        
         X.diff = [X.diff ; x y c] ;
     end
