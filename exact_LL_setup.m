@@ -19,6 +19,7 @@ if nargin < 3  ,   cone_map = struct ; end
 SS  = cone_params.supersample ;
 R   = ceil( cone_params.support_radius * SS ) ;
 
+cone_params.support_radius = ceil(cone_params.support_radius) ;
 cone_map.cone_params = cone_params ;
 
 % set up Region of Interest
