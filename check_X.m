@@ -9,6 +9,11 @@ if numel(find(X.state>0)) ~= size(X.invWW,1)
    disp('X.state and X.invWW have inconsistent sizes.')
 end
 
+if size(X.STA_W_state) ~= size(X.invWW,1)
+   disp('X.STA_W_state and X.invWW have inconsistent sizes.')
+end
+
+
 % % check X.contact
 % for d=1:4
 %     X.contact{d} = X.contact{d} * 0 ;
@@ -57,16 +62,16 @@ end
 %     'll is off'
 % end
 
-for i=1:length(x)
-%     X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) , LL ) ;
-% check exclusion
-    [dummy,indices] = place_mask( X.M0 , X.M1 , x(i) , y(i) , X.masks{1,1}.exclusion ) ;
-    
-    overlap = find( X.state(indices)>0 , 1) ;
-    if ~isempty( overlap )  &&   indices(overlap) ~= x(i) + X.M0*(y(i)-1)
-        [x(i) y(i) c(i)]
-    end
-end
+% for i=1:length(x)
+% %     X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) , LL ) ;
+% % check exclusion
+%     [dummy,indices] = place_mask( X.M0 , X.M1 , x(i) , y(i) , X.masks{1,1}.exclusion ) ;
+%     
+%     overlap = find( X.state(indices)>0 , 1) ;
+%     if ~isempty( overlap )  &&   indices(overlap) ~= x(i) + X.M0*(y(i)-1)
+%         [x(i) y(i) c(i)]
+%     end
+% end
 
 
 % % check that localLL is consistent with LL(inds)
