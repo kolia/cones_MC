@@ -8,16 +8,7 @@ NGC = size( sta, 2 ) ;
 h = figure ;
 
 for i=1:NGC
-    st = sta{1,i} ;
-    z = sum(st,3) ;
-    inds  = logical(z<0) ;
-    inds  = inds(:) ;
-    inds3 = [inds ; inds ; inds] ;
-    st(inds3) = -[z(inds) ; z(inds) ; z(inds)] ;
-    
-    st = st-min(st(:)) ;
-    st = st / max(st(:)) ;
-
+    st = plotable_evidence( sta{1,i} ) ;    
     st = st.^(0.5) ;
 
     try

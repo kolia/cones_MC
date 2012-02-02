@@ -1,8 +1,8 @@
-function cone_map = MCMC( cone_map , ID )
+function to_save = MCMC( cone_map , ID )
 
 if nargin>1 ,   cone_map.ID = ID ;     end
 
-cone_map
+cone_map = rmfield(cone_map,{'LL','NICE'})
 cone_map.code.string    = file2str('MCMC.m') ;
 
 default( cone_map , 'N_iterations'  , 100000)
@@ -70,9 +70,13 @@ while 1
     end
 
     if ~mod(jj,save_every) || jj>N_iterations || cputime-t>max_time
-        cone_map.X          = X ;
-        save(sprintf('result_%d',ID), 'cone_map' )
-        if jj>N_iterations || cputime-t>max_time, break ; end
+%         cone_map.X          = X ;
+        to_save = rmfield(cone_map,{'STA','initX'}) ;
+        to_save.X = rmfield(X,{'invWW','contact'}) ;
+        save(sprintf('result_%d',ID), 'to_save' )
+        if jj>N_iterations || cputime-t>max_time, break ; 
+        else clear to_save
+        end
     end 
     jj = jj + 1 ;
 end

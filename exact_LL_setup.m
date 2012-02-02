@@ -106,12 +106,14 @@ for xx=1:2*R+SS
     end
 end
                                  
-cone_map.LL = make_LL(cone_map,STA,WW,gaus_in_box_memo) ;
+cone_map.LL = cone_params.fudge^2 * make_LL(cone_map,STA,WW,gaus_in_box_memo) ;
 
 IC = inv(cone_params.colors) ;
-QC = reshape( reshape(cone_map.LL,[],3) * IC' , size(cone_map.LL) ) ;
-QC = QC - min(QC(:)) ;
-cone_map.NICE = QC ./ max(QC(:)) ;
+QC = reshape( reshape(cone_map.LL+cone_map.N_cones_term,[],3) * IC', size(cone_map.LL) ) ;
+cone_map.NICE = plotable_evidence( QC ) ;
+
+imagesc( cone_map.NICE )
+
 
 cone_map.R              = R ;
 cone_map.gaus_boxed     = gaus_in_box_memo ;
@@ -135,6 +137,60 @@ cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.N_colors, cone_map.SS, ...
                                cone_map.cone_params.replusion_radii,...
                                1, 1) ;
+
+                           
+% % test cone_map.make_STA_W against make_LL
+% mLL = max(cone_map.LL(:)) ;
+% sta = reshape(STA,[],N_GC) ;
+% [mk,mc] = find( reshape( cone_map.LL, NROI, N_colors) == mLL ) ;
+% mx = mod( mk-1, M0*SS ) + 1 ;
+% my = ceil( mk/(M0*SS) ) ;
+% % sta_w = cone_map.make_STA_W( mk, mc, reshape(STA,[],N_GC), cone_params.colors ) ;
+% 
+% mxi = (mx-0.5)/SS ;
+% myi = (my-0.5)/SS ;
+% [filter,index] = filter_index( mxi, myi, M0, M1, gaus_in_box_memo,...
+%                                cone_params.support_radius) ;
+% 
+% filter  = kron(cone_params.colors(mc,:),filter) ;
+% sta_w = (filter * ...
+%     sta([index index+M0*M1 index+2*M0*M1],:)) * cone_params.fudge ;
+% 
+% fprintf('\nLL and sta_w ll: %f,%f, %f, %f\n',mLL,cone_map.LL(mk+(mc-1)*NROI),...
+%     0.5 * sum( cone_map.quad_factor' .* (sta_w / mean(WW(:))) .* sta_w  ),...
+%     0.5 * sum( cone_map.quad_factor' * ((sta_w / mean(WW(:))) .* sta_w )')) ;
+% 
+% test = zeros(10,10) ;
+% % range_x = 185:232 ;
+% % range_y = 457:504 ;
+% % mx = 194 ;
+% % my = 465 ;
+% % range_x = mx-5:mx+5 ; %1:10 ;
+% % range_y = my-5:my+5 ; %1:10 ;
+% range_x = 1:20 ;
+% range_y = 1:20 ;
+% for iii=range_x
+%     for jjj=range_y
+% %         sta_w = cone_map.make_STA_W( iii+M0*SS*(jjj-1), 1, ...
+% %                                      reshape(STA,[],N_GC), cone_params.colors ) ;
+%         iiii = (iii-0.5)/SS ;
+%         jjjj = (jjj-0.5)/SS ;
+%         [filter,index] = filter_index( iiii, jjjj, M0, M1, gaus_in_box_memo,...
+%                                        cone_params.support_radius) ;
+% 
+%         filter  = kron(cone_params.colors(1,:),filter) ;
+%         sta_w = (filter * ...
+%             sta([index index+M0*M1 index+2*M0*M1],:)) * cone_params.fudge ;
+% 
+%         test(iii,jjj) = 0.5 * sum( cone_map.quad_factor' .* ...
+%                                   (sta_w / mean(WW(:))) .* sta_w ) ;
+%     end
+% end
+% 
+% disp(test(range_x,range_y))
+% disp(cone_map.LL(range_x,range_y,1))
+% disp('moot')
+
 end
 
 

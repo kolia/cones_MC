@@ -1,6 +1,7 @@
-function X = update_X(trials,i)
+function X = update_X(trials,i,track_contacts)
 
 if nargin<2 ,  i = 1 ; end
+if nargin<3 ,  track_contacts=true ; end
 changed             = i>1 ;
 X                   = trials{i} ;
 if i>1 , X.version  = trials{1}.version+1 ; end
@@ -27,7 +28,7 @@ if isfield(X,'LL_history')
     X.LL_history(X.iteration) = X.ll ;
 end
 
-if changed && ~isempty(X.diff)
+if track_contacts && changed && ~isempty(X.diff)
         
     %% update contacts
     if isfield(X,'contact')

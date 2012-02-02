@@ -29,9 +29,11 @@ clear i j
 classes = classes( sizes>2 ) ;
 
 % classes = [{[]} ; {[i' N+j']}] ;
-classes = [{[]} ; classes] ;
-
-XS      = cell( length(classes), 1 ) ;
+% classes = [{[]} ; classes] ;
+if numel(classes)>0
+    classes = [{[]} ; classes(randi(numel(classes)))] ;
+end
+XS      = cell( numel(classes), 1 ) ;
 
 % fprintf('\n#swaps: %d',length(XS))
 

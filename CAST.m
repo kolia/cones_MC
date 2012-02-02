@@ -1,8 +1,8 @@
-function cone_map = CAST( cone_map , ID )
+function to_save = CAST( cone_map , ID )
 
 if nargin>1 ,   cone_map.ID = ID ;     end
 
-cone_map
+cone_map = rmfield(cone_map,{'LL','NICE'})
 cone_map.code.string    = file2str('CAST.m') ;
 
 default( cone_map , 'N_iterations'  , 100000)
@@ -122,11 +122,16 @@ while 1
     end
 
     if ~mod(jj,save_every) || jj>N_iterations || cputime-t>max_time
-        cone_map.X          = X{1} ;
-        cone_map.bestX      = bestX ;
-        cone_map.ST         = ST ;
-        save(sprintf('result_%d',ID), 'cone_map' )
-        if jj>N_iterations || cputime-t>max_time, break ; end
+        to_save = rmfield(cone_map,{'STA','initX'}) ;
+%         cone_map.X          = X{1} ;
+        to_save.X = rmfield(X{1},{'invWW','contact'}) ;
+%         cone_map.bestX      = bestX ;
+        to_save.bestX = rmfield(bestX,{'invWW','contact'}) ;
+        to_save.ST         = ST ;
+        save(sprintf('result_%d',ID), 'to_save' )
+        if jj>N_iterations || cputime-t>max_time, break ; 
+        else clear to_save    
+        end
     end 
     jj = jj + 1 ;
 end
