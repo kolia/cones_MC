@@ -35,9 +35,12 @@ for i=1:size(flips,1)
         inds       = [1:j-1 j+1:X.N_cones] ;
         X.N_cones  = X.N_cones - 1 ;
         
-        invWW      = X.invWW(inds,inds) - ...
-                     X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
-        X.invWW    = invWW ;
+%         invWW      = X.invWW(inds,inds) - ...
+%                      X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
+%         X.invWW    = invWW ;
+        
+        X.WW       = X.WW(inds,inds) ;
+        X.U        = X.U(inds,inds) ;
         
         X.STA_W_state = X.STA_W_state(:, inds ) ;
         
@@ -67,20 +70,53 @@ for i=1:size(flips,1)
         
         Wkkc = PROB.coneConv(PROB.R+ssx,PROB.R+ssy,ssx,ssy) * PROB.colorDot(c,c) ;
         
-        invWW   = X.invWW ;
-        r       = Wkstate * invWW ;
-        
-        X.invWW = zeros(X.N_cones) ;
-        if ~isempty(r)
-            q                  = 1/( Wkkc - r*Wkstate' ) ;
-            cc                 = invWW * Wkstate' * q ;
-            X.invWW(inds,inds) = invWW+cc*r  ;
-            X.invWW(inds,j)    = -cc         ;
-            X.invWW(j,inds)    = -r*q        ;
+%         U = zeros(X.N_cones) ;
+        U = zeros(X.N_cones,1) ;
+%         sparse_index = Wkstate>0 ;
+        if numel(inds)>0
+%             U(inds,inds) = X.U ;
+%             WW = X.WW(sparse_index,sparse_index) ;
+%             w  = Wkstate(sparse_index) ;
+            WW = X.WW ;
+            w  = Wkstate ;
+            s  = - WW \ w' ;
+            ss = s'*WW ;
+            q  = 1/sqrt( ss*s + 2*s'*w' + Wkkc ) ;
+%             U(inds,j)     = q * s ;
+            U(inds)     = q * s ;
         else
-            q = 1/Wkkc ;
+            q = sqrt(1/Wkkc) ;
         end
-        X.invWW(j,j)       = q ;
+        if X.N_cones>30
+            'hahah'
+        end
+%         X.U = U ;
+%         X.U(j,j) = q ;
+        U(j) = q ;
+
+        WW            = zeros(X.N_cones) ;
+        WW(j,j)       = Wkkc ;
+        if numel(inds)>0
+            WW(inds,inds) = X.WW ;
+            WW(inds,j)    = Wkstate ;
+            WW(j,inds)    = Wkstate ;
+        end
+        X.WW          = WW ;        
+        
+%         invWW   = X.invWW ;
+%         r       = Wkstate * invWW ;
+% 
+%         X.invWW = zeros(X.N_cones) ;
+%         if ~isempty(r)
+%             q                  = 1/( Wkkc - r*Wkstate' ) ;
+%             cc                 = invWW * Wkstate' * q ;
+%             X.invWW(inds,inds) = invWW+cc*r  ;
+%             X.invWW(inds,j)    = -cc         ;
+%             X.invWW(j,inds)    = -r*q        ;
+%         else
+%             q = 1/Wkkc ;
+%         end
+%         X.invWW(j,j)       = q ;
         
         STA_W_state = X.STA_W_state ;
         X.STA_W_state = zeros(PROB.N_GC,X.N_cones) ;
@@ -94,9 +130,11 @@ for i=1:size(flips,1)
 
         filter  = kron(PROB.cone_params.colors(c,:),filter) ;
         X.STA_W_state(:,j) = (filter * ...
-            PROB.STA([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:)) *...
-            PROB.cone_params.fudge ;
-
+                PROB.STA([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:)) *...
+                PROB.cone_params.fudge ;
+        
+%         X.dUW_STA = X.U(:,j)' * X.STA_W_state' ;
+        X.dUW_STA = U' * X.STA_W_state' ;
         
         X.state(x,y)       = c ;        
         X.diff = [X.diff ; x y c] ;
