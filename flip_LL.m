@@ -40,7 +40,6 @@ for i=1:size(flips,1)
 %         X.invWW    = invWW ;
         
         X.WW       = X.WW(inds,inds) ;
-        X.U        = X.U(inds,inds) ;
         
         X.STA_W_state = X.STA_W_state(:, inds ) ;
         
@@ -70,29 +69,18 @@ for i=1:size(flips,1)
         
         Wkkc = PROB.coneConv(PROB.R+ssx,PROB.R+ssy,ssx,ssy) * PROB.colorDot(c,c) ;
         
-%         U = zeros(X.N_cones) ;
-        U = zeros(X.N_cones,1) ;
-%         sparse_index = Wkstate>0 ;
-        if numel(inds)>0
-%             U(inds,inds) = X.U ;
-%             WW = X.WW(sparse_index,sparse_index) ;
-%             w  = Wkstate(sparse_index) ;
-            WW = X.WW ;
-            w  = Wkstate ;
-            s  = - WW \ w' ;
-            ss = s'*WW ;
-            q  = 1/sqrt( ss*s + 2*s'*w' + Wkkc ) ;
-%             U(inds,j)     = q * s ;
-            U(inds)     = q * s ;
-        else
-            q = sqrt(1/Wkkc) ;
-        end
-        if X.N_cones>30
-            'hahah'
-        end
-%         X.U = U ;
-%         X.U(j,j) = q ;
-        U(j) = q ;
+%         U = zeros(X.N_cones,1) ;
+%         if numel(inds)>0
+%             WW = X.WW ;
+%             w  = Wkstate ;
+%             s  = - WW \ w' ;
+%             ss = s'*WW ;
+%             q  = 1/sqrt( ss*s + 2*s'*w' + Wkkc ) ;
+%             U(inds)     = q * s ;
+%         else
+%             q = sqrt(1/Wkkc) ;
+%         end
+%         U(j) = q ;
 
         WW            = zeros(X.N_cones) ;
         WW(j,j)       = Wkkc ;
@@ -133,8 +121,7 @@ for i=1:size(flips,1)
                 PROB.STA([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:)) *...
                 PROB.cone_params.fudge ;
         
-%         X.dUW_STA = X.U(:,j)' * X.STA_W_state' ;
-        X.dUW_STA = U' * X.STA_W_state' ;
+%         X.dUW_STA = U' * X.STA_W_state' ;
         
         X.state(x,y)       = c ;        
         X.diff = [X.diff ; x y c] ;
