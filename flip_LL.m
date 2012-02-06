@@ -39,7 +39,11 @@ for i=1:size(flips,1)
 %                      X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
 %         X.invWW    = invWW ;
         
-        X.WW       = X.WW(inds,inds) ;
+        if isfield(X,'WW')
+            X.WW       = X.WW(inds,inds) ;
+        else
+            'ha'
+        end
         
         X.STA_W_state = X.STA_W_state(:, inds ) ;
         

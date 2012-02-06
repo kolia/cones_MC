@@ -8,6 +8,7 @@ if i>1
     X.X         = trials{1}.X ;
     X.X.state   = trials{i}.X.state ;
     X.X.invWW   = trials{i}.X.invWW ;
+    X.X.WW      = trials{i}.X.WW ;
     X.X.STA_W_state = trials{i}.X.STA_W_state ;
     X.X.N_cones = trials{i}.X.N_cones ;
     X.X.ll      = trials{i}.X.ll ;
@@ -18,6 +19,7 @@ if i>1
     X.with         = trials{1}.with ;
     X.with.state   = trials{i}.with.state ;
     X.with.invWW   = trials{i}.with.invWW ;
+    X.with.WW      = trials{i}.with.WW ;
     X.with.STA_W_state = trials{i}.with.STA_W_state ;
     X.with.N_cones = trials{i}.with.N_cones ;
     X.with.ll      = trials{i}.with.ll ;

@@ -32,6 +32,8 @@ classes = classes( sizes>2 ) ;
 % classes = [{[]} ; classes] ;
 if numel(classes)>0
     classes = [{[]} ; classes(randi(numel(classes)))] ;
+else
+    classes = [{[]}] ;
 end
 XS      = cell( numel(classes), 1 ) ;
 
@@ -43,6 +45,7 @@ for m=1:length(XS)
         XX       = struct ;
         XX.state = X.state ;
         XX.invWW = X.invWW ;
+        XX.WW = X.WW ;
         XX.STA_W_state = X.STA_W_state ;
         XX.N_cones=X.N_cones ;
         XX.ll    = X.ll ;
@@ -53,6 +56,7 @@ for m=1:length(XS)
         OX       = struct ;
         OX.state = otherX.state ;
         OX.invWW = otherX.invWW ;
+        OX.WW = otherX.WW ;
         OX.STA_W_state = otherX.STA_W_state ;
         OX.N_cones=otherX.N_cones ;
         OX.ll    = otherX.ll ;
