@@ -44,8 +44,18 @@ for m=1:length(XS)
     if m>1
         XX       = struct ;
         XX.state = X.state ;
-        XX.invWW = X.invWW ;
-        XX.WW = X.WW ;
+        if isfield(XX,'invWW')
+            XX.invWW = X.invWW ;
+        end
+        if isfield(XX,'WW')
+            XX.WW = X.WW ;
+        end
+        if isfield(XX,'dUW_STA')
+            XX.dUW_STA = X.dUW_STA ;
+        end
+        if isfield(XX,'ds_UW_STA')
+            XX.ds_UW_STA = X.ds_UW_STA ;
+        end
         XX.STA_W_state = X.STA_W_state ;
         XX.N_cones=X.N_cones ;
         XX.ll    = X.ll ;
@@ -55,8 +65,18 @@ for m=1:length(XS)
         
         OX       = struct ;
         OX.state = otherX.state ;
-        OX.invWW = otherX.invWW ;
-        OX.WW = otherX.WW ;
+        if isfield(XX,'invWW')
+            OX.invWW = otherX.invWW ;
+        end
+        if isfield(XX,'WW')
+            OX.WW = otherX.WW ;
+        end
+        if isfield(OX,'dUW_STA')
+            OX.dUW_STA = otherX.dUW_STA ;
+        end
+        if isfield(OX,'ds_UW_STA')
+            OX.ds_UW_STA = otherX.ds_UW_STA ;
+        end
         OX.STA_W_state = otherX.STA_W_state ;
         OX.N_cones=otherX.N_cones ;
         OX.ll    = otherX.ll ;

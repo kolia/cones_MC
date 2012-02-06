@@ -7,8 +7,18 @@ if i>1
 
     X.X         = trials{1}.X ;
     X.X.state   = trials{i}.X.state ;
-    X.X.invWW   = trials{i}.X.invWW ;
-    X.X.WW      = trials{i}.X.WW ;
+    if isfield(trials{i}.X,'invWW')
+        X.X.invWW   = trials{i}.X.invWW ;
+    end
+    if isfield(trials{i}.X,'WW')
+        X.X.WW      = trials{i}.X.WW ;
+    end
+    if isfield(trials{i}.X,'dUW_STA')
+        X.X.dUW_STA = trials{i}.X.dUW_STA ;
+    end
+    if isfield(trials{i}.X,'ds_UW_STA')
+        X.X.ds_UW_STA = trials{i}.X.ds_UW_STA ;
+    end
     X.X.STA_W_state = trials{i}.X.STA_W_state ;
     X.X.N_cones = trials{i}.X.N_cones ;
     X.X.ll      = trials{i}.X.ll ;
@@ -18,8 +28,18 @@ if i>1
     
     X.with         = trials{1}.with ;
     X.with.state   = trials{i}.with.state ;
-    X.with.invWW   = trials{i}.with.invWW ;
-    X.with.WW      = trials{i}.with.WW ;
+    if isfield(trials{i}.with,'invWW')
+        X.with.invWW   = trials{i}.with.invWW ;
+    end
+    if isfield(trials{i}.with,'WW')
+        X.with.WW      = trials{i}.with.WW ;
+    end
+    if isfield(trials{i}.with,'dUW_STA')
+        X.with.dUW_STA = trials{i}.with.dUW_STA ;
+    end
+    if isfield(trials{i}.with,'ds_UW_STA')
+        X.with.ds_UW_STA = trials{i}.with.ds_UW_STA ;
+    end
     X.with.STA_W_state = trials{i}.with.STA_W_state ;
     X.with.N_cones = trials{i}.with.N_cones ;
     X.with.ll      = trials{i}.with.ll ;
