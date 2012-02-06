@@ -122,7 +122,6 @@ if selector(r{5})
     
     % update number of samples accumulated so far
     r{4} = r{4} + 1 ;
-
 end
 % update number of samples replayed so far
 r{5} = r{5} + 1 ;

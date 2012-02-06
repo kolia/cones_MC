@@ -29,7 +29,7 @@ cone_map.deltas = make_deltas( 0.3, 1, 1, length(cone_map.betas) ) ;
 cone_map.plot_every    = 0  ;
 cone_map.display_every = 20 ;
 
-base_str  = sprintf('_%s_NROI%d_ROI-%d-%d_support-%d_fudge-%d',type,numel(ROIs),...
+base_str  = sprintf('_%s_NROI%d_ROI%d%d_support%d_fudge%d',type,numel(ROIs),...
                      roi,roj,cone_params.support_radius,cone_params.fudge) ;
 
 % % THEN RUN THIS to run on your own computer:
@@ -39,7 +39,7 @@ base_str  = sprintf('_%s_NROI%d_ROI-%d-%d_support-%d_fudge-%d',type,numel(ROIs),
 
 % OR THIS to run 50 MCMC instances and 50 CAST on the hpc cluster:
 %            INSTALL AGRICOLA FIRST
-% sow(['greed' base_str],@()greedy_cones(cone_map)) ;
+sow(['greed' base_str],@()greedy_cones(cone_map)) ;
 N = 30 ;
 ids = cell(1,N) ;
 for i=1:length(ids) , ids{i} = {i} ; end
@@ -50,4 +50,4 @@ for i=1:length(ids) , ids{i} = {i} ; end
 
 PBS.l.mem = '3000mb' ;
 PBS.l.walltime = '72:00:00' ;
-sow(['cast' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
+% sow(['cast' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;

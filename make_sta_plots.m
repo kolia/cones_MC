@@ -31,6 +31,4 @@ for i=1:NGC
         fprintf('Error while attempting to plot %s',filename)
         disp(E)
     end
-
-
 end

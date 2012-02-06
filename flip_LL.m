@@ -9,6 +9,8 @@ function X = flip_LL( X , flips , PROB , T )
 % The matrix inverse is not recalculated each time:
 % block matrix inverse update formulas are used to update X.invWW 
 % incrementally, for speed.
+% 
+% Only updates X.WW if X.invWW is not present in input X.
 
 M0 = PROB.M0 * PROB.SS ;
 
@@ -35,9 +37,11 @@ for i=1:size(flips,1)
         inds       = [1:j-1 j+1:X.N_cones] ;
         X.N_cones  = X.N_cones - 1 ;
         
-%         invWW      = X.invWW(inds,inds) - ...
-%                      X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
-%         X.invWW    = invWW ;
+        if isfield(X,'invWW')
+            invWW      = X.invWW(inds,inds) - ...
+                         X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
+            X.invWW    = invWW ;
+        end
         
         if isfield(X,'WW')
             X.WW       = X.WW(inds,inds) ;
@@ -86,29 +90,32 @@ for i=1:size(flips,1)
 %         end
 %         U(j) = q ;
 
-        WW            = zeros(X.N_cones) ;
-        WW(j,j)       = Wkkc ;
-        if numel(inds)>0
-            WW(inds,inds) = X.WW ;
-            WW(inds,j)    = Wkstate ;
-            WW(j,inds)    = Wkstate ;
-        end
-        X.WW          = WW ;        
         
-%         invWW   = X.invWW ;
-%         r       = Wkstate * invWW ;
-% 
-%         X.invWW = zeros(X.N_cones) ;
-%         if ~isempty(r)
-%             q                  = 1/( Wkkc - r*Wkstate' ) ;
-%             cc                 = invWW * Wkstate' * q ;
-%             X.invWW(inds,inds) = invWW+cc*r  ;
-%             X.invWW(inds,j)    = -cc         ;
-%             X.invWW(j,inds)    = -r*q        ;
-%         else
-%             q = 1/Wkkc ;
-%         end
-%         X.invWW(j,j)       = q ;
+        if isfield(X,'invWW')
+            invWW   = X.invWW ;
+            r       = Wkstate * invWW ;
+
+            X.invWW = zeros(X.N_cones) ;
+            if ~isempty(r)
+                q                  = 1/( Wkkc - r*Wkstate' ) ;
+                cc                 = invWW * Wkstate' * q ;
+                X.invWW(inds,inds) = invWW+cc*r  ;
+                X.invWW(inds,j)    = -cc         ;
+                X.invWW(j,inds)    = -r*q        ;
+            else
+                q = 1/Wkkc ;
+            end
+            X.invWW(j,j)       = q ;
+        else
+            WW            = zeros(X.N_cones) ;
+            WW(j,j)       = Wkkc ;
+            if numel(inds)>0
+                WW(inds,inds) = X.WW ;
+                WW(inds,j)    = Wkstate ;
+                WW(j,inds)    = Wkstate ;
+            end
+            X.WW          = WW ;        
+        end
         
         STA_W_state = X.STA_W_state ;
         X.STA_W_state = zeros(PROB.N_GC,X.N_cones) ;
@@ -125,7 +132,9 @@ for i=1:size(flips,1)
                 PROB.STA([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:)) *...
                 PROB.cone_params.fudge ;
         
-%         X.dUW_STA = U' * X.STA_W_state' ;
+        if exist('U','var')
+            X.dUW_STA = U' * X.STA_W_state' ;
+        end
         
         X.state(x,y)       = c ;        
         X.diff = [X.diff ; x y c] ;

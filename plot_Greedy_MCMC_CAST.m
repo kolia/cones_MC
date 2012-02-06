@@ -1,6 +1,6 @@
 function svg = plot_Greedy_MCMC_CAST( greed , mcmc , cast )
 
-[x,ll,states] = get_best( [mcmc ; cast ; {greed}] ) ;
+[~,ll,states] = get_best( [mcmc ; cast ; {greed}] ) ;
 id = [ones(numel(mcmc),1) ; 2*ones(numel(cast),1) ; 0] ;
 
 [xG,yG,cG] = find( states{end} ) ;
