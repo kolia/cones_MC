@@ -30,7 +30,7 @@ if X.N_cones>0
             ll  = 0.5 * T(1) * full( X.N_cones * PROB.N_cones_term + ...
                     sum( PROB.quad_factor' * contribution )) ;                
         end
-
+        
 %         fprintf('%f,%f,%f,%f\n',X.ll,ll0-X.ll,ll-X.ll,(ll-X.ll)/(ll0-X.ll))
     catch
         'ha'

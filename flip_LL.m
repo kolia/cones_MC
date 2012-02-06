@@ -77,19 +77,39 @@ for i=1:size(flips,1)
         
         Wkkc = PROB.coneConv(PROB.R+ssx,PROB.R+ssy,ssx,ssy) * PROB.colorDot(c,c) ;
         
-%         U = zeros(X.N_cones,1) ;
-%         if numel(inds)>0
-%             WW = X.WW ;
-%             w  = Wkstate ;
-%             s  = - WW \ w' ;
-%             ss = s'*WW ;
-%             q  = 1/sqrt( ss*s + 2*s'*w' + Wkkc ) ;
-%             U(inds)     = q * s ;
-%         else
-%             q = sqrt(1/Wkkc) ;
-%         end
-%         U(j) = q ;
-
+        if isfield(X,'ds_UW_STA')
+            indices = Wkstate>0 ;    %   <----   !!!!  indices must be bigger   !!!!
+            if numel(inds)>0
+                s_WW = X.WW(indices,indices) ;
+                s_w  = Wkstate(indices) ;
+                s_s  = - s_WW \ s_w' ;
+                s_ss = s_s'*s_WW ;
+                if isempty(s_ss)
+                    s_q = sqrt(1/Wkkc) ;
+                else
+                    s_q  = 1/sqrt( s_ss*s_s + 2*s_s'*s_w' + Wkkc ) ;
+                end
+                s_U  = s_q * s_s ;
+            else
+                s_q = sqrt(1/Wkkc) ;
+                s_U = [] ;
+            end
+            sU = [s_U ; s_q] ;
+            sparse_index = [inds(indices) j] ;
+        elseif isfield(X,'dUW_STA')
+            U = zeros(X.N_cones,1) ;
+            if numel(inds)>0
+                WW = X.WW ;
+                w  = Wkstate ;
+                s  = - WW \ w' ;
+                ss = s'*WW ;
+                q  = 1/sqrt( ss*s + 2*s'*w' + Wkkc ) ;
+                U(inds)     = q * s ;
+            else
+                q = sqrt(1/Wkkc) ;
+            end
+            U(j) = q ;        
+        end
         
         if isfield(X,'invWW')
             invWW   = X.invWW ;
@@ -134,6 +154,10 @@ for i=1:size(flips,1)
         
         if exist('U','var')
             X.dUW_STA = U' * X.STA_W_state' ;
+        end
+        
+        if exist('sU','var')
+            X.ds_UW_STA = sU' * X.STA_W_state(:,sparse_index)' ;
         end
         
         X.state(x,y)       = c ;        
