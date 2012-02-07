@@ -21,7 +21,7 @@ M  = max(y) ;
 id3 = find( y == max(y(id == 1)) ) ;
 id( id3 ) = 3 ;
 
-id4 = find( y == max(y(id == 2)) ) ;
+id4 = find( y == max(y(id == 2)), 1 ) ;
 id( id4 ) = 4 ;
 
 inds = [1:id3-1 id3+1:id4-1 id4+1:numel(x)-1 id3 id4 numel(x)] ;

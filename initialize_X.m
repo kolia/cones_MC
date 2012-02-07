@@ -38,9 +38,9 @@ end
 X.T = [1 1] ;
 
 % FROM old flip_color_LL.m !!!
-X.invWW     = [] ;
+% X.invWW     = [] ;
 % X.overlaps  = [] ;
-%     X.WW        = [] ;
+X.WW        = [] ;
 % X.positions = [] ;
 % X.colors    = [] ;
 

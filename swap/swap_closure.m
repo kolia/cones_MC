@@ -31,9 +31,10 @@ classes = classes( sizes>2 ) ;
 % classes = [{[]} ; {[i' N+j']}] ;
 % classes = [{[]} ; classes] ;
 if numel(classes)>0
-    classes = [{[]} ; classes(randi(numel(classes)))] ;
+    perm    = randperm(numel(classes)) ;
+    classes = [{[]} ; classes(perm(min(numel(perm),20)))] ;
 else
-    classes = [{[]}] ;
+    classes = {[]} ;
 end
 XS      = cell( numel(classes), 1 ) ;
 
@@ -44,16 +45,16 @@ for m=1:length(XS)
     if m>1
         XX       = struct ;
         XX.state = X.state ;
-        if isfield(XX,'invWW')
+        if isfield(X,'invWW')
             XX.invWW = X.invWW ;
         end
-        if isfield(XX,'WW')
+        if isfield(X,'WW')
             XX.WW = X.WW ;
         end
-        if isfield(XX,'dUW_STA')
+        if isfield(X,'dUW_STA')
             XX.dUW_STA = X.dUW_STA ;
         end
-        if isfield(XX,'ds_UW_STA')
+        if isfield(X,'ds_UW_STA')
             XX.ds_UW_STA = X.ds_UW_STA ;
         end
         XX.STA_W_state = X.STA_W_state ;
@@ -65,16 +66,16 @@ for m=1:length(XS)
         
         OX       = struct ;
         OX.state = otherX.state ;
-        if isfield(XX,'invWW')
+        if isfield(X,'invWW')
             OX.invWW = otherX.invWW ;
         end
-        if isfield(XX,'WW')
+        if isfield(X,'WW')
             OX.WW = otherX.WW ;
         end
-        if isfield(OX,'dUW_STA')
+        if isfield(X,'dUW_STA')
             OX.dUW_STA = otherX.dUW_STA ;
         end
-        if isfield(OX,'ds_UW_STA')
+        if isfield(X,'ds_UW_STA')
             OX.ds_UW_STA = otherX.ds_UW_STA ;
         end
         OX.STA_W_state = otherX.STA_W_state ;

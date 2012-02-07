@@ -43,7 +43,9 @@ while 1
         
     % reinitialize if stuck
     if jj - runbest.i > cone_map.M0*cone_map.M1/3
-        runbest = rmfield(runbest,{'invWW','masks','contact'}) ;
+        runbest = rmfield(runbest,{'masks','contact'}) ;
+        try runbest = rmfield(runbest,{'invWW'}) ; end
+        try runbest = rmfield(runbest,{'WW'})    ; end
         cone_map.bestX{n_best} = runbest ;
         n_best  = n_best + 1 ;
         X       = cone_map.initX ;
@@ -72,7 +74,9 @@ while 1
     if ~mod(jj,save_every) || jj>N_iterations || cputime-t>max_time
 %         cone_map.X          = X ;
         to_save = rmfield(cone_map,{'STA','initX'}) ;
-        to_save.X = rmfield(X,{'invWW','contact'}) ;
+        to_save.X = rmfield(X,{'contact'}) ;
+        try to_save.X = rmfield(X,{'invWW'}) ; end
+        try to_save.X = rmfield(X,{'WW'})    ; end
         save(sprintf('result_%d',ID), 'to_save' )
         if jj>N_iterations || cputime-t>max_time, break ; 
         else clear to_save

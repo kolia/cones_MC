@@ -35,6 +35,10 @@ r{6} = 0 ;
 
 % gauscdf = gaus_in_a_box( cone_params.sigma ) ;
 
+if ~isfield(X,'invWW') && X.N_cones==0
+    X.invWW = [] ;
+end
+
 R  = ceil( PROB.cone_params.support_radius * PROB.SS ) ;
 x  = -R:1/PROB.SS:R ;
 nn = length(x) ;

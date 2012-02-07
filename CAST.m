@@ -124,9 +124,13 @@ while 1
     if ~mod(jj,save_every) || jj>N_iterations || cputime-t>max_time
         to_save = rmfield(cone_map,{'STA','initX'}) ;
 %         cone_map.X          = X{1} ;
-        to_save.X = rmfield(X{1},{'invWW','contact'}) ;
+        to_save.X = rmfield(X{1},{'contact'}) ;
+        try to_save.X = rmfield(X{1},{'invWW'}) ; end
+        try to_save.X = rmfield(X{1},{'WW'})    ; end
 %         cone_map.bestX      = bestX ;
-        to_save.bestX = rmfield(bestX,{'invWW','contact'}) ;
+        to_save.bestX = rmfield(bestX,{'contact'}) ;
+        try to_save.bestX = rmfield(bestX,{'invWW'}) ; end
+        try to_save.bestX = rmfield(bestX,{'WW'})    ; end
         to_save.ST         = ST ;
         save(sprintf('result_%d',ID), 'to_save' )
         if jj>N_iterations || cputime-t>max_time, break ; 
