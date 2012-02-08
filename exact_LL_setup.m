@@ -77,6 +77,8 @@ cone_map.NROI           = NROI ;
 cone_map.N_spikes       = N_spikes ;
 cone_map.SS             = SS ;
 
+cone_map.naive_LL       = 0 ;
+
 coneConv = zeros( 2*R+SS , 2*R+SS , SS , SS ) ;
 WW = zeros(SS,SS) ;
 
