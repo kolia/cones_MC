@@ -1,12 +1,13 @@
-function X = initialize_X(M0,M1,N_colors,SS,repulsion,beta,delta,maxcones)
+function X = initialize_X(M0,M1,N_colors,SS,repulsion,naive_LL,beta,delta,maxcones)
 
-if nargin<8
+if nargin<9
     maxcones = floor( 0.3 * M0 * M1 ) ;
 end
 
 X.masks     = make_masks(repulsion*SS) ;
 X.D         = max(repulsion(1:2,1)*SS) ;
 
+X.repulsion = repulsion ;
 X.M0        = M0 * SS ;
 X.M1        = M1 * SS ;
 X.SS        = SS ;
@@ -17,6 +18,7 @@ X.dll       = 0 ;
 X.n_moves   = 0 ;
 X.diff      = [] ;
 X.version   = 0 ;
+X.naive_LL  = naive_LL ;
 
 X.beta      = beta  ;
 X.delta     = delta ;

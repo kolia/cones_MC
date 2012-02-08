@@ -46,7 +46,7 @@ end
 
 dX = [x y c] ;
 
-X = initialize_X( PROB.M0, PROB.M1, PROB.N_colors, PROB.SS, PROB.D, 1 ) ;
+X = initialize_X( PROB.M0, PROB.M1, PROB.N_colors, PROB.SS, PROB.D, PROB.naive_LL, 1 ) ;
 
 X = flip_LL( X , dX , PROB ) ;
     
