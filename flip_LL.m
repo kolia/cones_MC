@@ -45,8 +45,6 @@ for i=1:size(flips,1)
         
         if isfield(X,'WW')
             X.WW       = X.WW(inds,inds) ;
-        else
-            'ha'
         end
         
         X.STA_W_state = X.STA_W_state(:, inds ) ;
