@@ -5,15 +5,15 @@ if nargin>1 ,   cone_map.ID = ID ;     end
 cone_map = rmfield(cone_map,{'LL','NICE'})
 cone_map.code.string    = file2str('CAST.m') ;
 
-default( cone_map , 'N_iterations'  , 100000)
-default( cone_map , 'plot_every'    , 0     )
-default( cone_map , 'plot_skip'     , 100   )
-default( cone_map , 'display_every' , 50    )
-default( cone_map , 'save_every'    , 200   )
-default( cone_map , 'ID'            , 0     )
-default( cone_map , 'max_time'      , 50000 )
+default( cone_map , 'N_iterations'  , 1000000)
+default( cone_map , 'plot_every'    , 0      )
+default( cone_map , 'plot_skip'     , 100    )
+default( cone_map , 'display_every' , 50     )
+default( cone_map , 'save_every'    , 200    )
+default( cone_map , 'ID'            , 0      )
+default( cone_map , 'max_time'      , 50000  )
 default( cone_map , 'deltas' , ones(1,length(cone_map.betas))) ;
-default( cone_map , 'N_fast'        , 1     )
+default( cone_map , 'N_fast'        , 1      )
 
 % Initialize figure
 if plot_every
