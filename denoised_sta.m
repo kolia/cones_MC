@@ -37,6 +37,9 @@ r{6} = 0 ;
 
 if ~isfield(X,'invWW') && X.N_cones==0
     X.invWW = [] ;
+    if isfield(X,'WW')
+        X = rmfield(X,'WW') ;
+    end
 end
 
 R  = ceil( PROB.cone_params.support_radius * PROB.SS ) ;
