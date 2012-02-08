@@ -10,7 +10,6 @@
 </defs>
 
 <g transform="translate(30,80)scale(3,3)">
-  <image width="184" height="104" xlink:href="evidence.png"/>
   <g transform="translate(5,-13)">
     <text font-size="8">
       <tspan baseline-shift="-50%">Greedy</tspan>

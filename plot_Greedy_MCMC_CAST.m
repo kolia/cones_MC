@@ -22,8 +22,12 @@ for i=1:numel(c)
     end
 end
 
-svg = sprints('<use xlink:href="#%d" transform="translate(%f %f)" stroke="%s"/>\n', ...
-               id,[y1(:);y2(:);yG],[x1(:);x2(:);xG],c) ;
+h = imagesc(cone_map.NICE) ;
+saveas(h,'evidence','png')
+svg = '<image width="184" height="104" xlink:href="evidence.png"/>' ;
+
+svg = sprints('%s\n<use xlink:href="#%d" transform="translate(%f %f)" stroke="%s"/>\n', ...
+               svg,id,[y1(:);y2(:);yG],[x1(:);x2(:);xG],c) ;
 
 svg = insert_string(svg,'plot_Greedy_MCMC_CAST_stub.svg',-40) ;
 
