@@ -54,13 +54,14 @@ gaus_in_box_memo = gaus_in_a_box_memo( cone_params.sigma, SS, cone_params.suppor
 % prior_cov   = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
 % prior_cov = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
 
-prior_cov = cone_params.stimulus_variance^2*...
+cone_map.prior_cov = cone_params.stimulus_variance^2*...
                     (sum(N_spikes))/sum(N_spikes .* STA_norm.^2) ;
 
-cone_map.N_cones_term = sum( log( prior_cov) - log(cell_consts(:)+prior_cov) ) ;
-cone_map.quad_factor  = N_spikes.^2 ./ (cell_consts+prior_cov) ;
+cone_map.cov_factor   = cell_consts+cone_map.prior_cov ;
+cone_map.N_cones_term = sum( log( cone_map.prior_cov) - ...
+                             log( cone_map.cov_factor(:)) ) ;
+cone_map.quad_factor  = N_spikes.^2 ./ cone_map.cov_factor ;
 
-cone_map.cov_factor = cell_consts+prior_cov ;
 
 % sparse int matrix, with number of out-of-border adjacencies
 cone_map.outofbounds = sparse([],[],[],M0*SS,M1*SS,2*(M0+M1)*SS) ;
@@ -75,7 +76,6 @@ cone_map.M1             = M1 ;
 cone_map.N_colors       = N_colors ;
 cone_map.N_GC           = N_GC ;
 cone_map.cell_consts    = cell_consts ;
-cone_map.prior_cov      = prior_cov ;
 cone_map.NROI           = NROI ;
 cone_map.N_spikes       = N_spikes ;
 cone_map.SS             = SS ;
