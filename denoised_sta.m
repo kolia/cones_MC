@@ -85,8 +85,6 @@ function r = accumulate_stas( r , X , PROB , gausfilter, n, selector, signif )
 % only accumulate when selector is true
 if selector(r{5})
 
-    NGC = size(PROB.STA_W,2) ;
-
     invWW = X.invWW ;
     invWW(abs(invWW)<abs(invWW(1,1))*1e-17) = 0 ;
 
@@ -94,11 +92,11 @@ if selector(r{5})
 
     [x,y,c] = find(X.state) ;
 
-    inds = x+PROB.M0*PROB.SS*(y-1)+PROB.M0*PROB.M1*PROB.SS*PROB.SS*(c-1) ;
-    STA_W_state = PROB.STA_W( inds , : ) ;
+%     inds = x+PROB.M0*PROB.SS*(y-1)+PROB.M0*PROB.M1*PROB.SS*PROB.SS*(c-1) ;
+%     STA_W_state = PROB.STA_W( inds , : ) ;
 
     factor = repmat( PROB.cell_consts' ./ PROB.cov_factor' , [numel(x) 1] ) ;
-    A   = (invWW * STA_W_state) .* factor ;
+    A   = (invWW * X.STA_W_state') .* factor ;
 
     STD = sqrt(diag(invWW) * (1./PROB.cov_factor')) ;
     B   = A ./ STD ;
@@ -106,7 +104,7 @@ if selector(r{5})
     A( abs(B) < signif ) = 0 ;
 
     % for each GC, add sample contribution.
-    for i=1:NGC
+    for i=1:PROB.N_GC
         for cc=1:3
             I = c == cc ;
             if sum(I)>0
