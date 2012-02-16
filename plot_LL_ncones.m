@@ -3,9 +3,7 @@ function svg = plot_LL_ncones( greed , mcmc , cast , cone_map )
 [x,y] = get_best( [mcmc ; cast ; {greed}] ) ;
 id = [ones(numel(mcmc),1) ; 2*ones(numel(cast),1) ; 0] ;
 
-y = y / sum( greed.N_spikes ) ;
-y = y - 1/cone_map.prior_cov * 0.5 * cone_map.cone_params.stimulus_variance ;
-y = y / log(2) ;
+y = bits_per_spike( y, cone_map ) ;
 
 minx = min(x) ;% 99 ;
 maxx = max(x) ;%119 ;
