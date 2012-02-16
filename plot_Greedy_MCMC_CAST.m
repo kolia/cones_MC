@@ -23,44 +23,14 @@ for i=1:numel(c)
     end
 end
 
-% h = imagesc(NICE) ;
-% truesize ;
-% axis off ;
-% saveas(h,'evidence','png')
-% 
-% f = figure('visible','off');
-% imshow(NICE, 'Border', 'tight');
-% print(f, '-r80', '-dpng', 'evidence2.png');
-
-% truesize ;
-% axis off ;
-% imwrite(NICE,'evidence.png')
-
-% %create my figure
-% figure;
-% imagesc(NICE);
-% 
-% %save current axes position
-% axpos = get(gca, 'position');
-% 
-% %expand axes to fill figure window
-% outerpos = get(gca, 'outerposition');
-% insetpos = get(gca, 'tightinset');
-% set(gca, 'position', [insetpos(1) insetpos(2) ...
-%     outerpos(3)-insetpos(3) outerpos(4)-insetpos(4)]);
-% 
-% %create output file
-% print('-f1', '-r300', '-dpng','dpiTestx.png');
-
 [nx,ny,~] = size(NICE) ;
-dpmx = fix((300/2.54) * nx);% 300DPI = dpm Dots Per Meter
-dpmy = fix((300/2.54) * ny);
-imwrite(NICE,'evidenc.png', 'png', ...
-    'ResolutionUnit', 'meter', ...
-    'XResolution', dpmx, ...
-    'YResolution', dpmy);
+f = figure('visible','off'); imshow(NICE, 'Border', 'tight');
+set(gca,'position',[0 0 1 1],'units','normalized')
+set(gcf,'PaperPosition',[0 0 ny/80 nx/80])
+set(gcf,'PaperSize',[ny nx])
+print(f, '-r80', '-dpng', 'evidence80.png');
 
-evidence = sprintf('<image width="%d" height="%d" xlink:href="evidenc.png"/>\n',nx,ny) ;
+evidence = sprintf('<image width="%d" height="%d" xlink:href="evidence80.png"/>\n',ny,nx) ;
 
 svg = sprints('<use xlink:href="#%d" transform="translate(%f %f)" stroke="%s"/>\n', ...
                id,[y1(:);y2(:);yG],[x1(:);x2(:);xG],c) ;
