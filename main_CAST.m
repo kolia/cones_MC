@@ -7,17 +7,18 @@ if type==0
     type = 'peach' ;
     load peach/peach_data    % contains 'stas'
     load peach/cone_params
+    ROIs = {[1 size(stas(1).spatial,1)] [1 size(stas(1).spatial,2)]} ;
+    roi = 1 ;
+    roj = 2 ;
 else
     type = 'george' ;
     load george/stas   % contains 'stas'
     load george/cone_params   % contains 'cone_params'
+    ROIs = {[1 42] [38 82] [78 122] [118 160]} ;
+    roi = 3 ;
+    roj = 3 ;
+    stas = restrict_ROI( stas, ROIs{roi}, ROIs{roj} ) ;
 end
-
-ROIs = {[1 42] [38 82] [78 122] [118 160]} ;
-
-roi = 3 ;
-roj = 3 ;
-stas = restrict_ROI( stas, ROIs{roi}, ROIs{roj} ) ;
 
 cone_params.fudge = 1 ;
 cone_params.support_radius = 3 ;
@@ -31,7 +32,7 @@ cone_map.deltas = make_deltas( 0.3, 1, 1, length(cone_map.betas) ) ;
 
 cone_map.initX.rois   = [roi roj] ;
 cone_map.initX.NROI   = numel(ROIs) ;
-cone_map.initX.ROI    = [ROIs{roi} ; ROIs{roj}] ;
+cone_map.initX.ROI    = ROIs{roi} ;
 cone_map.initX.type   = type ;
 cone_map.initX.fudge  = cone_params.fudge ;
 cone_map.initX.support_radius = cone_params.support_radius ;
