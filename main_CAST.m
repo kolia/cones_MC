@@ -22,6 +22,7 @@ end
 
 cone_params.fudge = 1 ;
 cone_params.support_radius = 3 ;
+% cone_params.supersample = 2 ;
 cone_map = exact_LL_setup(stas,cone_params) ; % cone_map, aka PROB or data
 
 imagesc(cone_map.NICE)
@@ -35,6 +36,7 @@ cone_map.initX.NROI   = numel(ROIs) ;
 cone_map.initX.ROI    = ROIs{roi} ;
 cone_map.initX.type   = type ;
 cone_map.initX.fudge  = cone_params.fudge ;
+cone_map.initX.supersample  = cone_params.supersample ;
 cone_map.initX.support_radius = cone_params.support_radius ;
 cone_map.initX.N_iterations   = cone_map.N_iterations ;
 cone_map.initX.betas  = cone_map.betas  ;
@@ -46,7 +48,7 @@ cone_map.display_every = 20 ;
 base_str = cone_map_string( cone_map ) ;
 
 % % THEN RUN THIS to run on your own computer:
-% greed = greedy_cones(cone_map) ;  save(['greed_' base_str],'greed')
+greed = greedy_cones(cone_map) ;  save(['greed_' base_str],'greed')
 % mcmc = MCMC(cone_map) ;           save(['mcmc_'  base_str],'mcmc' )
 % cast = CAST(cone_map) ;           save(['cast_'  base_str],'cast' )
 
