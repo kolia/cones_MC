@@ -1,6 +1,6 @@
 function evidence = plotable_evidence( evidence )
 
-z = sum(evidence,3) ;
+z = max(evidence,[],3) ;
 inds  = logical(z<0) ;
 inds  = inds(:) ;
 inds3 = [inds ; inds ; inds] ;
