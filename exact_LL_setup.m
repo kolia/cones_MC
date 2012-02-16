@@ -110,14 +110,15 @@ for xx=1:2*R+SS
         end
     end
 end
-                                 
+
 cone_map.LL = cone_params.fudge^2 * make_LL(cone_map,STA,WW,gaus_in_box_memo) ;
 
 IC = inv(cone_params.colors) ;
-QC = reshape( reshape(cone_map.LL+cone_map.N_cones_term,[],3) * IC', size(cone_map.LL) ) ;
+QC = reshape( reshape(cone_map.LL+0.5*cone_map.N_cones_term,[],3) * IC', size(cone_map.LL) ) ;
+% QC = reshape( reshape(cone_map.LL,[],3) * IC', size(cone_map.LL) ) ;
 cone_map.NICE = plotable_evidence( QC ) ;
 
-imagesc( cone_map.NICE )
+% imagesc( cone_map.NICE )
 
 
 cone_map.R              = R ;
@@ -140,7 +141,7 @@ cone_map.N_fast         = 1     ;
 
 cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.N_colors, cone_map.SS, ...
-                               cone_map.cone_params.replusion_radii,...
+                               cone_map.cone_params.replusion_radii, ...
                                cone_map.naive_LL, 1, 1) ;
 
                            
@@ -215,8 +216,8 @@ for ii=1:SS
     for jj=1:SS
         i = supersamples(ii) ;
         j = supersamples(jj) ;
-        g   = reshape( gaus_boxed(i,j), [2*support+1 2*support+1]) ;
-        g   = g(end:-1:1,end:-1:1) ;
+        g = reshape( gaus_boxed(i,j), [2*support+1 2*support+1]) ;
+        g = g(end:-1:1,end:-1:1) ;
         for gc=1:cone_map.N_GC
             CC = zeros(M0*M1,N_colors) ;
             for color=1:N_colors
