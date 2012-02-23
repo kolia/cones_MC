@@ -54,13 +54,19 @@ gaus_in_box_memo = gaus_in_a_box_memo( cone_params.sigma, SS, cone_params.suppor
 % prior_cov   = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
 % prior_cov = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
 
-cone_map.prior_cov = cone_params.stimulus_variance^2*...
+cone_map.prior_cov  = cone_params.stimulus_variance^2*...
                     (sum(N_spikes))/sum(N_spikes .* STA_norm.^2) ;
-
+                
 cone_map.cov_factor   = cell_consts+cone_map.prior_cov ;
 cone_map.N_cones_term = sum( log( cone_map.prior_cov) - ...
                              log( cone_map.cov_factor(:)) ) ;
 cone_map.quad_factor  = N_spikes.^2 ./ cone_map.cov_factor ;
+
+
+cone_map.prior_covs    = (cone_params.stimulus_variance ./ STA_norm ).^2 ;
+cone_map.cov_factors   = cell_consts+cone_map.prior_covs ;
+cone_map.N_cones_terms = log( cone_map.prior_covs ) - log( cone_map.cov_factors) ;
+cone_map.quad_factors  = N_spikes.^2 ./ cone_map.cov_factors ;
 
 
 % sparse int matrix, with number of out-of-border adjacencies
