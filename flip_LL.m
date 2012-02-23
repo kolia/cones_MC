@@ -147,8 +147,7 @@ for i=1:size(flips,1)
 
         filter  = kron(PROB.cone_params.colors(c,:),filter) ;
         X.STA_W_state(:,j) = (filter * ...
-                PROB.STA([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:)) *...
-                PROB.cone_params.fudge ;
+                PROB.STA([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:)) ;
         
         if exist('U','var')
             X.dUW_STA = U' * X.STA_W_state' ;
