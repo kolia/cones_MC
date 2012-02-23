@@ -117,7 +117,8 @@ for xx=1:2*R+SS
     end
 end
 
-cone_map.LL = cone_params.fudge^2 * make_LL(cone_map,STA,WW,gaus_in_box_memo) ;
+[cone_map.sparse_struct,cone_map.LL] = ...
+    make_sparse_struct(cone_map,STA,WW,gaus_in_box_memo) ;
 
 IC = inv(cone_params.colors) ;
 QC = reshape( reshape(cone_map.LL+0.5*cone_map.N_cones_term,[],3) * IC', size(cone_map.LL) ) ;
@@ -150,64 +151,9 @@ cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.cone_params.replusion_radii, ...
                                cone_map.naive_LL, 1, 1) ;
 
-                           
-% % test cone_map.make_STA_W against make_LL
-% mLL = max(cone_map.LL(:)) ;
-% sta = reshape(STA,[],N_GC) ;
-% [mk,mc] = find( reshape( cone_map.LL, NROI, N_colors) == mLL ) ;
-% mx = mod( mk-1, M0*SS ) + 1 ;
-% my = ceil( mk/(M0*SS) ) ;
-% % sta_w = cone_map.make_STA_W( mk, mc, reshape(STA,[],N_GC), cone_params.colors ) ;
-% 
-% mxi = (mx-0.5)/SS ;
-% myi = (my-0.5)/SS ;
-% [filter,index] = filter_index( mxi, myi, M0, M1, gaus_in_box_memo,...
-%                                cone_params.support_radius) ;
-% 
-% filter  = kron(cone_params.colors(mc,:),filter) ;
-% sta_w = (filter * ...
-%     sta([index index+M0*M1 index+2*M0*M1],:)) * cone_params.fudge ;
-% 
-% fprintf('\nLL and sta_w ll: %f,%f, %f, %f\n',mLL,cone_map.LL(mk+(mc-1)*NROI),...
-%     0.5 * sum( cone_map.quad_factor' .* (sta_w / mean(WW(:))) .* sta_w  ),...
-%     0.5 * sum( cone_map.quad_factor' * ((sta_w / mean(WW(:))) .* sta_w )')) ;
-% 
-% test = zeros(10,10) ;
-% % range_x = 185:232 ;
-% % range_y = 457:504 ;
-% % mx = 194 ;
-% % my = 465 ;
-% % range_x = mx-5:mx+5 ; %1:10 ;
-% % range_y = my-5:my+5 ; %1:10 ;
-% range_x = 1:20 ;
-% range_y = 1:20 ;
-% for iii=range_x
-%     for jjj=range_y
-% %         sta_w = cone_map.make_STA_W( iii+M0*SS*(jjj-1), 1, ...
-% %                                      reshape(STA,[],N_GC), cone_params.colors ) ;
-%         iiii = (iii-0.5)/SS ;
-%         jjjj = (jjj-0.5)/SS ;
-%         [filter,index] = filter_index( iiii, jjjj, M0, M1, gaus_in_box_memo,...
-%                                        cone_params.support_radius) ;
-% 
-%         filter  = kron(cone_params.colors(1,:),filter) ;
-%         sta_w = (filter * ...
-%             sta([index index+M0*M1 index+2*M0*M1],:)) * cone_params.fudge ;
-% 
-%         test(iii,jjj) = 0.5 * sum( cone_map.quad_factor' .* ...
-%                                   (sta_w / mean(WW(:))) .* sta_w ) ;
-%     end
-% end
-% 
-% disp(test(range_x,range_y))
-% disp(cone_map.LL(range_x,range_y,1))
-% disp('moot')
-
 end
 
-
-% function LL = make_LL(M0,M1,N_colors,SS,STA,support,gaus_boxed)
-function LL = make_LL(cone_map,STA,WW,gaus_boxed)
+function [sparse_struct, LL] = make_sparse_struct(cone_map,STA,WW,gaus_boxed)
 
 M0 = cone_map.M0 ;
 M1 = cone_map.M1 ;
@@ -216,27 +162,43 @@ N_colors = cone_map.N_colors ;
 support = cone_map.cone_params.support_radius ;
 colors  = cone_map.cone_params.colors ;
 
-supersamples = 1/(2*SS):1/SS:1 ;
 LL = zeros(M0*SS,M1*SS,N_colors) ;
+
+supersamples = 1/(2*SS):1/SS:1 ;
+gs = cell(SS) ;
+sparse_struct = struct('x', cell(cone_map.N_GC,1), ...
+              'y', cell(cone_map.N_GC,1), ...
+              'c', cell(cone_map.N_GC,1)) ;
+
 for ii=1:SS
     for jj=1:SS
         i = supersamples(ii) ;
         j = supersamples(jj) ;
         g = reshape( gaus_boxed(i,j), [2*support+1 2*support+1]) ;
-        g = g(end:-1:1,end:-1:1) ;
-        for gc=1:cone_map.N_GC
+        gs{ii,jj} = g(end:-1:1,end:-1:1) ;
+    end
+end
+
+fprintf('making sparse struct and LL for GC number')
+for gc=1:cone_map.N_GC
+    gcLL = zeros(M0*SS,M1*SS,N_colors) ;
+    for ii=1:SS
+        for jj=1:SS    
             CC = zeros(M0*M1,N_colors) ;
             for color=1:N_colors
-                CCC = conv2( STA(:,:,color,gc), g ) ;
+                CCC = conv2( STA(:,:,color,gc), gs{ii,jj} ) ;
                 CCC = CCC(support+1:M0+support,support+1:M1+support) ;
                 CC(:,color) = CCC(:) ;
             end
             C = 0.5 * cone_map.quad_factor(gc) * (CC * colors').^2 / WW(ii,jj) ;
-            LL( ii:SS:M0*SS, jj:SS:M1*SS, :) = ...
-                LL( ii:SS:M0*SS, jj:SS:M1*SS, :) + reshape(C,[M0 M1 3]) ;
+            gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) = ...
+                gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) + reshape(C,[M0 M1 3]) ;
         end
-        fprintf('(%f, %f) ',ii,jj)
     end
+    [sparse_struct(gc).x,sparse_struct(gc).y,sparse_struct(gc).c] = ...
+            find( gcLL+cone_map.N_cones_terms(gc)>0 ) ;
+    LL = LL + gcLL ;
+    fprintf(' %d',gc)
 end
 end
 
