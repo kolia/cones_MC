@@ -29,7 +29,8 @@ X.maxcones  = maxcones ;
 % sparse int matrix, representing cone positions and colors
 X.state     = sparse([],[],[],X.M0,X.M1,X.maxcones) ;
 
-X.STA_W_state = [] ;
+% X.STA_W_state = [] ;
+X.sparse_STA_W_state = sparse([]) ;
 
 % contact forces at four cardinal adjacent positions, indexed by id
 for d=1:4

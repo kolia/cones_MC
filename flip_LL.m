@@ -47,7 +47,8 @@ for i=1:size(flips,1)
             X.WW       = X.WW(inds,inds) ;
         end
         
-        X.STA_W_state = X.STA_W_state(:, inds ) ;
+        X.sparse_STA_W_state = X.sparse_STA_W_state(:, inds ) ;
+%         X.STA_W_state = X.STA_W_state(:, inds ) ;
         
         X.state(x,y)= 0 ;
         
@@ -135,10 +136,13 @@ for i=1:size(flips,1)
             X.WW          = WW ;        
         end
         
-        STA_W_state = X.STA_W_state ;
-        X.STA_W_state = zeros(PROB.N_GC,X.N_cones) ;
+%         STA_W_state = X.STA_W_state ;
+        sparse_STA_W_state = X.sparse_STA_W_state ;
+        X.sparse_STA_W_state = sparse([],[],[],PROB.N_GC,X.N_cones) ;
+%         X.STA_W_state = zeros(PROB.N_GC,X.N_cones) ;
         if ~isempty(inds)
-            X.STA_W_state(:,inds) = STA_W_state ;
+%             X.STA_W_state(:,inds) = STA_W_state ;
+            X.sparse_STA_W_state(:,inds) = sparse_STA_W_state ;
         end
         xi = (x-0.5)/PROB.SS ;
         yi = (y-0.5)/PROB.SS ;
@@ -146,8 +150,26 @@ for i=1:size(flips,1)
                                        PROB.cone_params.support_radius) ;
 
         filter  = kron(PROB.cone_params.colors(c,:),filter) ;
-        X.STA_W_state(:,j) = (filter * ...
-                PROB.STA([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:)) ;
+        STA_W_state_j = (filter * ...
+                PROB.STA([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:))' ;
+        keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) + PROB.N_cones_terms > 0) ;
+
+%         X.STA_W_state( :, j ) = STA_W_state_j ;
+        X.sparse_STA_W_state( keep_GCs, j ) = STA_W_state_j(keep_GCs) ;
+        keep_cones = sum(X.sparse_STA_W_state(keep_GCs,:),1)>0 ;
+        
+        if ~isfield(X,'contributions')
+            X.contributions = zeros(PROB.N_GC,1) ;
+        end
+        if ~isempty(keep_GCs)
+            X.contributions(keep_GCs) = ...
+                PROB.quad_factors(keep_GCs) .* ...
+                sum((X.WW(keep_cones,keep_cones)\X.sparse_STA_W_state(keep_GCs,keep_cones)')' ...
+                            .* X.sparse_STA_W_state(keep_GCs,keep_cones),2) ;
+        end
+        
+        X.keep_cones = keep_cones ;
+        X.keep_GCs   = keep_GCs   ;
         
         if exist('U','var')
             X.dUW_STA = U' * X.STA_W_state' ;
@@ -157,7 +179,7 @@ for i=1:size(flips,1)
             X.ds_UW_STA = sU' * X.STA_W_state(:,sparse_index)' ;
         end
         
-        X.state(x,y)       = c ;        
+        X.state(x,y)       = c ;
         X.diff = [X.diff ; x y c] ;
     end
 end

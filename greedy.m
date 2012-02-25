@@ -1,21 +1,21 @@
 function X = greedy( X , PROB , update_X )
 
+% if X.N_cones == 0
+%     profile clear
+%     profile on
+% elseif mod(X.N_cones,10) == 0
+%     p = profile('info');
+%     save(sprintf('profdat_%d',X.N_cones),'p')
+%     profile clear
+% end
+
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
 
-if ~isfield(X,'greedy_ll')
-    X.greedy_ll = cell(PROB.N_colors,1) ;
-    X.excluded  = cell(PROB.N_colors,1) ;
-%     for c=1:PROB.N_colors
-%         X.greedy_ll{c} = old_ll * sparse([],[],[],M0,M1) ;
-%     end
-end
-
 if ~isfield(X,'changed_x')
-    X.greedy_ll = PROB.LL ;
+    X.greedy_ll = reshape(PROB.LL,M0,[]) ;
     X.excluded  = 0 * PROB.LL ;
 else
-    n_cones_term = X.ll + 0.5 * PROB.N_cones_term ;
     for i=1:numel(X.changed_x)
         x = X.changed_x(i) ;
         y = X.changed_y(i) ;
@@ -23,7 +23,7 @@ else
             % propose addition of new cone of each color
             for c=1:PROB.N_colors
                 sample = flip_LL( X , [x y c] , PROB , [1 1] ) ;
-                X.greedy_ll(x,y,c) = sample.ll - n_cones_term ;
+                X.greedy_ll(x,y+M1*(c-1)) = sample.ll - X.ll ;
             end
         else
             X.excluded(x,y,:) = -Inf ;
@@ -53,9 +53,9 @@ end
 % end
 
 [mm,I] = max(X.greedy_ll(:) + X.excluded(:)) ;
-[mx,my,mc] = ind2sub(size(X.greedy_ll),I) ;
+[mx,my,mc] = ind2sub(size(PROB.LL),I) ;
 
-if mm+0.5 * PROB.N_cones_term>0
+if mm>0
 %     [mx,my] = find(X.greedy_ll{mc} == mm) ;
 %     
 %     mx = mx(1) ;
@@ -83,5 +83,7 @@ if mm+0.5 * PROB.N_cones_term>0
 else
     X = rmfield(X,{'changed_x','changed_y','last_x','last_y'}) ;
 end
+
+fprintf('   #keep_cones %d, #keep_GCs %d',nnz(X.keep_cones),numel(X.keep_GCs)) ;
 
 end

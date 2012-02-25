@@ -54,13 +54,13 @@ gaus_in_box_memo = gaus_in_a_box_memo( cone_params.sigma, SS, cone_params.suppor
 % prior_cov   = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
 % prior_cov = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
 
-cone_map.prior_cov  = cone_params.stimulus_variance^2*...
-                    (sum(N_spikes))/sum(N_spikes .* STA_norm.^2) ;
-                
-cone_map.cov_factor   = cell_consts+cone_map.prior_cov ;
-cone_map.N_cones_term = sum( log( cone_map.prior_cov) - ...
-                             log( cone_map.cov_factor(:)) ) ;
-cone_map.quad_factor  = N_spikes.^2 ./ cone_map.cov_factor ;
+% cone_map.prior_cov  = cone_params.stimulus_variance^2*...
+%                     (sum(N_spikes))/sum(N_spikes .* STA_norm.^2) ;
+%                 
+% cone_map.cov_factor   = cell_consts+cone_map.prior_cov ;
+% cone_map.N_cones_term = sum( log( cone_map.prior_cov) - ...
+%                              log( cone_map.cov_factor(:)) ) ;
+% cone_map.quad_factor  = N_spikes.^2 ./ cone_map.cov_factor ;
 
 
 cone_map.prior_covs    = (cone_params.stimulus_variance ./ STA_norm ).^2 ;
@@ -121,8 +121,8 @@ end
     make_sparse_struct(cone_map,STA,WW,gaus_in_box_memo) ;
 
 IC = inv(cone_params.colors) ;
-QC = reshape( reshape(cone_map.LL+0.5*cone_map.N_cones_term,[],3) * IC', size(cone_map.LL) ) ;
-% QC = reshape( reshape(cone_map.LL,[],3) * IC', size(cone_map.LL) ) ;
+% QC = reshape( reshape(cone_map.LL+0.5*cone_map.N_cones_term,[],3) * IC', size(cone_map.LL) ) ;
+QC = reshape( reshape(cone_map.LL,[],3) * IC', size(cone_map.LL) ) ;
 cone_map.NICE = plotable_evidence( QC ) ;
 
 % imagesc( cone_map.NICE )
@@ -190,7 +190,7 @@ for gc=1:cone_map.N_GC
                 CCC = CCC(support+1:M0+support,support+1:M1+support) ;
                 CC(:,color) = CCC(:) ;
             end
-            C = 0.5 * cone_map.quad_factor(gc) * (CC * colors').^2 / WW(ii,jj) ;
+            C = 0.5 * cone_map.quad_factors(gc) * (CC * colors').^2 / WW(ii,jj) ;
             gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) = ...
                 gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) + reshape(C,[M0 M1 3]) ;
         end
