@@ -37,6 +37,10 @@ for i=1:size(flips,1)
         inds       = [1:j-1 j+1:X.N_cones] ;
         X.N_cones  = X.N_cones - 1 ;
         
+        STA_W_state_j = X.sparse_STA_W_state(:, j) ;
+        
+        keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) + PROB.N_cones_terms > 0) ;
+        
         if isfield(X,'invWW')
             invWW      = X.invWW(inds,inds) - ...
                          X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
@@ -50,6 +54,12 @@ for i=1:size(flips,1)
         X.sparse_STA_W_state = X.sparse_STA_W_state(:, inds ) ;
 %         X.STA_W_state = X.STA_W_state(:, inds ) ;
         
+        keep_cones = sum(X.sparse_STA_W_state(keep_GCs,:),1)>0 ;
+        X.contributions(keep_GCs) = ...
+                PROB.quad_factors(keep_GCs) .* ...
+                sum((X.WW(keep_cones,keep_cones)\X.sparse_STA_W_state(keep_GCs,keep_cones)')' ...
+                            .* X.sparse_STA_W_state(keep_GCs,keep_cones),2) ;
+
         X.state(x,y)= 0 ;
         
         X.diff = [X.diff ; x y 0] ;

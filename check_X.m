@@ -5,12 +5,12 @@ global cone_map
 X = Y ;
 [x,y,c] = find( X.state ) ;
 
-if numel(find(X.state>0)) ~= size(X.invWW,1)
-   disp('X.state and X.invWW have inconsistent sizes.')
+if numel(find(X.state>0)) ~= size(X.WW,1)
+   disp('X.state and X.WW have inconsistent sizes.')
 end
 
-if size(X.STA_W_state) ~= size(X.invWW,1)
-   disp('X.STA_W_state and X.invWW have inconsistent sizes.')
+if size(X.sparse_STA_W_state) ~= size(X.WW,1)
+   disp('X.STA_W_state and X.WW have inconsistent sizes.')
 end
 
 
@@ -85,7 +85,7 @@ end
 % check if N_cones if consistent with id, state and taken_ids
 % counts = [Y.N_cones numel(find(Y.id)) numel(find(Y.state)) ...
 %           numel(find(Y.taken_ids)) size(Y.invWW,1)] ;
-counts = [numel(find(Y.state)) size(Y.invWW,1)] ;
+counts = [numel(find(Y.state)) size(Y.WW,1)] ;
 if ~isempty(find(diff(counts)))
     counts
     'N_cones is off'
