@@ -57,7 +57,7 @@ for m=1:length(XS)
         if isfield(X,'ds_UW_STA')
             XX.ds_UW_STA = X.ds_UW_STA ;
         end
-        XX.STA_W_state = X.STA_W_state ;
+        XX.sparse_STA_W_state = X.sparse_STA_W_state ;
         XX.N_cones=X.N_cones ;
         XX.ll    = X.ll ;
         XX.diff  = X.diff ;
@@ -78,7 +78,7 @@ for m=1:length(XS)
         if isfield(X,'ds_UW_STA')
             OX.ds_UW_STA = otherX.ds_UW_STA ;
         end
-        OX.STA_W_state = otherX.STA_W_state ;
+        OX.sparse_STA_W_state = otherX.sparse_STA_W_state ;
         OX.N_cones=otherX.N_cones ;
         OX.ll    = otherX.ll ;
         OX.diff  = otherX.diff ;

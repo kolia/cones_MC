@@ -19,7 +19,7 @@ if i>1
     if isfield(trials{i}.X,'ds_UW_STA')
         X.X.ds_UW_STA = trials{i}.X.ds_UW_STA ;
     end
-    X.X.STA_W_state = trials{i}.X.STA_W_state ;
+    X.X.sparse_STA_W_state = trials{i}.X.sparse_STA_W_state ;
     X.X.N_cones = trials{i}.X.N_cones ;
     X.X.ll      = trials{i}.X.ll ;
     X.X.diff    = trials{i}.X.diff ;
@@ -40,7 +40,7 @@ if i>1
     if isfield(trials{i}.with,'ds_UW_STA')
         X.with.ds_UW_STA = trials{i}.with.ds_UW_STA ;
     end
-    X.with.STA_W_state = trials{i}.with.STA_W_state ;
+    X.with.sparse_STA_W_state = trials{i}.with.sparse_STA_W_state ;
     X.with.N_cones = trials{i}.with.N_cones ;
     X.with.ll      = trials{i}.with.ll ;
     X.with.diff    = trials{i}.with.diff ;
