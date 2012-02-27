@@ -20,6 +20,7 @@ if i>1
         X.X.ds_UW_STA = trials{i}.X.ds_UW_STA ;
     end
     X.X.sparse_STA_W_state = trials{i}.X.sparse_STA_W_state ;
+    X.X.contributions      = trials{i}.X.contributions ;
     X.X.N_cones = trials{i}.X.N_cones ;
     X.X.ll      = trials{i}.X.ll ;
     X.X.diff    = trials{i}.X.diff ;
@@ -41,6 +42,7 @@ if i>1
         X.with.ds_UW_STA = trials{i}.with.ds_UW_STA ;
     end
     X.with.sparse_STA_W_state = trials{i}.with.sparse_STA_W_state ;
+    X.with.contributions      = trials{i}.with.contributions ;
     X.with.N_cones = trials{i}.with.N_cones ;
     X.with.ll      = trials{i}.with.ll ;
     X.with.diff    = trials{i}.with.diff ;

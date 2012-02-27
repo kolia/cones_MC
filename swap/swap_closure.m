@@ -8,37 +8,38 @@ function XS = swap_closure( X , T, otherX , oT, PROB )
 % check_X(otherX)
 
 % calculate overlaps of X cones on otherX exclusion disks
-R = overlap_relation( otherX , X ) ;
 
 % symmetrize relation and calculate transitive closure
 N = numel(X.state) ;
 
 i = find( otherX.state) ;
-EO= logical(sparse(i,i,ones(length(i),1),N,N,3*N)) ;
-
 j = find( X.state) ;
-EX= logical(sparse(j,j,ones(length(j),1),N,N,3*N)) ;
+R = overlap_relation( otherX , X ) ;
 
+% EO= logical(sparse(i,i,ones(length(i),1),N,N,3*N)) ;
+% EX= logical(sparse(j,j,ones(length(j),1),N,N,3*N)) ;
+% R = logical( [ EO R ; R' EX ] ) ;
+% R = transitive_closure(R,[i ; N+j],0) ;
+
+EO= logical(sparse([],[],[],N,N,N)) ;
+EX= logical(sparse([],[],[],N,N,N)) ;
 R = logical( [ EO R ; R' EX ] ) ;
-R = transitive_closure(R,[i ; N+j],0) ;
+R = transitive_closure(R,[i ; N+j],1) ;
 
 clear i j
 
 % get equivalence classes / connected components
-[classes,sizes] = equivalence_classes(R) ;
-classes = classes( sizes>2 ) ;
+classes = equivalence_classes(R,20) ;
 
-% classes = [{[]} ; {[i' N+j']}] ;
-% classes = [{[]} ; classes] ;
 if numel(classes)>0
-    perm    = randperm(numel(classes)) ;
-    classes = [{[]} ; classes(perm(min(numel(perm),20)))] ;
+    classes = [{[]} ; classes] ;
 else
     classes = {[]} ;
 end
-XS      = cell( numel(classes), 1 ) ;
+XS = cell( numel(classes), 1 ) ;
 
-% fprintf('\n#swaps: %d',length(XS))
+fprintf(' %d',numel(classes))
+
 
 keep = [] ;
 for m=1:length(XS)
@@ -58,6 +59,7 @@ for m=1:length(XS)
             XX.ds_UW_STA = X.ds_UW_STA ;
         end
         XX.sparse_STA_W_state = X.sparse_STA_W_state ;
+        XX.contributions = X.contributions ;
         XX.N_cones=X.N_cones ;
         XX.ll    = X.ll ;
         XX.diff  = X.diff ;
@@ -79,6 +81,7 @@ for m=1:length(XS)
             OX.ds_UW_STA = otherX.ds_UW_STA ;
         end
         OX.sparse_STA_W_state = otherX.sparse_STA_W_state ;
+        OX.contributions = otherX.contributions ;
         OX.N_cones=otherX.N_cones ;
         OX.ll    = otherX.ll ;
         OX.diff  = otherX.diff ;
