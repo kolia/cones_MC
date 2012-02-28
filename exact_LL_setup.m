@@ -131,7 +131,7 @@ cone_map.NICE = plotable_evidence( QC ) ;
 cone_map.R              = R ;
 cone_map.gaus_boxed     = gaus_in_box_memo ;
 cone_map.coneConv       = coneConv ;
-cone_map.STA            = reshape( STA, [M0*M1*N_colors,N_GC] ) ;
+cone_map.STA            = STA ; %reshape( STA, [M0*M1*N_colors,N_GC] ) ;
 cone_map.min_STA_W      = -0.2 ; %min(STA_W(:)) ;
 cone_map.colorDot       = cone_params.colors * cone_params.colors' ;
 
@@ -205,6 +205,10 @@ end
 
 function filter = make_filter_new(M0,M1,i,j,gaus_boxed, support)
 filter = zeros(M0,M1) ;
-[g,index] = filter_index( i, j, M0, M1, gaus_boxed, support) ;
-filter(index) = g ;
+% [g,index] = filter_index( i, j, M0, M1, gaus_boxed, support) ;
+% filter(index) = g ;
+[g,t,r,b,l] = filter_bounds( i, j, M0, M1, gaus_boxed, support) ;
+filter(l:r,t:b) = g ;   
+% filter is inverted; doesn't matter for the dot product calculation though
+% filter = filter(end:-1:1,end:-1:1) ;  % uncomment to uninvert
 end

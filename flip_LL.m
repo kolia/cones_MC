@@ -156,12 +156,27 @@ for i=1:size(flips,1)
         end
         xi = (x-0.5)/PROB.SS ;
         yi = (y-0.5)/PROB.SS ;
-        [filter,index] = filter_index( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
-                                       PROB.cone_params.support_radius) ;
+%         [filter,index] = filter_index( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
+%                                        PROB.cone_params.support_radius) ;
 
-        filter  = kron(PROB.cone_params.colors(c,:),filter) ;
-        STA_W_state_j = (filter * ...
-                PROB.STA([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:))' ;
+        [filter2,tt,rr,bb,ll] = filter_bounds( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
+                                       PROB.cone_params.support_radius) ;
+        STA_W_state_j = 0 ;
+        for cc=1:3
+            sta2 = PROB.STA(tt:bb,ll:rr,cc,:) ;
+            sta2 = reshape( sta2, [], PROB.N_GC) ;
+            STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(filter2(:)' * sta2)' ;
+        end
+                                   
+%         filter  = kron(PROB.cone_params.colors(c,:),filter) ;
+%         sta = reshape(PROB.STA,[],PROB.N_GC) ;
+%         sta = sta([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:) ;
+%         STA_W_state_j = (filter * sta)' ;
+%         
+%         if norm(STA_W_state_j2 - STA_W_state_j)>1e-15
+%             'asdfadfaw'
+%         end
+        
         keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) + PROB.N_cones_terms > 0) ;
 
 %         X.STA_W_state( :, j ) = STA_W_state_j ;

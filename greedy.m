@@ -1,13 +1,13 @@
 function X = greedy( X , PROB , update_X )
 
-% if X.N_cones == 0
-%     profile clear
-%     profile on
-% elseif mod(X.N_cones,10) == 0
-%     p = profile('info');
-%     save(sprintf('profdat_%d',X.N_cones),'p')
-%     profile clear
-% end
+if X.N_cones == 0
+    profile clear
+    profile on
+elseif mod(X.N_cones,10) == 0
+    p = profile('info');
+    save(sprintf('profdat_%d',X.N_cones),'p')
+    profile clear
+end
 
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;

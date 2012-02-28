@@ -25,6 +25,8 @@ gf      = @gib ;
             - mvncdf([dx dy] + [l O],[],sigma.*[1 1]) ...
             + mvncdf([dx dy]        ,[],sigma.*[1 1]) ;
         out = out / sqrt(0.1083) ;
+        out = reshape( out, floor(i+supprt)-floor(i-supprt)+1, ...
+                            floor(j+supprt)-floor(j-supprt)+1 ) ;
         memo{0.5+di*SS,0.5+dj*SS} = out ;
     end 
     end
