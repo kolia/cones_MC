@@ -22,13 +22,13 @@ else
         if (x-X.last_x)^2 + (y-X.last_y)^2 > X.D^2
             % propose addition of new cone of each color
             for c=1:PROB.N_colors
-                sample = flip_LL( X , [x y c] , PROB , [1 1] ) ;
-                sample_master = flip_LL_master( X , [x y c] , PROB , [1 1] ) ;
-                if sample.ll > 1e6
+                sample_bounds = flip_LL( X , [x y c] , PROB , [1 1] ) ;
+                sample = flip_LL_master( X , [x y c] , PROB , [1 1] ) ;
+                if sample_bounds.ll > 1e6
                     'asdfas' 
                 end
 
-                if abs(sample.ll-sample_master.ll)>1e-6
+                if abs(sample_bounds.ll-sample.ll)>1e-6
                     'here!'
                 end
                 X.greedy_ll(x,y+M1*(c-1)) = sample.ll - X.ll ;
