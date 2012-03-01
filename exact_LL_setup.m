@@ -50,6 +50,8 @@ cell_consts = N_spikes * cone_params.stimulus_variance ;
 % memoized(?) function returning gaussian mass in a box
 gaus_in_box_memo = gaus_in_a_box_memo( cone_params.sigma, SS, cone_params.support_radius ) ;
 
+gaus_in_box_master = gaus_in_a_box_memo_master( cone_params.sigma, SS, cone_params.support_radius ) ;
+
 % prior_cov   = cone_params.stimulus_variance^2*N_GC/sum(STA_norm.^2) ;
 % prior_cov   = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
 % prior_cov = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
@@ -130,8 +132,10 @@ cone_map.NICE = plotable_evidence( QC ) ;
 
 cone_map.R              = R ;
 cone_map.gaus_boxed     = gaus_in_box_memo ;
+cone_map.gaus_master    = gaus_in_box_master ;
 cone_map.coneConv       = coneConv ;
-cone_map.STA            = STA ; %reshape( STA, [M0*M1*N_colors,N_GC] ) ;
+cone_map.STA            = STA ;
+cone_map.masterSTA      = reshape( STA, [M0*M1*N_colors,N_GC] ) ;
 cone_map.min_STA_W      = -0.2 ; %min(STA_W(:)) ;
 cone_map.colorDot       = cone_params.colors * cone_params.colors' ;
 

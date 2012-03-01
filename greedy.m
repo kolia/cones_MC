@@ -1,13 +1,13 @@
 function X = greedy( X , PROB , update_X )
 
-if X.N_cones == 0
-    profile clear
-    profile on
-elseif mod(X.N_cones,10) == 0
-    p = profile('info');
-    save(sprintf('profdat_%d',X.N_cones),'p')
-    profile clear
-end
+% if X.N_cones == 0
+%     profile clear
+%     profile on
+% elseif mod(X.N_cones,10) == 0
+%     p = profile('info');
+%     save(sprintf('profdat_%d',X.N_cones),'p')
+%     profile clear
+% end
 
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
@@ -23,12 +23,21 @@ else
             % propose addition of new cone of each color
             for c=1:PROB.N_colors
                 sample = flip_LL( X , [x y c] , PROB , [1 1] ) ;
+                sample_master = flip_LL_master( X , [x y c] , PROB , [1 1] ) ;
+                if sample.ll > 1e6
+                    'asdfas' 
+                end
+
+                if abs(sample.ll-sample_master.ll)>1e-6
+                    'here!'
+                end
                 X.greedy_ll(x,y+M1*(c-1)) = sample.ll - X.ll ;
             end
         else
             X.excluded(x,y,:) = -Inf ;
         end
     end
+    
     
 %     figure(3)
 %     ll = X.greedy_ll{1}(min(X.changed_x)+2:max(X.changed_x)-2,min(X.changed_y)+2:max(X.changed_y)-2) ;
