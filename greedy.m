@@ -23,7 +23,7 @@ else
             % propose addition of new cone of each color
             for c=1:PROB.N_colors
                 sample_bounds = flip_LL( X , [x y c] , PROB , [1 1] ) ;
-                sample = flip_LL_master( X , [x y c] , PROB , [1 1] ) ;
+                sample = flip_LL_master( X , [x y c] , PROB.master , [1 1] ) ;
                 if sample_bounds.ll > 1e6
                     'asdfas' 
                 end

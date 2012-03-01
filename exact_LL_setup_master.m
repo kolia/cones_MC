@@ -1,4 +1,4 @@
-function cone_map = exact_LL_setup( GC_stas , cone_params , cone_map )
+function cone_map = exact_LL_setup_master( GC_stas , cone_params , cone_map )
 %% cone_map = exact_LL_setup( GC_stas , cone_params , cone_map )
 %  Expand data and parameters into variables used to calculate likelihoods.
 %  Mainly, spatial supersampling by a factor of cone_map.supersample is
@@ -48,7 +48,7 @@ end
 cell_consts = N_spikes * cone_params.stimulus_variance ;
 
 % memoized(?) function returning gaussian mass in a box
-gaus_in_box_memo = gaus_in_a_box_memo( cone_params.sigma, SS, cone_params.support_radius ) ;
+gaus_in_box_memo = gaus_in_a_box_memo_master( cone_params.sigma, SS, cone_params.support_radius ) ;
 
 % prior_cov   = cone_params.stimulus_variance^2*N_GC/sum(STA_norm.^2) ;
 % prior_cov   = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
@@ -131,7 +131,7 @@ cone_map.NICE = plotable_evidence( QC ) ;
 cone_map.R              = R ;
 cone_map.gaus_boxed     = gaus_in_box_memo ;
 cone_map.coneConv       = coneConv ;
-cone_map.STA            = STA ;
+cone_map.STA            = reshape( STA, [M0*M1*N_colors,N_GC] ) ;
 cone_map.min_STA_W      = -0.2 ; %min(STA_W(:)) ;
 cone_map.colorDot       = cone_params.colors * cone_params.colors' ;
 
@@ -205,16 +205,6 @@ end
 
 function filter = make_filter_new(M0,M1,i,j,gaus_boxed, support)
 filter = zeros(M0,M1) ;
-[g,t,r,b,l] = filter_bounds( i, j, M0, M1, gaus_boxed, support) ;
-filter(t:b,l:r) = g ;   
-
-filtem = zeros(M0,M1) ;
-[gm,index] = filter_index( i, j, M0, M1, gaus_boxed, support) ;
-filtem(index) = gm(:) ;
-
-if norm(filter - filtem) > 1e-6
-    'arg!'
-end
-% filter is inverted; doesn't matter for the dot product calculation though
-% filter = filter(end:-1:1,end:-1:1) ;  % uncomment to uninvert
+[g,index] = filter_index( i, j, M0, M1, gaus_boxed, support) ;
+filter(index) = g ;
 end

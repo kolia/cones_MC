@@ -12,8 +12,6 @@ function X = flip_LL_master( X , flips , PROB , T )
 % 
 % Only updates X.WW if X.invWW is not present in input X.
 
-PROB.gaus_boxed = PROB.gaus_master ;
-PROB.STA = PROB.masterSTA ;
 M0 = PROB.M0 * PROB.SS ;
 
 % WC = PROB.cone_params.weight_C ;  % covariance of prior weights
@@ -158,7 +156,7 @@ for i=1:size(flips,1)
         end
         xi = (x-0.5)/PROB.SS ;
         yi = (y-0.5)/PROB.SS ;
-        [filter,index] = filter_index( xi, yi, PROB.M0,PROB.M1,PROB.gaus_master,...
+        [filter,index] = filter_index( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
                                        PROB.cone_params.support_radius) ;
 
         X.xy = {x y} ;
