@@ -35,7 +35,6 @@ stas = restrict_ROI( stas, ROIs{roi}, ROIs{roj} ) ;
 cone_params.support_radius = 3 ;
 % cone_params.supersample = 2 ;
 cone_map = exact_LL_setup(stas,cone_params) ; % cone_map, aka PROB or data
-cone_map.master = exact_LL_setup_master(stas,cone_params) ;
 
 % cone_map.master.gaus_boxed = cone_map.gaus_boxed ;
 
