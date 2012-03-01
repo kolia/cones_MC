@@ -161,28 +161,28 @@ for i=1:size(flips,1)
                                        PROB.cone_params.support_radius) ;
         STA_W_state_j = 0 ;
         for cc=1:3
-            sta2 = PROB.STA(tt:bb,ll:rr,cc,:) ;
-            sta2 = reshape( sta2, [], PROB.N_GC) ;
-            STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(filter2(:)' * sta2)' ;
+            sta2 = PROB.STA(:,cc,tt:bb,ll:rr) ;
+            sta2 = reshape( sta2, PROB.N_GC, []) ;
+            STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(sta2 * filter2(:)) ;
         end
         
-        [filter,index] = filter_index( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
-                                       PROB.cone_params.support_radius) ;
-        X.index  = index ;
-        X.filter = filter ;
-        X.xy = {x y} ;
-
-        filter  = kron(PROB.cone_params.colors(c,:),filter) ;
-        sta = reshape(PROB.STA,[],PROB.N_GC) ;
-        sta = sta([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:) ;
-        STA_W_state_j2 = (filter * sta)' ;
+%         [filter,index] = filter_index( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
+%                                        PROB.cone_params.support_radius) ;
+%         X.index  = index ;
+%         X.filter = filter ;
+%         X.xy = {x y} ;
+% 
+%         filter  = kron(PROB.cone_params.colors(c,:),filter) ;
+%         sta = reshape(PROB.STA,PROB.N_GC,[]) ;
+%         sta = sta([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:) ;
+%         STA_W_state_j2 = (filter * sta)' ;
+%         
+%         if norm(STA_W_state_j2 - STA_W_state_j)>1e-15
+%             'asdfadfaw'
+%         end
         
-        if norm(STA_W_state_j2 - STA_W_state_j)>1e-15
-            'asdfadfaw'
-        end
-        
-        X.STA_W_state_j = STA_W_state_j ;
-        X.STA_W_state_j2 = STA_W_state_j2 ;
+%         X.STA_W_state_j = STA_W_state_j ;
+%         X.STA_W_state_j2 = STA_W_state_j2 ;
         
         keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) + PROB.N_cones_terms > 0) ;
 

@@ -37,11 +37,11 @@ NROI  = size(ROI,1) ;
 N_GC = length(GC_stas) ;
 STA_norm = zeros(N_GC,1) ;
 N_spikes = zeros(N_GC,1) ;
-STA      = zeros(M0,M1,N_colors,N_GC) ;
+STA      = zeros(N_GC,N_colors,M0,M1) ;
 for i=1:N_GC
     N_spikes(i)  = length(GC_stas(i).spikes) ;
-    STA(:,:,:,i) = reshape( GC_stas(i).spatial(:), M0, M1, N_colors ) ;
-    STA_norm(i)  = norm(reshape(STA(:,:,:,i),1,[])) ;
+    STA(i,:,:,:) = reshape( permute(GC_stas(i).spatial,[3 1 2]), N_colors, M0, M1 ) ;
+    STA_norm(i)  = norm(reshape(STA(i,:,:,:),1,[])) ;
 end
 
 % cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
@@ -186,7 +186,7 @@ for gc=1:cone_map.N_GC
         for jj=1:SS    
             CC = zeros(M0*M1,N_colors) ;
             for color=1:N_colors
-                CCC = conv2( STA(:,:,color,gc), gs{ii,jj} ) ;
+                CCC = conv2( squeeze(STA(gc,color,:,:)), gs{ii,jj} ) ;
                 CCC = CCC(support+1:M0+support,support+1:M1+support) ;
                 CC(:,color) = CCC(:) ;
             end
