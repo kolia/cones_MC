@@ -36,14 +36,14 @@ end
 % check that X.contact only concerns existing cones
 for d=1:2
     cones = logical( max( max( X.contact{d} ,[],1) , max( X.contact{d} ,[],2)') ) ;
-    if ~min(X.state(cones))
-        X.state
-        cones
-    end
-    if ~cones(X.state(:)>0)
-        cones
-        X.state
-    end
+%     if ~min(X.state(cones))
+%         X.state
+%         cones
+%     end
+%     if ~cones(X.state(:)>0)
+%         cones
+%         X.state
+%     end
 end
 
 % % check that ll is consistent   % NEEDS cone_map TO BE GLOBAL
