@@ -37,11 +37,13 @@ NROI  = size(ROI,1) ;
 N_GC = length(GC_stas) ;
 STA_norm = zeros(N_GC,1) ;
 N_spikes = zeros(N_GC,1) ;
-STA      = zeros(N_GC,N_colors,M0,M1) ;
+% STA      = zeros(N_GC,N_colors,M0,M1,N_GC) ;
+STA      = zeros(N_colors,M0,M1,N_GC) ;
 for i=1:N_GC
     N_spikes(i)  = length(GC_stas(i).spikes) ;
-    STA(i,:,:,:) = reshape( permute(GC_stas(i).spatial,[3 1 2]), N_colors, M0, M1 ) ;
-    STA_norm(i)  = norm(reshape(STA(i,:,:,:),1,[])) ;
+%     STA(i,:,:,:) = reshape( permute(GC_stas(i).spatial,[3 1 2]), N_colors, M0, M1 ) ;
+    STA(:,:,:,i) = reshape(permute(GC_stas(i).spatial,[3 1 2]), N_colors, M0, M1 ) ;
+    STA_norm(i)  = norm(reshape(STA(:,:,:,i),1,[])) ;
 end
 
 % cell_consts = N_spikes ./ exp(STA_norm/2) * cone_params.stimulus_variance ;
@@ -166,7 +168,8 @@ LL = zeros(M0*SS,M1*SS,N_colors) ;
 
 supersamples = 1/(2*SS):1/SS:1 ;
 gs = cell(SS) ;
-sparse_struct = logical( sparse([],[],[],M0*SS*M1*SS*N_colors,cone_map.N_GC) ) ;
+% sparse_struct = logical( sparse([],[],[],M0*SS*M1*SS*N_colors,cone_map.N_GC) ) ;
+sparse_struct = cell( M0*SS, M1*SS, N_colors ) ;
 
 for ii=1:SS
     for jj=1:SS
@@ -184,7 +187,7 @@ for gc=1:cone_map.N_GC
         for jj=1:SS    
             CC = zeros(M0*M1,N_colors) ;
             for color=1:N_colors
-                CCC = conv2( squeeze(STA(gc,color,:,:)), gs{ii,jj} ) ;
+                CCC = conv2( squeeze(STA(color,:,:,gc)), gs{ii,jj} ) ;
                 CCC = CCC(support+1:M0+support,support+1:M1+support) ;
                 CC(:,color) = CCC(:) ;
             end
@@ -193,8 +196,13 @@ for gc=1:cone_map.N_GC
                 gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) + reshape(C,[M0 M1 3]) ;
         end
     end
-    [x,y,c] = find( gcLL+cone_map.N_cones_terms(gc)>0 ) ;
-    sparse_struct(x+(y-1)*M0*SS+(c-1)*M0*SS*M1*SS,gc) = true ;
+    [x,yc] = find( gcLL+cone_map.N_cones_terms(gc)>0 ) ;
+    y = 1+mod(yc-1,M1*SS) ;
+    c = ceil( yc/(M1*SS) ) ;
+%     sparse_struct(x+(y-1)*M0*SS+(c-1)*M0*SS*M1*SS,gc) = true ;
+    for i=1:numel(x)
+        sparse_struct{x(i),y(i),c(i)} = [sparse_struct{x(i),y(i),c(i)} gc] ;
+    end
     LL = LL + gcLL ;
     fprintf(' %d',gc)
 end

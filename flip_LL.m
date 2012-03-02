@@ -185,18 +185,22 @@ for i=1:size(flips,1)
 %         X.STA_W_state_j2 = STA_W_state_j2 ;
         
 %         keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) + PROB.N_cones_terms > 0) ;
-        keep_GCs = find(PROB.sparse_struct(x+(y-1)*PROB.M0*PROB.SS+(c-1)*PROB.M0*PROB.SS*PROB.M1*PROB.SS,:)) ;
-
+%         keep_GCs = find(PROB.sparse_struct(x+(y-1)*PROB.M0*PROB.SS+(c-1)*PROB.M0*PROB.SS*PROB.M1*PROB.SS,:)) ;
+        keep_GCs = PROB.sparse_struct{x,y,c} ;
         
         if ~isempty(keep_GCs)
-            STA_W_state_j = 0 ;
-            sta = PROB.STA(keep_GCs,:,:,:) ;
-            for cc=1:3
-                sta2 = sta(:,cc,tt:bb,ll:rr) ;
-                sta2 = reshape( sta2, numel(keep_GCs), []) ;
-                STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(sta2 * filter2(:)) ;
-            end
+%             STA_W_state_j = 0 ;
+% %             sta = PROB.STA(keep_GCs,:,:,:) ;
+%             for cc=1:3
+%                 sta2 = PROB.STA(cc,tt:bb,ll:rr,keep_GCs) ;
+%                 sta2 = reshape( sta2, [], numel(keep_GCs) ) ;
+% %                 STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(sta2 * filter2(:)) ;
+%                 STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(filter2(:)' * sta2)' ;
+%             end
 
+            sta3 = PROB.STA(:,tt:bb,ll:rr,keep_GCs) ;
+            sta3 = reshape( sta3, [], numel(keep_GCs) ) ;
+            STA_W_state_j = sta3' * kron(filter2(:),PROB.cone_params.colors(c,:)') ;
 
     %         X.STA_W_state( :, j ) = STA_W_state_j ;
             X.sparse_STA_W_state( keep_GCs, j ) = STA_W_state_j ;
