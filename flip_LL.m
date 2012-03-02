@@ -187,7 +187,11 @@ for i=1:size(flips,1)
 %         keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) + PROB.N_cones_terms > 0) ;
 %         keep_GCs = find(PROB.sparse_struct(x+(y-1)*PROB.M0*PROB.SS+(c-1)*PROB.M0*PROB.SS*PROB.M1*PROB.SS,:)) ;
         keep_GCs = PROB.sparse_struct{x,y,c} ;
-        
+
+        if ~isfield(X,'contributions')
+            X.contributions = zeros(PROB.N_GC,1) ;
+        end
+
         if ~isempty(keep_GCs)
 %             STA_W_state_j = 0 ;
 % %             sta = PROB.STA(keep_GCs,:,:,:) ;
@@ -206,9 +210,6 @@ for i=1:size(flips,1)
             X.sparse_STA_W_state( keep_GCs, j ) = STA_W_state_j ;
             keep_cones = sum(X.sparse_STA_W_state(keep_GCs,:),1)>0 ;
 
-            if ~isfield(X,'contributions')
-                X.contributions = zeros(PROB.N_GC,1) ;
-            end
             if ~isempty(keep_GCs)
                 X.contributions(keep_GCs) = ...
                     PROB.quad_factors(keep_GCs) .* ...
