@@ -13,23 +13,29 @@ M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
 
 if ~isfield(X,'changed_x')
-    X.greedy_ll = reshape(PROB.LL,M0,[]) ;
+    X.greedy_ll = PROB.LL ;
     X.excluded  = 0 * PROB.LL ;
 else
     for i=1:numel(X.changed_x)
         x = X.changed_x(i) ;
         y = X.changed_y(i) ;
+        inds = zeros(PROB.N_colors*numel(x),1) ;
+        gree = zeros(PROB.N_colors*numel(x),1) ;
+        used = 0 ;
         if (x-X.last_x)^2 + (y-X.last_y)^2 > X.D^2
             % propose addition of new cone of each color
             for c=1:PROB.N_colors
                 sample = flip_LL( X , [x y c] , PROB , [1 1] ) ;
-                X.greedy_ll(x,y+M1*(c-1)) = sample.ll - X.ll ;
+                used = used + 1 ;
+                inds(used) = x + (y-1)*M0 + (c-1)*M0*M1 ;
+                gree(used) = sample.ll - X.ll ;
             end
         else
             X.excluded(x,y,:) = -Inf ;
         end
     end
     
+    X.greedy_ll(inds(1:used)) = gree(1:used) ;
     
 %     figure(3)
 %     ll = X.greedy_ll{1}(min(X.changed_x)+2:max(X.changed_x)-2,min(X.changed_y)+2:max(X.changed_y)-2) ;
