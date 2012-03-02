@@ -1,4 +1,4 @@
-function samples = move( X , PROB , actions, T , n )
+function samples = move( X , PROB , T , n )
 % samples = move( X , PROB , n )
 % Draw n trial flips starting from state X.
 % Two types of move are produced: additions of cones, and moves or changes
@@ -17,7 +17,7 @@ function samples = move( X , PROB , actions, T , n )
 % For speed, backward probabilities are not calculated: this sampler should
 % only be used with the symmetric rule, not with metropolis-hastings.
 
-if nargin<5 ,  n = 1 ; end
+if nargin<4 ,  n = 1 ; end
 
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
@@ -56,7 +56,7 @@ if X.N_cones > 0
             if ni > 0   &&  ni <= M0  &&  nj>0  &&  nj <= M1
                 ns = ns+1 ;
 %                 samples{ns} = move_cone( X , i , j , d , PROB , T ) ;                
-                samples{ns} = propagate_action(X,i+(j-1)*X.M0,d,actions{d}) ;
+                samples{ns} = propagate_action(X,i+(j-1)*X.M0,d,PROB,T) ;
 
                 samples{ns}.forward_prob   = p/nforward ;
             end

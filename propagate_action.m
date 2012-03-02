@@ -1,7 +1,7 @@
-function [X,done] = propagate_action( X , xy , d , action , done )
+function [X,done] = propagate_action( X , xy , d , PROB, T , done )
 
 % keep track of which cones have already been visited
-if nargin<5  , done = sparse([],[],[],X.M0*X.M1,1,10) ;  end
+if nargin<6  , done = sparse([],[],[],X.M0*X.M1,1,10) ;  end
 
 if ~done(xy)
     
@@ -13,11 +13,12 @@ if ~done(xy)
     
     for cxy = find( X.contact{d}(xy,:) )
         if cxy ~= xy
-            [X,done] = propagate_action( X , cxy , d , action , done ) ;
+            [X,done] = propagate_action( X , cxy , d , PROB, T , done ) ;
         end
     end
     
-    X = action(X,xy) ;
+    X = action_LL_shift(X,xy,d,PROB,T) ;
+%     X = action(X,xy) ;
 end
 done(xy) = true ;
 
