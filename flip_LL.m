@@ -159,12 +159,12 @@ for i=1:size(flips,1)
 
         [filter2,tt,rr,bb,ll] = filter_bounds( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
                                        PROB.cone_params.support_radius) ;
-        STA_W_state_j = 0 ;
-        for cc=1:3
-            sta2 = PROB.STA(:,cc,tt:bb,ll:rr) ;
-            sta2 = reshape( sta2, PROB.N_GC, []) ;
-            STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(sta2 * filter2(:)) ;
-        end
+%         STA_W_state_j = 0 ;
+%         for cc=1:3
+%             sta2 = PROB.STA(:,cc,tt:bb,ll:rr) ;
+%             sta2 = reshape( sta2, PROB.N_GC, []) ;
+%             STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(sta2 * filter2(:)) ;
+%         end
         
 %         [filter,index] = filter_index( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
 %                                        PROB.cone_params.support_radius) ;
@@ -184,23 +184,36 @@ for i=1:size(flips,1)
 %         X.STA_W_state_j = STA_W_state_j ;
 %         X.STA_W_state_j2 = STA_W_state_j2 ;
         
-        keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) + PROB.N_cones_terms > 0) ;
+%         keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) + PROB.N_cones_terms > 0) ;
+        keep_GCs = find(PROB.sparse_struct(x+(y-1)*PROB.M0*PROB.SS+(c-1)*PROB.M0*PROB.SS*PROB.M1*PROB.SS,:)) ;
 
-%         X.STA_W_state( :, j ) = STA_W_state_j ;
-        X.sparse_STA_W_state( keep_GCs, j ) = STA_W_state_j(keep_GCs) ;
-        keep_cones = sum(X.sparse_STA_W_state(keep_GCs,:),1)>0 ;
         
-        if ~isfield(X,'contributions')
-            X.contributions = zeros(PROB.N_GC,1) ;
-        end
         if ~isempty(keep_GCs)
-            X.contributions(keep_GCs) = ...
-                PROB.quad_factors(keep_GCs) .* ...
-                sum((X.WW(keep_cones,keep_cones)\X.sparse_STA_W_state(keep_GCs,keep_cones)')' ...
-                            .* X.sparse_STA_W_state(keep_GCs,keep_cones),2) ;
+            STA_W_state_j = 0 ;
+            sta = PROB.STA(keep_GCs,:,:,:) ;
+            for cc=1:3
+                sta2 = sta(:,cc,tt:bb,ll:rr) ;
+                sta2 = reshape( sta2, numel(keep_GCs), []) ;
+                STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(sta2 * filter2(:)) ;
+            end
+
+
+    %         X.STA_W_state( :, j ) = STA_W_state_j ;
+            X.sparse_STA_W_state( keep_GCs, j ) = STA_W_state_j ;
+            keep_cones = sum(X.sparse_STA_W_state(keep_GCs,:),1)>0 ;
+
+            if ~isfield(X,'contributions')
+                X.contributions = zeros(PROB.N_GC,1) ;
+            end
+            if ~isempty(keep_GCs)
+                X.contributions(keep_GCs) = ...
+                    PROB.quad_factors(keep_GCs) .* ...
+                    sum((X.WW(keep_cones,keep_cones)\X.sparse_STA_W_state(keep_GCs,keep_cones)')' ...
+                                .* X.sparse_STA_W_state(keep_GCs,keep_cones),2) ;
+            end
+            X.keep_cones = keep_cones ;
         end
         
-        X.keep_cones = keep_cones ;
         X.keep_GCs   = keep_GCs   ;
         
         if exist('U','var')

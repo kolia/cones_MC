@@ -166,9 +166,7 @@ LL = zeros(M0*SS,M1*SS,N_colors) ;
 
 supersamples = 1/(2*SS):1/SS:1 ;
 gs = cell(SS) ;
-sparse_struct = struct('x', cell(cone_map.N_GC,1), ...
-              'y', cell(cone_map.N_GC,1), ...
-              'c', cell(cone_map.N_GC,1)) ;
+sparse_struct = logical( sparse([],[],[],M0*SS*M1*SS*N_colors,cone_map.N_GC) ) ;
 
 for ii=1:SS
     for jj=1:SS
@@ -195,8 +193,8 @@ for gc=1:cone_map.N_GC
                 gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) + reshape(C,[M0 M1 3]) ;
         end
     end
-    [sparse_struct(gc).x,sparse_struct(gc).y,sparse_struct(gc).c] = ...
-            find( gcLL+cone_map.N_cones_terms(gc)>0 ) ;
+    [x,y,c] = find( gcLL+cone_map.N_cones_terms(gc)>0 ) ;
+    sparse_struct(x+(y-1)*M0*SS+(c-1)*M0*SS*M1*SS,gc) = true ;
     LL = LL + gcLL ;
     fprintf(' %d',gc)
 end
