@@ -32,9 +32,15 @@ runbest.i   = 1 ;
 jj          = 1 ;
 cone_map.bestX = {} ;
 n_best      = 1 ;
+
+actions = cell(4,1) ;
+for d=1:4
+    actions{d} = @(z,xy)action_LL_shift(z,xy,d,cone_map,[1 1]) ;
+end
+
 while 1
     
-    trials = move(X, cone_map, [1 1]) ;
+    trials = move(X, cone_map, actions, [1 1]) ;
     X = flip_MCMC( X, trials, @update_X, @(trial)trial.ll ) ;
 
     if X.ll>runbest.ll
