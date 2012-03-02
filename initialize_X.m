@@ -33,7 +33,7 @@ X.state     = sparse([],[],[],X.M0,X.M1,X.maxcones) ;
 X.sparse_STA_W_state = sparse([]) ;
 
 % contact forces at four cardinal adjacent positions, indexed by id
-for d=1:4
+for d=1:2
     X.contact{d} = sparse([],[],[],X.M0*X.M1,X.M0*X.M1,floor(X.maxcones/2)) ;
     X.contact{d} = logical(X.contact{d}) ;
 end

@@ -37,21 +37,25 @@ if track_contacts && changed && ~isempty(X.diff)
         if ~isempty(deleted)
             deleted = X.diff(deleted,1) + (X.diff(deleted,2)-1)*X.M0 ;
             
-            for d=1:4
+            for d=1:2
                 X.contact{d}(deleted,:) = false ;
                 X.contact{d}(:,deleted) = false ;
             end
         end
         
         added   = find( X.diff(:,3) ) ;
-        for d=1:4
-            for i=1:numel(added)
-                X = make_contacts(X , X.diff(added(i),:)) ;
-            end
+        for i=1:numel(added)
+            X = make_contacts(X , X.diff(added(i),:)) ;
         end
     end
 end
 
 X.diff    = [] ;
+
+% for d=1:2
+%     if nnz(X.contact{d} - X.contact{1+mod(d+1,4)}')>0
+%         'oups1'
+%     end
+% end
     
 end

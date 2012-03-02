@@ -11,14 +11,19 @@ if ~done(xy)
 %        error('trying to act on nonexistent cell') 
 %     end
     
-    for cxy = find( X.contact{d}(xy,:) )
+    dd = mod(d-1,2)+1 ;
+    if d>2
+        contact = X.contact{dd} ;
+    else
+        contact = X.contact{dd}' ;
+    end
+    for cxy = find( contact(:,xy)' )
         if cxy ~= xy
             [X,done] = propagate_action( X , cxy , d , PROB, T , done ) ;
         end
     end
     
     X = action_LL_shift(X,xy,d,PROB,T) ;
-%     X = action(X,xy) ;
 end
 done(xy) = true ;
 

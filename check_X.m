@@ -1,6 +1,6 @@
 function check_X( Y )
 
-global cone_map
+% global cone_map
 
 X = Y ;
 [x,y,c] = find( X.state ) ;
@@ -33,18 +33,18 @@ end
 %     end
 % end
 
-% % check that X.contact only concerns existing cones
-% for d=1:4
-%     cones = logical( max( max( X.contact{d} ,[],1) , max( X.contact{d} ,[],2)') ) ;
-%     if ~min(X.state(cones))
-%         X.state
-%         cones
-%     end
-%     if ~cones(X.state(:)>0)
-%         cones
-%         X.state
-%     end
-% end
+% check that X.contact only concerns existing cones
+for d=1:2
+    cones = logical( max( max( X.contact{d} ,[],1) , max( X.contact{d} ,[],2)') ) ;
+    if ~min(X.state(cones))
+        X.state
+        cones
+    end
+    if ~cones(X.state(:)>0)
+        cones
+        X.state
+    end
+end
 
 % % check that ll is consistent   % NEEDS cone_map TO BE GLOBAL
 % if isfield(X,'contact') ,  X = rmfield(X,'contact') ; end
@@ -62,16 +62,16 @@ end
 %     'll is off'
 % end
 
-% for i=1:length(x)
-% %     X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) , LL ) ;
-% % check exclusion
-%     [dummy,indices] = place_mask( X.M0 , X.M1 , x(i) , y(i) , X.masks{1,1}.exclusion ) ;
-%     
-%     overlap = find( X.state(indices)>0 , 1) ;
-%     if ~isempty( overlap )  &&   indices(overlap) ~= x(i) + X.M0*(y(i)-1)
-%         [x(i) y(i) c(i)]
-%     end
-% end
+for i=1:length(x)
+%     X = make_contacts( X , x(i) , y(i) , X.id(x(i),y(i)) , LL ) ;
+% check exclusion
+    [dummy,indices] = place_mask( X.M0 , X.M1 , x(i) , y(i) , X.masks{1,1}.exclusion ) ;
+    
+    overlap = find( X.state(indices)>0 , 1) ;
+    if ~isempty( overlap )  &&   indices(overlap) ~= x(i) + X.M0*(y(i)-1)
+        [x(i) y(i) c(i)]
+    end
+end
 
 
 % % check that localLL is consistent with LL(inds)
