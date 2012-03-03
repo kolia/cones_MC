@@ -11,7 +11,7 @@ default( cone_map , 'plot_skip'     , 100    )
 default( cone_map , 'display_every' , 50     )
 default( cone_map , 'save_every'    , 200    )
 default( cone_map , 'ID'            , 0      )
-default( cone_map , 'max_time'      , 50000  )
+default( cone_map , 'max_time'      , 200000 )
 default( cone_map , 'deltas' , ones(1,length(cone_map.betas))) ;
 default( cone_map , 'N_fast'        , 1      )
 
@@ -66,9 +66,10 @@ jj = 1 ;
 while 1
 
     % regular MCMC for all instances
-    X{1} = MCMC_step( X{1}, cone_map, [1 1]      ) ;
+    X{1} = flip_MCMC( X{1}, move( X{1}, cone_map , [1 1]), cone_map, {[1 1]} ) ;
+
     for j=1:cone_map.N_fast
-        X{1+j} = MCMC_step( X{1+j}, cone_map, ST.T{ST.i(j)} ) ;
+        X{1+j} = flip_MCMC( X{1+j}, move( X{1+j}, cone_map , ST.T{ST.i(j)}), cone_map, {ST.T{ST.i(j)}} ) ;
     end
 
     for j=1:cone_map.N_fast

@@ -13,11 +13,11 @@ if ~done(xy)
     
     dd = mod(d-1,2)+1 ;
     if d>2
-        contact = X.contact{dd} ;
+        cxys = find( X.contact{dd}(:,xy)' ) ;
     else
-        contact = X.contact{dd}' ;
+        cxys = find( X.contact{dd}(xy,:) ) ;
     end
-    for cxy = find( contact(:,xy)' )
+    for cxy = cxys
         if cxy ~= xy
             [X,done] = propagate_action( X , cxy , d , PROB, T , done ) ;
         end

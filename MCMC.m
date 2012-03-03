@@ -36,7 +36,7 @@ n_best      = 1 ;
 while 1
     
     trials = move(X, cone_map, [1 1]) ;
-    X = flip_MCMC( X, trials, @update_X, @(trial)trial.ll ) ;
+    X = flip_MCMC( X, trials, cone_map, {[1 1]} ) ;
     
     if X.ll>runbest.ll
         runbest = X ;
