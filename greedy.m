@@ -1,13 +1,13 @@
 function [X,done] = greedy( X , PROB , update_X )
 
-if X.N_cones == 0
-    profile clear
-    profile on
-elseif mod(X.N_cones,10) == 0
-    p = profile('info');
-    save(sprintf('profdat_%d',X.N_cones),'p')
-    profile clear
-end
+% if X.N_cones == 0
+%     profile clear
+%     profile on
+% elseif mod(X.N_cones,10) == 0
+%     p = profile('info');
+%     save(sprintf('profdat_%d',X.N_cones),'p')
+%     profile clear
+% end
 
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
@@ -62,6 +62,7 @@ end
 [mm,I] = max(X.greedy_ll(:) + X.excluded(:)) ;
 [mx,my,mc] = ind2sub(size(PROB.LL),I) ;
 
+done = true ;
 if mm>0
 %     [mx,my] = find(X.greedy_ll{mc} == mm) ;
 %     
@@ -85,12 +86,15 @@ if mm>0
     X.last_y    = my ;
     X.last_c    = mc ;
     
-    X = change_cone( X , [mx my mc] , PROB , [1 1]) ;
-    X = update_X({X},1,false) ;
-    done = false ;
-else
+    newX = change_cone( X , [mx my mc] , PROB , [1 1]) ;
+    if newX.ll>X.ll
+        X = update_X({newX},1,false) ;
+        done = false ;
+    end
+end
+
+if done
     X = rmfield(X,{'changed_x','changed_y','last_x','last_y'}) ;
-    done = true ;
 end
 
 try
