@@ -9,7 +9,7 @@ default( cone_map , 'N_iterations'  , 1000000)
 default( cone_map , 'plot_every'    , 0      )
 default( cone_map , 'plot_skip'     , 100    )
 default( cone_map , 'display_every' , 50     )
-default( cone_map , 'save_every'    , 2000   )
+default( cone_map , 'save_every'    , 5000   )
 default( cone_map , 'ID'            , 0      )
 default( cone_map , 'max_time'      , 200000 )
 

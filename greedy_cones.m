@@ -16,8 +16,10 @@ cone_map.outofbounds(:,[1 M1*SS]) = 1 ;
 cone_map.outofbounds([1 M0*SS],:) = cone_map.outofbounds([1 M0*SS],:) + 1 ;
 
 %% plot and display info every ?
-plot_every      = 0 ;
-display_every   = 1 ;
+display_every = 1 ;
+default( cone_map , 'plot_every'    , 0      )
+default( cone_map , 'save_every'    , 500    )
+
 
 %% PARAMETERS
 % maxcones
