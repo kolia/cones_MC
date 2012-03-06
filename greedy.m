@@ -64,10 +64,6 @@ end
 
 done = true ;
 if mm>0
-%     [mx,my] = find(X.greedy_ll{mc} == mm) ;
-%     
-%     mx = mx(1) ;
-%     my = my(1) ;
     
     my = 1+mod(my-1,M1) ;
     

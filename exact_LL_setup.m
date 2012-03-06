@@ -37,11 +37,9 @@ NROI  = size(ROI,1) ;
 N_GC = length(GC_stas) ;
 STA_norm = zeros(N_GC,1) ;
 N_spikes = zeros(N_GC,1) ;
-% STA      = zeros(N_GC,N_colors,M0,M1,N_GC) ;
 STA      = zeros(N_colors,M0,M1,N_GC) ;
 for i=1:N_GC
     N_spikes(i)  = length(GC_stas(i).spikes) ;
-%     STA(i,:,:,:) = reshape( permute(GC_stas(i).spatial,[3 1 2]), N_colors, M0, M1 ) ;
     STA(:,:,:,i) = reshape(permute(GC_stas(i).spatial,[3 1 2]), N_colors, M0, M1 ) ;
     STA_norm(i)  = norm(reshape(STA(:,:,:,i),1,[])) ;
 end
@@ -51,19 +49,6 @@ cell_consts = N_spikes * cone_params.stimulus_variance ;
 
 % memoized(?) function returning gaussian mass in a box
 gaus_in_box_memo = gaus_in_a_box_memo( cone_params.sigma, SS, cone_params.support_radius ) ;
-
-% prior_cov   = cone_params.stimulus_variance^2*N_GC/sum(STA_norm.^2) ;
-% prior_cov   = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
-% prior_cov = cone_params.stimulus_variance^2*(N_GC-1)/sum(STA_norm.^2) ;
-
-% cone_map.prior_cov  = cone_params.stimulus_variance^2*...
-%                     (sum(N_spikes))/sum(N_spikes .* STA_norm.^2) ;
-%                 
-% cone_map.cov_factor   = cell_consts+cone_map.prior_cov ;
-% cone_map.N_cones_term = sum( log( cone_map.prior_cov) - ...
-%                              log( cone_map.cov_factor(:)) ) ;
-% cone_map.quad_factor  = N_spikes.^2 ./ cone_map.cov_factor ;
-
 
 cone_map.prior_covs    = (cone_params.stimulus_variance ./ STA_norm ).^2 ;
 cone_map.cov_factors   = cell_consts+cone_map.prior_covs ;
@@ -123,7 +108,6 @@ end
     make_sparse_struct(cone_map,STA,WW,gaus_in_box_memo) ;
 
 IC = inv(cone_params.colors) ;
-% QC = reshape( reshape(cone_map.LL+0.5*cone_map.N_cones_term,[],3) * IC', size(cone_map.LL) ) ;
 QC = reshape( reshape(cone_map.LL,[],3) * IC', size(cone_map.LL) ) ;
 cone_map.NICE = plotable_evidence( QC ) ;
 
@@ -167,7 +151,6 @@ LL = zeros(M0*SS,M1*SS,N_colors) ;
 
 supersamples = 1/(2*SS):1/SS:1 ;
 gs = cell(SS) ;
-% sparse_struct = logical( sparse([],[],[],M0*SS*M1*SS*N_colors,cone_map.N_GC) ) ;
 sparse_struct = cell( M0*SS, M1*SS, N_colors ) ;
 
 for ii=1:SS
@@ -198,7 +181,6 @@ for gc=1:cone_map.N_GC
     [x,yc] = find( gcLL+cone_map.N_cones_terms(gc)>0 ) ;
     y = 1+mod(yc-1,M1*SS) ;
     c = ceil( yc/(M1*SS) ) ;
-%     sparse_struct(x+(y-1)*M0*SS+(c-1)*M0*SS*M1*SS,gc) = true ;
     for i=1:numel(x)
         sparse_struct{x(i),y(i),c(i)} = [sparse_struct{x(i),y(i),c(i)} gc] ;
     end
@@ -212,14 +194,6 @@ function filter = make_filter_new(M0,M1,i,j,gaus_boxed, support)
 filter = zeros(M0,M1) ;
 [g,t,r,b,l] = filter_bounds( i, j, M0, M1, gaus_boxed, support) ;
 filter(t:b,l:r) = g ;   
-
-filtem = zeros(M0,M1) ;
-[gm,index] = filter_index( i, j, M0, M1, gaus_boxed, support) ;
-filtem(index) = gm(:) ;
-
-if norm(filter - filtem) > 1e-6
-    'arg!'
-end
 % filter is inverted; doesn't matter for the dot product calculation though
 % filter = filter(end:-1:1,end:-1:1) ;  % uncomment to uninvert
 end

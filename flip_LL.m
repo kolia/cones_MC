@@ -14,9 +14,6 @@ function X = flip_LL( X , flips , PROB , T )
 
 M0 = PROB.M0 * PROB.SS ;
 
-% WC = PROB.cone_params.weight_C ;  % covariance of prior weights
-% Wm = PROB.cone_params.weight_m ;  % mean of prior weights
-
 for i=1:size(flips,1)
     
     x = flips(i,1) ;
@@ -39,7 +36,8 @@ for i=1:size(flips,1)
         
         STA_W_state_j = X.sparse_STA_W_state(:, j) ;
         
-        keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) + PROB.N_cones_terms > 0) ;
+        keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) ...
+                        + PROB.N_cones_terms > 0) ;
         
         if isfield(X,'invWW')
             invWW      = X.invWW(inds,inds) - ...
@@ -56,8 +54,8 @@ for i=1:size(flips,1)
         
         keep_cones = sum(X.sparse_STA_W_state(keep_GCs,:),1)>0 ;
         X.contributions(keep_GCs) = ...
-                PROB.quad_factors(keep_GCs) .* ...
-                sum((X.WW(keep_cones,keep_cones)\X.sparse_STA_W_state(keep_GCs,keep_cones)')' ...
+             PROB.quad_factors(keep_GCs) .* ...
+             sum((X.WW(keep_cones,keep_cones)\X.sparse_STA_W_state(keep_GCs,keep_cones)')' ...
                             .* X.sparse_STA_W_state(keep_GCs,keep_cones),2) ;
 
         X.state(x,y)= 0 ;
@@ -86,40 +84,6 @@ for i=1:size(flips,1)
         
         Wkkc = PROB.coneConv(PROB.R+ssx,PROB.R+ssy,ssx,ssy) * PROB.colorDot(c,c) ;
         
-        if isfield(X,'ds_UW_STA')
-            indices = Wkstate>0 ;    %   <----   !!!!  indices must be bigger   !!!!
-            if numel(inds)>0
-                s_WW = X.WW(indices,indices) ;
-                s_w  = Wkstate(indices) ;
-                s_s  = - s_WW \ s_w' ;
-                s_ss = s_s'*s_WW ;
-                if isempty(s_ss)
-                    s_q = sqrt(1/Wkkc) ;
-                else
-                    s_q  = 1/sqrt( s_ss*s_s + 2*s_s'*s_w' + Wkkc ) ;
-                end
-                s_U  = s_q * s_s ;
-            else
-                s_q = sqrt(1/Wkkc) ;
-                s_U = [] ;
-            end
-            sU = [s_U ; s_q] ;
-            sparse_index = [inds(indices) j] ;
-        elseif isfield(X,'dUW_STA')
-            U = zeros(X.N_cones,1) ;
-            if numel(inds)>0
-                WW = X.WW ;
-                w  = Wkstate ;
-                s  = - WW \ w' ;
-                ss = s'*WW ;
-                q  = 1/sqrt( ss*s + 2*s'*w' + Wkkc ) ;
-                U(inds)     = q * s ;
-            else
-                q = sqrt(1/Wkkc) ;
-            end
-            U(j) = q ;        
-        end
-        
         if isfield(X,'invWW')
             invWW   = X.invWW ;
             r       = Wkstate * invWW ;
@@ -146,46 +110,16 @@ for i=1:size(flips,1)
             X.WW          = WW ;        
         end
         
-%         STA_W_state = X.STA_W_state ;
         sparse_STA_W_state = X.sparse_STA_W_state ;
         X.sparse_STA_W_state = sparse([],[],[],PROB.N_GC,X.N_cones) ;
-%         X.STA_W_state = zeros(PROB.N_GC,X.N_cones) ;
         if ~isempty(inds)
-%             X.STA_W_state(:,inds) = STA_W_state ;
             X.sparse_STA_W_state(:,inds) = sparse_STA_W_state ;
         end
         xi = (x-0.5)/PROB.SS ;
         yi = (y-0.5)/PROB.SS ;
 
-        [filter2,tt,rr,bb,ll] = filter_bounds( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
+        [filter,tt,rr,bb,ll] = filter_bounds( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
                                        PROB.cone_params.support_radius) ;
-%         STA_W_state_j = 0 ;
-%         for cc=1:3
-%             sta2 = PROB.STA(:,cc,tt:bb,ll:rr) ;
-%             sta2 = reshape( sta2, PROB.N_GC, []) ;
-%             STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(sta2 * filter2(:)) ;
-%         end
-        
-%         [filter,index] = filter_index( xi, yi, PROB.M0,PROB.M1,PROB.gaus_boxed,...
-%                                        PROB.cone_params.support_radius) ;
-%         X.index  = index ;
-%         X.filter = filter ;
-%         X.xy = {x y} ;
-% 
-%         filter  = kron(PROB.cone_params.colors(c,:),filter) ;
-%         sta = reshape(PROB.STA,PROB.N_GC,[]) ;
-%         sta = sta([index index+PROB.M0*PROB.M1 index+2*PROB.M0*PROB.M1],:) ;
-%         STA_W_state_j2 = (filter * sta)' ;
-%         
-%         if norm(STA_W_state_j2 - STA_W_state_j)>1e-15
-%             'asdfadfaw'
-%         end
-        
-%         X.STA_W_state_j = STA_W_state_j ;
-%         X.STA_W_state_j2 = STA_W_state_j2 ;
-        
-%         keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / X.WW(j,j) + PROB.N_cones_terms > 0) ;
-%         keep_GCs = find(PROB.sparse_struct(x+(y-1)*PROB.M0*PROB.SS+(c-1)*PROB.M0*PROB.SS*PROB.M1*PROB.SS,:)) ;
         keep_GCs = PROB.sparse_struct{x,y,c} ;
 
         if ~isfield(X,'contributions')
@@ -193,41 +127,22 @@ for i=1:size(flips,1)
         end
 
         if ~isempty(keep_GCs)
-%             STA_W_state_j = 0 ;
-% %             sta = PROB.STA(keep_GCs,:,:,:) ;
-%             for cc=1:3
-%                 sta2 = PROB.STA(cc,tt:bb,ll:rr,keep_GCs) ;
-%                 sta2 = reshape( sta2, [], numel(keep_GCs) ) ;
-% %                 STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(sta2 * filter2(:)) ;
-%                 STA_W_state_j = STA_W_state_j + PROB.cone_params.colors(c,cc)*(filter2(:)' * sta2)' ;
-%             end
-
-            sta3 = PROB.STA(:,tt:bb,ll:rr,keep_GCs) ;
-            sta3 = reshape( sta3, [], numel(keep_GCs) ) ;
-            STA_W_state_j = sta3' * kron(filter2(:),PROB.cone_params.colors(c,:)') ;
-
-    %         X.STA_W_state( :, j ) = STA_W_state_j ;
+            sta = PROB.STA(:,tt:bb,ll:rr,keep_GCs) ;
+            sta = reshape( sta, [], numel(keep_GCs) ) ;
+            STA_W_state_j = sta' * kron(filter(:),PROB.cone_params.colors(c,:)') ;
             X.sparse_STA_W_state( keep_GCs, j ) = STA_W_state_j ;
             keep_cones = sum(X.sparse_STA_W_state(keep_GCs,:),1)>0 ;
 
             if ~isempty(keep_GCs)
                 X.contributions(keep_GCs) = ...
                     PROB.quad_factors(keep_GCs) .* ...
-                    sum((X.WW(keep_cones,keep_cones)\X.sparse_STA_W_state(keep_GCs,keep_cones)')' ...
+                    sum((X.WW(keep_cones,keep_cones)\...
+                    X.sparse_STA_W_state(keep_GCs,keep_cones)')'...
                                 .* X.sparse_STA_W_state(keep_GCs,keep_cones),2) ;
             end
             X.keep_cones = keep_cones ;
-        end
-        
+        end        
         X.keep_GCs   = keep_GCs   ;
-        
-        if exist('U','var')
-            X.dUW_STA = U' * X.STA_W_state' ;
-        end
-        
-        if exist('sU','var')
-            X.ds_UW_STA = sU' * X.STA_W_state(:,sparse_index)' ;
-        end
         
         X.state(x,y)       = c ;
         X.diff = [X.diff ; x y c] ;
