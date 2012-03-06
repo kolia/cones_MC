@@ -1,4 +1,4 @@
-function X = greedy( X , PROB , update_X )
+function [X,done] = greedy( X , PROB , update_X )
 
 if X.N_cones == 0
     profile clear
@@ -87,8 +87,10 @@ if mm>0
     
     X = change_cone( X , [mx my mc] , PROB , [1 1]) ;
     X = update_X({X},1,false) ;
+    done = false ;
 else
     X = rmfield(X,{'changed_x','changed_y','last_x','last_y'}) ;
+    done = true ;
 end
 
 try

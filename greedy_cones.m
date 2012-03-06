@@ -1,5 +1,7 @@
 function cone_map = greedy_cones( cone_map )
 
+warning off
+
 % cone_map    = rmfield(cone_map,{'ROI'}) ;
 
 M0          = cone_map.M0 ;
@@ -40,7 +42,7 @@ end
 t = cputime ;
 tic
 for jj=1:maxcones
-    X = greedy(X,cone_map,@update_X) ;
+    [X,done] = greedy(X,cone_map,@update_X) ;
     N_cones = numel(find(X.state>0)) ;
      
     % DISPLAY stdout
@@ -57,7 +59,7 @@ for jj=1:maxcones
         drawnow
     end
     
-    if N_cones<jj
+    if done || N_cones<jj
         break ;
     end
 %     save('results','cone_map')
