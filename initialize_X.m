@@ -38,6 +38,7 @@ for d=1:2
     X.contact{d} = logical(X.contact{d}) ;
 end
 
+X.cputime = zeros(100,1) ;
 X.T = [1 1] ;
 
 % FROM old flip_color_LL.m !!!

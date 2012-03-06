@@ -52,6 +52,10 @@ if track_contacts && changed && ~isempty(X.diff)
     end
 end
 
+if X.iteration>numel(X.cputime)
+    X.cputime = [X.cputime ; zeros(numel(X.cputime,1))] ;
+end
+X.cputime(X.iteration) = cputime ;
 X.diff    = [] ;
 
 % for d=1:2
