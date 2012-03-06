@@ -35,7 +35,11 @@ end
 
 % check that X.contact only concerns existing cones
 for d=1:2
+    try
     cones = logical( max( max( X.contact{d} ,[],1) , max( X.contact{d} ,[],2)') ) ;
+    catch
+       'asdfafsddfa' 
+    end
 %     if ~min(X.state(cones))
 %         X.state
 %         cones
