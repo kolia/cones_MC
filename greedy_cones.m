@@ -61,10 +61,14 @@ for jj=1:maxcones
         drawnow
     end
     
-    if done || N_cones<jj
-        break ;
+    if ~mod(jj,save_every) || done || N_cones<jj
+        to_save = rmfield(cone_map,{'STA','initX'}) ;
+        try to_save.X = rmfield(X,{'invWW'}) ; end
+        try to_save.X = rmfield(X,{'WW'})    ; end
+        save('result', 'to_save' )
+        if done || N_cones<jj ,  break ;
+        else clear to_save; end
     end
-%     save('results','cone_map')
 end
 fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
 
