@@ -136,6 +136,26 @@ cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.cone_params.replusion_radii, ...
                                cone_map.naive_LL, 1, 1) ;
 
+% % test cone_map.make_STA_W against make_LL
+% mLL = max(cone_map.LL(:)) ;
+% [mk,mc] = find( reshape( cone_map.LL, NROI, N_colors) == mLL ) ;
+% mx = mod( mk-1, M0*SS ) + 1 ;
+% my = ceil( mk/(M0*SS) ) ;
+% tX = flip_LL( cone_map.initX , [mx my mc] , cone_map , [1 1] ) ;
+% fprintf('\nLL and flip_ll: %f,%f, at x%d,y%d,c%d\n',mLL,tX.ll,mx,my,mc) ;
+% range_x = mx+(-4:5) ;
+% range_y = my+(-4:5) ;
+% for iii=range_x
+%     for jjj=range_y
+%         tX = flip_LL( cone_map.initX , [iii jjj 1] , cone_map , [1 1] ) ;
+%         test(iii,jjj) = tX.ll ;
+%     end
+% end
+% 
+% fprintf('\n')
+% disp(test(range_x,range_y))
+% disp(cone_map.LL(range_x,range_y,1))
+                           
 end
 
 function [sparse_struct, LL] = make_sparse_struct(cone_map,STA,WW,gaus_boxed)
@@ -174,11 +194,13 @@ for gc=1:cone_map.N_GC
                 CC(:,color) = CCC(:) ;
             end
             C = 0.5 * cone_map.quad_factors(gc) * (CC * colors').^2 / WW(ii,jj) ;
+%             C(C+cone_map.N_cones_terms(gc)<=0) = 0 ;
+            C = max(0,C+0.5*cone_map.N_cones_terms(gc)) ;
             gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) = ...
                 gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) + reshape(C,[M0 M1 3]) ;
         end
     end
-    [x,yc] = find( gcLL+cone_map.N_cones_terms(gc)>0 ) ;
+    [x,yc] = find( gcLL>0 ) ;
     y = 1+mod(yc-1,M1*SS) ;
     c = ceil( yc/(M1*SS) ) ;
     for i=1:numel(x)
