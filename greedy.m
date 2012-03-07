@@ -16,12 +16,12 @@ if ~isfield(X,'changed_x')
     X.greedy_ll = PROB.LL ;
     X.excluded  = 0 * PROB.LL ;
 else
+    used = 0 ;
+    inds = zeros(PROB.N_colors*numel(X.changed_x),1) ;
+    gree = zeros(PROB.N_colors*numel(X.changed_x),1) ;
     for i=1:numel(X.changed_x)
         x = X.changed_x(i) ;
         y = X.changed_y(i) ;
-        inds = zeros(PROB.N_colors*numel(x),1) ;
-        gree = zeros(PROB.N_colors*numel(x),1) ;
-        used = 0 ;
         if (x-X.last_x)^2 + (y-X.last_y)^2 > X.D^2
             % propose addition of new cone of each color
             for c=1:PROB.N_colors
@@ -83,7 +83,8 @@ if mm>0
     X.last_c    = mc ;
     
     newX = change_cone( X , [mx my mc] , PROB , [1 1]) ;
-    if newX.ll>X.ll
+    if newX.ll>=X.ll
+        oldll = X.ll ;
         X = update_X({newX},1,false) ;
         done = false ;
     end
@@ -94,7 +95,8 @@ if done
 end
 
 try
-    fprintf('   #keep_cones %d, #keep_GCs %d',nnz(X.keep_cones),numel(X.keep_GCs)) ;
+    fprintf('   #keep_cones %d, #keep_GCs %d    mm-dll %f   mm-PROB.ll %f',...
+        nnz(X.keep_cones),numel(X.keep_GCs),mm-newX.ll+oldll,mm-PROB.LL(mx,my,mc)) ;
 end
 
 end
