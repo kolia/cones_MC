@@ -23,11 +23,11 @@ else
         x = X.changed_x(i) ;
         y = X.changed_y(i) ;
         for c=1:PROB.N_colors
-            sample = change_cone( X , [x y c] , PROB , [1 1]) ; %flip_LL( X , [x y c] , PROB , [1 1] ) ;
+            sample = change_cone( X , [x y c] , PROB , [1 1]) ;
             used = used + 1 ;
-            X.greedy_ll(x,y,c) = sample.ll - oldll ;
+            X.greedy_ll(x,y,c) = sample.ll - X.ll ;
             inds(used) = x + (y-1)*M0 + (c-1)*M0*M1 ;
-            gree(used) = sample.ll - oldll ;
+            gree(used) = sample.ll - X.ll ;
         end
     end
 
@@ -62,9 +62,7 @@ done = true ;
 if mm>0
     
     newX = change_cone( X , [mx my mc] , PROB , [1 1]) ;
-%     [oldll X.ll newX.ll mm+oldll]
     if newX.ll>=X.ll
-%         oldll = X.ll ;
         X = update_X({newX},1,false) ;
         done = false ;
     end
@@ -78,10 +76,6 @@ if mm>0
     sx = mod(mx-1,PROB.SS)+1 ;
     sy = mod(my-1,PROB.SS)+1 ;
 
-%     [SIZEX,SIZEY] = size(squeeze(PROB.coneConv(:,:,sx,sy))) ;
-%     [changed_x, changed_y] = find( ones(SIZEX+40,SIZEY+40) ) ;
-%     changed_x = changed_x-20 ;
-%     changed_y = changed_y-20 ;
     [changed_x, changed_y] = find( squeeze(PROB.coneConv(:,:,sx,sy)) > 0 ) ;
     
     changed_x = changed_x + mx - sx - PROB.R ;

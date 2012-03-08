@@ -43,8 +43,6 @@ for i=1:size(flips,1)
         keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / double(X.WW(j,j)) ...
                         + PROB.N_cones_terms > 0) ;
 
-        X.connections(keep_GCs) = X.connections(keep_GCs)-1 ;
-        
         if isfield(X,'invWW')
             invWW      = X.invWW(inds,inds) - ...
                          X.invWW(inds,j)*X.invWW(j,inds)/X.invWW(j,j) ;
@@ -129,8 +127,6 @@ for i=1:size(flips,1)
                                        PROB.cone_params.support_radius) ;
         keep_GCs = PROB.sparse_struct{x,y,c} ;
 
-        X.connections(keep_GCs) = X.connections(keep_GCs)+1 ;
-        
         if ~isfield(X,'contributions')
             X.contributions = zeros(PROB.N_GC,1) ;
         end
@@ -140,7 +136,7 @@ for i=1:size(flips,1)
             sta = reshape( sta, [], numel(keep_GCs) ) ;
             STA_W_state_j = sta' * kron(filter(:),PROB.cone_params.colors(c,:)') ;
             X.sparse_STA_W_state( keep_GCs, j ) = STA_W_state_j ;
-            keep_cones = sum(X.sparse_STA_W_state(keep_GCs,:),1)>0 ;
+            keep_cones = sum(abs(X.sparse_STA_W_state(keep_GCs,:)),1)>0 ;
 
             if ~isempty(keep_GCs)
                 X.contributions(keep_GCs) = ...
