@@ -1,7 +1,7 @@
 % PREPARE cone_map
 
 warning off
-type = 1 ;
+type = 0 ;
 
 if type==1
     load peach/peach_data    % contains 'stas'
