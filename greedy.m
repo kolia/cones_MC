@@ -25,7 +25,6 @@ else
         for c=1:PROB.N_colors
             sample = change_cone( X , [x y c] , PROB , [1 1]) ;
             used = used + 1 ;
-            X.greedy_ll(x,y,c) = sample.ll - X.ll ;
             inds(used) = x + (y-1)*M0 + (c-1)*M0*M1 ;
             gree(used) = sample.ll - X.ll ;
         end
