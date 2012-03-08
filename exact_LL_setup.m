@@ -117,7 +117,7 @@ cone_map.NICE = plotable_evidence( QC ) ;
 cone_map.R              = R ;
 cone_map.gaus_boxed     = gaus_in_box_memo ;
 cone_map.coneConv       = coneConv ;
-cone_map.STA            = STA ;
+cone_map.STA            = single( STA ) ;
 cone_map.min_STA_W      = -0.2 ; %min(STA_W(:)) ;
 cone_map.colorDot       = cone_params.colors * cone_params.colors' ;
 
@@ -204,7 +204,7 @@ for gc=1:cone_map.N_GC
     y = 1+mod(yc-1,M1*SS) ;
     c = ceil( yc/(M1*SS) ) ;
     for i=1:numel(x)
-        sparse_struct{x(i),y(i),c(i)} = [sparse_struct{x(i),y(i),c(i)} gc] ;
+        sparse_struct{x(i),y(i),c(i)} = int16([sparse_struct{x(i),y(i),c(i)} gc]) ;
     end
     LL = LL + gcLL ;
     fprintf(' %d',gc)
