@@ -152,6 +152,8 @@ tX = flip_LL( cone_map.initX , [mx my mc] , cone_map , [1 1] ) ;
 fprintf('\nLL and flip_ll: %f,%f, at x%d,y%d,c%d\n',mLL,tX.ll,mx,my,mc) ;
 range_x = mx+(-4:5) ;
 range_y = my+(-4:5) ;
+% range_x = 1:size(cone_map.LL,1) ;
+% range_y = 1:size(cone_map.LL,2) ;
 for iii=range_x
     for jjj=range_y
         tX = flip_LL( cone_map.initX , [iii jjj 1] , cone_map , [1 1] ) ;
@@ -203,7 +205,6 @@ for gc=1:cone_map.N_GC
                 CC(:,color) = CCC(:) ;
             end
             C = 0.5 * cone_map.quad_factors(gc) * (CC * colors').^2 / WW(ii,jj) ;
-%             C(C+cone_map.N_cones_terms(gc)<=0) = 0 ;
             C = max(0,C+0.5*cone_map.N_cones_terms(gc)) ;
             gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) = ...
                 gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) + reshape(C,[M0 M1 3]) ;

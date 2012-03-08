@@ -60,6 +60,6 @@ for i=1:length(ids) , ids{i} = {i} ; end
 % PBS.l.walltime = '70:00:00' ;
 % sow(['mcmc_' base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
 
-PBS.l.mem = '1600mb' ;
-PBS.l.walltime = '70:00:00' ;
-sow(['cast_' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
+% PBS.l.mem = '1500mb' ;
+% PBS.l.walltime = '70:00:00' ;
+% sow(['cast_' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
