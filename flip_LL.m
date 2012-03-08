@@ -14,6 +14,10 @@ function X = flip_LL( X , flips , PROB , T )
 
 M0 = PROB.M0 * PROB.SS ;
 
+if ~isfield(X,'connections')
+    X.connections = zeros(PROB.N_GC,1) ;
+end
+
 for i=1:size(flips,1)
     
     x = flips(i,1) ;
@@ -38,6 +42,8 @@ for i=1:size(flips,1)
         
         keep_GCs = find(PROB.quad_factors .* STA_W_state_j.^2 / double(X.WW(j,j)) ...
                         + PROB.N_cones_terms > 0) ;
+
+        X.connections(keep_GCs) = X.connections(keep_GCs)-1 ;
         
         if isfield(X,'invWW')
             invWW      = X.invWW(inds,inds) - ...
@@ -123,6 +129,8 @@ for i=1:size(flips,1)
                                        PROB.cone_params.support_radius) ;
         keep_GCs = PROB.sparse_struct{x,y,c} ;
 
+        X.connections(keep_GCs) = X.connections(keep_GCs)+1 ;
+        
         if ~isfield(X,'contributions')
             X.contributions = zeros(PROB.N_GC,1) ;
         end
