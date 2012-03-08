@@ -12,9 +12,9 @@ function [X,done] = greedy( X , PROB , update_X )
 M0 = PROB.M0 * PROB.SS ;
 M1 = PROB.M1 * PROB.SS ;
 
+oldll = X.ll ;
 if ~isfield(X,'changed_x')
     X.greedy_ll = PROB.LL ;
-    X.excluded  = 0 * PROB.LL ;
 else
     used = 0 ;
     inds = zeros(PROB.N_colors*numel(X.changed_x),1) ;
@@ -22,21 +22,17 @@ else
     for i=1:numel(X.changed_x)
         x = X.changed_x(i) ;
         y = X.changed_y(i) ;
-        if (x-X.last_x)^2 + (y-X.last_y)^2 > X.D^2
-            % propose addition of new cone of each color
-            for c=1:PROB.N_colors
-                sample = flip_LL( X , [x y c] , PROB , [1 1] ) ;
-                used = used + 1 ;
-                inds(used) = x + (y-1)*M0 + (c-1)*M0*M1 ;
-                gree(used) = sample.ll - X.ll ;
-            end
-        else
-            X.excluded(x,y,:) = -Inf ;
+        for c=1:PROB.N_colors
+            sample = change_cone( X , [x y c] , PROB , [1 1]) ; %flip_LL( X , [x y c] , PROB , [1 1] ) ;
+            used = used + 1 ;
+            X.greedy_ll(x,y,c) = sample.ll - oldll ;
+            inds(used) = x + (y-1)*M0 + (c-1)*M0*M1 ;
+            gree(used) = sample.ll - oldll ;
         end
     end
-    
+
     X.greedy_ll(inds(1:used)) = gree(1:used) ;
-    
+
 %     figure(3)
 %     ll = X.greedy_ll{1}(min(X.changed_x)+2:max(X.changed_x)-2,min(X.changed_y)+2:max(X.changed_y)-2) ;
 %     imagesc(ll/max(ll(:)))
@@ -59,16 +55,33 @@ end
 %     plot_cones(X.state,PROB) ;
 % end
 
-[mm,I] = max(X.greedy_ll(:) + X.excluded(:)) ;
+[mm,I] = max(X.greedy_ll(:)) ;
 [mx,my,mc] = ind2sub(size(PROB.LL),I) ;
 
 done = true ;
 if mm>0
     
-    my = 1+mod(my-1,M1) ;
-    
+    newX = change_cone( X , [mx my mc] , PROB , [1 1]) ;
+%     [oldll X.ll newX.ll mm+oldll]
+    if newX.ll>=X.ll
+%         oldll = X.ll ;
+        X = update_X({newX},1,false) ;
+        done = false ;
+    end
+
+    try
+        fprintf('   #keep_cones %d, #keep_GCs %d    mm-dll %f   mm-PROB.ll %f',...
+            nnz(X.keep_cones),numel(X.keep_GCs),mm-newX.ll+oldll,mm-PROB.LL(mx,my,mc)) ;
+    end
+
+
     sx = mod(mx-1,PROB.SS)+1 ;
     sy = mod(my-1,PROB.SS)+1 ;
+
+%     [SIZEX,SIZEY] = size(squeeze(PROB.coneConv(:,:,sx,sy))) ;
+%     [changed_x, changed_y] = find( ones(SIZEX+40,SIZEY+40) ) ;
+%     changed_x = changed_x-20 ;
+%     changed_y = changed_y-20 ;
     [changed_x, changed_y] = find( squeeze(PROB.coneConv(:,:,sx,sy)) > 0 ) ;
     
     changed_x = changed_x + mx - sx - PROB.R ;
@@ -81,22 +94,10 @@ if mm>0
     X.last_x    = mx ;
     X.last_y    = my ;
     X.last_c    = mc ;
-    
-    newX = change_cone( X , [mx my mc] , PROB , [1 1]) ;
-    if newX.ll>=X.ll
-        oldll = X.ll ;
-        X = update_X({newX},1,false) ;
-        done = false ;
-    end
 end
 
 if done
     X = rmfield(X,{'changed_x','changed_y','last_x','last_y'}) ;
-end
-
-try
-    fprintf('   #keep_cones %d, #keep_GCs %d    mm-dll %f   mm-PROB.ll %f',...
-        nnz(X.keep_cones),numel(X.keep_GCs),mm-newX.ll+oldll,mm-PROB.LL(mx,my,mc)) ;
 end
 
 end
