@@ -45,21 +45,22 @@ cone_map.display_every = 20 ;
 base_str = cone_map_string( cone_map ) ;
 
 % % THEN RUN THIS to run on your own computer:
-greed = greedy_cones(cone_map) ;  save(['greed_' base_str],'greed')
+% greed = greedy_cones(cone_map) ;  save(['greed_' base_str],'greed')
 % mcmc = MCMC(cone_map) ;           save(['mcmc_'  base_str],'mcmc' )
 % cast = CAST(cone_map) ;           save(['cast_'  base_str],'cast' )
 
 % % OR THIS to run 50 MCMC instances and 50 CAST on the hpc cluster:
 % %            INSTALL AGRICOLA FIRST
-% sow(['greed_' base_str],@()greedy_cones(cone_map)) ;
-N = 30 ;
-ids = cell(1,N) ;
-for i=1:length(ids) , ids{i} = {i} ; end
-
+% N = 30 ;
+% ids = cell(1,N) ;
+% for i=1:length(ids) , ids{i} = {i} ; end
+% 
 % PBS.l.mem = '1500mb' ;
 % PBS.l.walltime = '70:00:00' ;
 % sow(['mcmc_' base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
-
+% 
 % PBS.l.mem = '1500mb' ;
 % PBS.l.walltime = '70:00:00' ;
 % sow(['cast_' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
+% 
+% sow(['greed_' base_str],@()greedy_cones(cone_map)) ;
