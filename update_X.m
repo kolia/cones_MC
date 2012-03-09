@@ -38,13 +38,13 @@ if track_contacts && changed && ~isempty(X.diff)
             deleted = X.diff(deleted,1) + (X.diff(deleted,2)-1)*X.M0 ;
             
             for d=1:2
-%                 X.contact{d}(deleted,:) = false ;
+                X.contact{d}(deleted,:) = false ;
 %                 test = X.contact{d} ;
 %                 test(deleted,:) = false ;
-                for del=deleted
-                    inds = X.contact{d}(del,:) ;
-                    X.contact{d}(del,inds) = false ;
-                end
+%                 for del=deleted
+%                     inds = X.contact{d}(del,:) ;
+%                     X.contact{d}(del,inds) = false ;
+%                 end
 %                 try X.contact{d} - test ;
 %                 catch                    
 %                     'oups'
