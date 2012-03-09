@@ -114,14 +114,24 @@ for i=1:size(flips,1)
 %             X.order = [1:j-1 X.N_cones j:X.N_cones-1] ;
 %             X.WW = X.WW(order,order) ;
 
-            WW            = sparse([],[],[],X.N_cones,X.N_cones) ;
-            WW(j,j)       = Wkkc ;
-            if numel(inds)>0
-                WW(inds,inds) = X.WW ;
-                WW(inds,j)    = Wkstate ;
-                WW(j,inds)    = Wkstate ;
-            end
-            X.WW          = WW ;
+%             WW(j,j)       = Wkkc ;
+%             if numel(inds)>0
+%                 WW(inds,inds) = X.WW ;
+%                 WW(inds,j)    = Wkstate ;
+%                 WW(j,inds)    = Wkstate ;
+%             end
+%             X.WW          = WW ;
+
+            if ~issparse(X.WW) ;
+                X.WW = sparse(double(X.WW)) ;
+            end 
+            [wwx,wwy,wwv] = find(X.WW) ;
+            wwx = [inds(wwx) j*ones(1,numel(Wkstate)+1) inds] ;
+            wwy = [inds(wwy) inds j*ones(1,numel(Wkstate)+1)] ;
+            wwv = [wwv' Wkstate Wkkc Wkstate] ;
+            X.WW            = sparse(wwx,wwy,wwv,X.N_cones,X.N_cones) ;            
+
+%             norm(WW - X.WW)
 
 %             WW            = single(zeros(X.N_cones)) ;
 %             WW(j,j)       = Wkkc ;
