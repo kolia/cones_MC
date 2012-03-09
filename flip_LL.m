@@ -76,7 +76,7 @@ for i=1:size(flips,1)
         ssx     = 1+mod(x-1,PROB.SS) ;
         ssy     = 1+mod(y-1,PROB.SS) ;
         
-        Wkstate = zeros(1,X.N_cones-1) ;
+        Wkstate = single(zeros(1,X.N_cones-1)) ;
         where   = find( max(abs(Wkinds),[],1) <= PROB.R ) ;
         if ~isempty(where)
             xx = Wkinds(1,where)+PROB.R+ssx ;
@@ -87,7 +87,7 @@ for i=1:size(flips,1)
             end
         end
         
-        Wkkc = PROB.coneConv(PROB.R+ssx,PROB.R+ssy,ssx,ssy) * PROB.colorDot(c,c) ;
+        Wkkc = single(PROB.coneConv(PROB.R+ssx,PROB.R+ssy,ssx,ssy) * PROB.colorDot(c,c)) ;
         
         if isfield(X,'invWW')
             invWW   = X.invWW ;
@@ -105,14 +105,31 @@ for i=1:size(flips,1)
             end
             X.invWW(j,j)       = q ;
         else
-            WW            = zeros(X.N_cones) ;
-            WW(j,j)       = Wkkc ;
-            if numel(inds)>0
-                WW(inds,inds) = X.WW ;
-                WW(inds,j)    = Wkstate ;
-                WW(j,inds)    = Wkstate ;
-            end
-            X.WW          = single(WW) ;
+%             X.WW = [X.WW(1:j-1,1:j-1) Wkstate(1:j-1)'  X.WW(1:j-1,j:end) ; 
+%                    Wkstate(1:j-1)    Wkkc             Wkstate(j:end)    ;
+%                    X.WW(j:end,1:j-1) Wkstate(j:end)'  X.WW(j:end,j:end)] ;
+            X.WW = [X.WW     Wkstate' ; 
+                    Wkstate  Wkkc   ] ;
+            X.order = [1:j-1 X.N_cones j:X.N_cones-1] ;
+%             X.WW = X.WW([1:j-1 end j:end-1],[1:j-1 end j:end-1]) ;
+
+%             WW            = sparse([],[],[],X.N_cones,X.N_cones) ;
+%             WW(j,j)       = Wkkc ;
+%             if numel(inds)>0
+%                 WW(inds,inds) = X.WW ;
+%                 WW(inds,j)    = Wkstate ;
+%                 WW(j,inds)    = Wkstate ;
+%             end
+%             X.WW          = WW ;
+
+%             WW            = single(zeros(X.N_cones)) ;
+%             WW(j,j)       = Wkkc ;
+%             if numel(inds)>0
+%                 WW(inds,inds) = X.WW ;
+%                 WW(inds,j)    = Wkstate ;
+%                 WW(j,inds)    = Wkstate ;
+%             end
+%             X.WW          = WW ;
         end
         
         sparse_STA_W_state = X.sparse_STA_W_state ;
