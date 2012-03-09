@@ -19,7 +19,7 @@ if ~isempty(inds)
     i=inds(1) ;
     k=1 ;
     while ~isempty(i)
-        s = R(i,:) ;
+        s = R(:,i) ;
         seen(s) = k ;
 
         classes{k} = find(s) ;
