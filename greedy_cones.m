@@ -64,7 +64,7 @@ for jj=1:maxcones
     if ~mod(jj,save_every) || done || N_cones<jj
         to_save = rmfield(cone_map,{'STA','initX'}) ;
         try to_save.X = rmfield(X,{'invWW'}) ; end
-        try to_save.X = rmfield(X,{'WW'})    ; end
+%         try to_save.X = rmfield(X,{'WW'})    ; end
         save('result', 'to_save' )
         if done || N_cones<jj ,  break ;
         else clear to_save; end

@@ -78,7 +78,7 @@ while 1
         to_save = rmfield(cone_map,{'STA','initX'}) ;
         to_save.X = rmfield(X,{'contact'}) ;
         try to_save.X = rmfield(X,{'invWW'}) ; end
-        try to_save.X = rmfield(X,{'WW'})    ; end
+%         try to_save.X = rmfield(X,{'WW'})    ; end
         save(sprintf('result_%d',ID), 'to_save' )
         if jj>N_iterations || cputime-t>max_time, break ; 
         else clear to_save
