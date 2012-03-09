@@ -39,8 +39,16 @@ if track_contacts && changed && ~isempty(X.diff)
             
             for d=1:2
 %                 X.contact{d}(deleted,:) = false ;
-                inds = X.contact{d}(deleted,:) ;
-                X.contact{d}(inds) = false ;
+%                 test = X.contact{d} ;
+%                 test(deleted,:) = false ;
+                for del=deleted
+                    inds = X.contact{d}(del,:) ;
+                    X.contact{d}(del,inds) = false ;
+                end
+%                 try X.contact{d} - test ;
+%                 catch                    
+%                     'oups'
+%                 end
                 X.contact{d}(:,deleted) = false ;
             end
         end
