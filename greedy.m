@@ -43,20 +43,15 @@ else
 %     fprintf('changed greedy_ll min %f median %f max %f',min(ll(:)), median(ll(:)), max(ll(:)))
 end
 
-% if ~mod( X.N_cones, 20 )
-%     LL = zeros([size(X.greedy_ll{1}) PROB.N_colors]) ;
-%     for c=1:PROB.N_colors
-%         LL(:,:,c) = X.greedy_ll{c} + X.excluded{c} ;
-%     end
-%     try
-%         LL(LL<0) = min(reshape(LL(LL>0),1,[])) ;
-%         fprintf('   LL min %f max %f',min(LL(:)), max(LL(:)))
-%         figure(1)
-%         imagesc(LL/max(LL(:)))
-%     end
+% if mod( X.N_cones, 20 ) == 1
+%     fprintf('   LL min %f max %f',min(X.greedy_ll(isfinite(X.greedy_ll))), max(X.greedy_ll(:)))
+%     figure(1)
+%     pe = plotable_evidence(X.greedy_ll) ; 
+%     imagesc(pe)
 % 
 %     figure(2)
 %     plot_cones(X.state,PROB) ;
+%     'word'
 % end
 
 [mm,I] = max(X.greedy_ll(:)) ;
@@ -80,6 +75,10 @@ if mm>0
     sx = mod(mx-1,PROB.SS)+1 ;
     sy = mod(my-1,PROB.SS)+1 ;
 
+%     [SIZEX,SIZEY] = size(squeeze(PROB.coneConv(:,:,sx,sy))) ;
+%     [changed_x, changed_y] = find( ones(SIZEX+40,SIZEY+40) ) ;
+%     changed_x = changed_x-20 ;
+%     changed_y = changed_y-20 ;
     [changed_x, changed_y] = find( squeeze(PROB.coneConv(:,:,sx,sy)) > 0 ) ;
     
     changed_x = changed_x + mx - sx - PROB.R ;
