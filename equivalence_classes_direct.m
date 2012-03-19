@@ -10,10 +10,11 @@ sizes   = zeros(max_classes,1) ;
 
 N_x = size(R,1) ;
 
-inds_x  = find(sum(R,1)>0) ;
-inds_y  = find(sum(R,2)>0) ;
+inds_x  = find(sum(R,2)>0) ;
+inds_y  = find(sum(R,1)>0)' ;
 
-R = R(inds_x,inds_y) ;
+R = R(:,inds_y) ;
+R = R(inds_x,:) ;
 
 seen_x = zeros(numel(inds_x),1) ;
 seen_y = zeros(numel(inds_y),1) ;
@@ -30,7 +31,7 @@ if ~isempty(inds_y)
             s_x = sum(R(:,new_inds),2)>0 ;
             seen_x(s_x) = k ;
             s_y = sum(R(s_x,:),1)>0 ;
-            new_inds = find(s_y' .* (seen_y>0)) ;
+            new_inds = find(s_y' .* (seen_y==0)) ;
             seen_y(new_inds) = k ;
         end
 

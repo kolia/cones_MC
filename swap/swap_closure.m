@@ -12,8 +12,8 @@ function XS = swap_closure( X , T, otherX , oT, PROB )
 % symmetrize relation and calculate transitive closure
 N = numel(X.state) ;
 
-i = find( otherX.state) ;
-j = find( X.state) ;
+% i = find( otherX.state) ;
+% j = find( X.state) ;
 R = overlap_relation( otherX , X ) ;
 
 % EO= logical(sparse(i,i,ones(length(i),1),N,N,3*N)) ;
@@ -21,17 +21,17 @@ R = overlap_relation( otherX , X ) ;
 % R = logical( [ EO R ; R' EX ] ) ;
 % R = transitive_closure(R,[i ; N+j],0) ;
 
-EO= logical(sparse([],[],[],N,N,N)) ;
-EX= logical(sparse([],[],[],N,N,N)) ;
-RR = logical( [ EO R ; R' EX ] ) ;
-RR = transitive_closure(RR,[i ; N+j],1) ;
+% EO= logical(sparse([],[],[],N,N,N)) ;
+% EX= logical(sparse([],[],[],N,N,N)) ;
+% RR = logical( [ EO R ; R' EX ] ) ;
+% RR = transitive_closure(RR,[i ; N+j],1) ;
 
 clear i j
 
 % get equivalence classes / connected components
-classes = equivalence_classes(RR,20) ;
+% classes_old = equivalence_classes(RR,20) ;
 
-% class2  = equivalence_classes_direct(R,20) ;
+classes  = equivalence_classes_direct(R,50) ;
 
 if numel(classes)>0
     classes = [{[]} ; classes] ;
