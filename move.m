@@ -72,7 +72,7 @@ if X.N_cones > 0
         ne = not_excluded(X,i,j) ;
         for cc=setdiff( 1:X.N_colors , color )
             ns = ns+1 ;
-            if ne
+            if ne && ~isempty(PROB.sparse_struct{i,j,cc})
                 samples{ns} = flip_LL( samples{deleted} , [i j cc] , PROB , T ) ;
             else
                 samples{ns}    = samples{deleted} ;
@@ -106,7 +106,7 @@ while ns <= n - n_moved
         ne = not_excluded(X,i,j) ;
         for c=1:PROB.N_colors
             ns = ns+1 ;
-            if ne
+            if ne && ~isempty(PROB.sparse_struct{i,j,c})
                 samples{ns} = flip_LL( X , [i j c] , PROB , T ) ;
             else
                 samples{ns}    = X ;
