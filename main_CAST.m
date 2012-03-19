@@ -14,12 +14,12 @@ else
     cone_params.stimulus_variance = 1 ;
 end
 
-ROIs = {[1 size(stas(1).spatial,1)] [1 size(stas(1).spatial,2)] [1 size(stas(1).spatial,1)/2] [1 size(stas(1).spatial,2)/2] [size(stas(1).spatial,1)/2+1 size(stas(1).spatial,1)] [size(stas(1).spatial,2)/2+1 size(stas(1).spatial,2)]} ;
-roi = 4 ;
-roj = 6 ;
-% ROIs = {[1 size(stas(1).spatial,1)] [1 size(stas(1).spatial,2)]} ;
-% roi = 1 ;
-% roj = 2 ;
+% ROIs = {[1 size(stas(1).spatial,1)] [1 size(stas(1).spatial,2)] [1 size(stas(1).spatial,1)/2] [1 size(stas(1).spatial,2)/2] [size(stas(1).spatial,1)/2+1 size(stas(1).spatial,1)] [size(stas(1).spatial,2)/2+1 size(stas(1).spatial,2)]} ;
+% roi = 4 ;
+% roj = 6 ;
+ROIs = {[1 size(stas(1).spatial,1)] [1 size(stas(1).spatial,2)]} ;
+roi = 1 ;
+roj = 2 ;
 stas = restrict_ROI( stas, ROIs{roi}, ROIs{roj} ) ;
 
 cone_params.support_radius = 3 ;
@@ -43,7 +43,7 @@ cone_map.initX.N_iterations   = cone_map.N_iterations ;
 cone_map.initX.betas  = cone_map.betas  ;
 cone_map.initX.deltas = cone_map.deltas ;
 
-cone_map.plot_every    = 500 ;
+cone_map.plot_every    = 0 ;
 cone_map.display_every = 20 ;
 
 base_str = cone_map_string( cone_map ) ;
