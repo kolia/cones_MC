@@ -36,8 +36,6 @@ svg = sprints('<use xlink:href="#%d" transform="translate(%f %f)" stroke="%s"/>\
                id,[y1(:);y2(:);yG],[x1(:);x2(:);xG],c) ;
 
 svg = insert_string([evidence svg],'plot_Greedy_MCMC_CAST_stub.svg',-40) ;
-
-fid = fopen('Best_Greed_MCMC_CAST.svg','w') ;
-fwrite(fid,svg) ; fclose(fid) ;
+save_svg_plot(svg,'Best_Greed_MCMC_CAST.svg')
 
 end

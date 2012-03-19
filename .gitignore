@@ -3,6 +3,8 @@
 *.pdf
 *.png
 *.eps
+*.jar
+batik
 figs
 *.m~
 .unison.*

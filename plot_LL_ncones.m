@@ -69,9 +69,8 @@ svg = [sprintf('<line x1="0" x2="%f" y1="%f" y2="%f" text-anchor="middle" stroke
        sprintf('<text x="75" y="-35" font-size="18" text-anchor="middle"><tspan fill="green">Greedy</tspan>, <tspan fill="blue">MCMC</tspan> and <tspan fill="red">CAST</tspan></text>\n') ...
        svg] ;
 
+   
 svg = insert_string(svg,'plot_LL_ncones_stub.svg',-40) ;
-
-fid = fopen('LL_ncones.svg','w') ;
-fwrite(fid,svg) ; fclose(fid) ;
+save_svg_plot(svg,'LL_ncones.svg')
 
 end

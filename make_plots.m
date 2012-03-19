@@ -15,7 +15,6 @@ plot_LL_ncones( greed , mcmc , cast , cone_map )
 plot_Greedy_MCMC_CAST( greed , mcmc , cast , cone_map.NICE )
 
 [sta,invww] = denoised_sta( greed.initX , cast{1}.X.dX , cone_map ) ;
-
 make_sta_plots( sta , invww, 'denoised' )
 
 cd(here)
