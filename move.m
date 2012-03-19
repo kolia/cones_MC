@@ -62,17 +62,24 @@ if X.N_cones > 0
             end
         end
         
-        % change of color, without moving
-        for cc=setdiff( 1:X.N_colors , color )
-            ns = ns+1 ;
-            samples{ns} = change_cone( X , [i j 0 ; i j cc] , PROB , T ) ;
-            samples{ns}.forward_prob    = p/nforward ;
-        end
-        
         % cone deletion
         ns = ns+1 ;
-        samples{ns} = change_cone( X , [i j 0] , PROB , T ) ;
+        samples{ns} = flip_LL( X , [i j 0] , PROB , T ) ;
         samples{ns}.forward_prob    = p/nforward ;
+
+        % change of color, without moving
+        deleted = ns ;
+        ne = not_excluded(X,i,j) ;
+        for cc=setdiff( 1:X.N_colors , color )
+            ns = ns+1 ;
+            if ne
+                samples{ns} = flip_LL( samples{deleted} , [i j cc] , PROB , T ) ;
+            else
+                samples{ns}    = samples{deleted} ;
+                samples{ns}.ll = -Inf ;
+            end
+            samples{ns}.forward_prob    = p/nforward ;
+        end
         
     end
 else
@@ -85,21 +92,26 @@ while ns <= n - n_moved
     j       = randi( M1 , 1 ) ;
     
     if ~X.state(i+M0*(j-1))
-        l1      = [] ;
         % probability of choosing this location & color
         p = (1-PROB.q)/((M0*M1 - X.N_cones)*PROB.N_colors) ;
 
         if X.N_cones >= X.maxcones
         % if maxcones has been reached, delete a random cone first
             cone = randi( X.N_cones , 1 , 1 ) ;
-            l1   = [cx(cone) cy(cone) 0] ;
+            X    = flip_LL( X, [cx(cone) cy(cone) 0], PROB, T ) ;
             p    = p/X.N_cones ;
         end
         
         % propose addition of new cone of each color
+        ne = not_excluded(X,i,j) ;
         for c=1:PROB.N_colors
             ns = ns+1 ;
-            samples{ns} = change_cone( X , [l1 ; i j c] , PROB , T ) ;
+            if ne
+                samples{ns} = flip_LL( X , [i j c] , PROB , T ) ;
+            else
+                samples{ns}    = X ;
+                samples{ns}.ll = -Inf ;                
+            end
             samples{ns}.forward_prob    = p ;
         end
     end

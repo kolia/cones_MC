@@ -22,11 +22,16 @@ else
     for i=1:numel(X.changed_x)
         x = X.changed_x(i) ;
         y = X.changed_y(i) ;
+        ne = not_excluded( X, x, y ) ;
         for c=1:PROB.N_colors
-            sample = change_cone( X , [x y c] , PROB , [1 1]) ;
             used = used + 1 ;
             inds(used) = x + (y-1)*M0 + (c-1)*M0*M1 ;
-            gree(used) = sample.ll - X.ll ;
+            if ne
+                sample = flip_LL( X , [x y c] , PROB , [1 1]) ;
+                gree(used) = sample.ll - X.ll ;
+            else
+                gree(used) = -Inf ;
+            end
         end
     end
 
@@ -60,7 +65,7 @@ end
 done = true ;
 if mm>0
     
-    newX = change_cone( X , [mx my mc] , PROB , [1 1]) ;
+    newX = flip_LL( X , [mx my mc] , PROB , [1 1]) ;
     if newX.ll>=X.ll
         X = update_X({newX},1,false) ;
         done = false ;
