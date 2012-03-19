@@ -4,6 +4,7 @@ warning off
 type = 0 ;
 
 if type==1
+    type = 'peach' ;
     load peach/peach_data    % contains 'stas'
     load peach/cone_params
 else
@@ -13,9 +14,12 @@ else
     cone_params.stimulus_variance = 1 ;
 end
 
-ROIs = {[1 size(stas(1).spatial,1)] [1 size(stas(1).spatial,2)]} ;
-roi = 1 ;
-roj = 2 ;
+ROIs = {[1 size(stas(1).spatial,1)] [1 size(stas(1).spatial,2)] [1 size(stas(1).spatial,1)/2] [1 size(stas(1).spatial,2)/2] [size(stas(1).spatial,1)/2+1 size(stas(1).spatial,1)] [size(stas(1).spatial,2)/2+1 size(stas(1).spatial,2)]} ;
+roi = 4 ;
+roj = 6 ;
+% ROIs = {[1 size(stas(1).spatial,1)] [1 size(stas(1).spatial,2)]} ;
+% roi = 1 ;
+% roj = 2 ;
 stas = restrict_ROI( stas, ROIs{roi}, ROIs{roj} ) ;
 
 cone_params.support_radius = 3 ;
@@ -39,14 +43,14 @@ cone_map.initX.N_iterations   = cone_map.N_iterations ;
 cone_map.initX.betas  = cone_map.betas  ;
 cone_map.initX.deltas = cone_map.deltas ;
 
-cone_map.plot_every    = 0  ;
+cone_map.plot_every    = 500 ;
 cone_map.display_every = 20 ;
 
 base_str = cone_map_string( cone_map ) ;
 
 % % THEN RUN THIS to run on your own computer:
 % greed = greedy_cones(cone_map) ;  save(['greed_' base_str],'greed')
-% mcmc = MCMC(cone_map) ;           save(['mcmc_'  base_str],'mcmc' )
+mcmc = MCMC(cone_map) ;           save(['mcmc_'  base_str],'mcmc' )
 % cast = CAST(cone_map) ;           save(['cast_'  base_str],'cast' )
 
 % % OR THIS to run 50 MCMC instances and 50 CAST on the hpc cluster:
@@ -57,10 +61,10 @@ base_str = cone_map_string( cone_map ) ;
 % 
 % PBS.l.mem = '1500mb' ;
 % PBS.l.walltime = '70:00:00' ;
-% sow(['mcmc_' base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
+% sow(['cast_' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
 % 
 % PBS.l.mem = '1500mb' ;
 % PBS.l.walltime = '70:00:00' ;
-% sow(['cast_' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
+% sow(['mcmc_' base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
 % 
 % sow(['greed_' base_str],@()greedy_cones(cone_map)) ;
