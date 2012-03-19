@@ -75,7 +75,7 @@ while 1
 
     if ~mod(jj,save_every) || jj>N_iterations || cputime-t>max_time
 %         cone_map.X          = X ;
-        to_save = rmfield(cone_map,{'STA','initX'}) ;
+        to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
         to_save.X = rmfield(X,{'contact'}) ;
         try to_save.X = rmfield(X,{'invWW'}) ; end
 %         try to_save.X = rmfield(X,{'WW'})    ; end
