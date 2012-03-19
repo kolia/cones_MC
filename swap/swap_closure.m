@@ -23,13 +23,15 @@ R = overlap_relation( otherX , X ) ;
 
 EO= logical(sparse([],[],[],N,N,N)) ;
 EX= logical(sparse([],[],[],N,N,N)) ;
-R = logical( [ EO R ; R' EX ] ) ;
-R = transitive_closure(R,[i ; N+j],1) ;
+RR = logical( [ EO R ; R' EX ] ) ;
+RR = transitive_closure(RR,[i ; N+j],1) ;
 
 clear i j
 
 % get equivalence classes / connected components
-classes = equivalence_classes(R,20) ;
+classes = equivalence_classes(RR,20) ;
+
+% class2  = equivalence_classes_direct(R,20) ;
 
 if numel(classes)>0
     classes = [{[]} ; classes] ;
