@@ -26,7 +26,7 @@ else
         for c=1:PROB.N_colors
             used = used + 1 ;
             inds(used) = x + (y-1)*M0 + (c-1)*M0*M1 ;
-            if ne && ~isempty(PROB.sparse_struct{x,y,cc})
+            if ne && ~isempty(PROB.sparse_struct{x,y,c})
                 sample = flip_LL( X , [x y c] , PROB , [1 1]) ;
                 gree(used) = sample.ll - X.ll ;
             else
