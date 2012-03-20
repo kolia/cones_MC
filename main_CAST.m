@@ -30,8 +30,10 @@ imagesc(cone_map.NICE)
 
 cone_map.N_iterations  = 5e5 ;
 cone_map.max_time      = 2e5 ;
-cone_map.betas  = make_deltas( 0.2, 1, 1, 20 ) ;
-cone_map.deltas = make_deltas( 0.3, 1, 1, length(cone_map.betas) ) ;
+cone_map.min_delta = 0.1 ;
+cone_map.min_beta  = 0.2 ;
+cone_map.betas  = make_deltas( cone_map.min_beta, 1, 1, 20 ) ;
+cone_map.deltas = make_deltas( cone_map.min_delta, 1, 1, length(cone_map.betas) ) ;
 
 cone_map.initX.rois   = [roi roj] ;
 cone_map.initX.NROI   = numel(ROIs) ;
