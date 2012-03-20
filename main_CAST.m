@@ -65,8 +65,8 @@ PBS.l.mem = '1500mb' ;
 PBS.l.walltime = '70:00:00' ;
 sow(['cast_' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
 
-PBS.l.mem = '1500mb' ;
-PBS.l.walltime = '70:00:00' ;
-sow(['mcmc_' base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
-
-sow(['greed_' base_str],@()greedy_cones(cone_map)) ;
+% PBS.l.mem = '1500mb' ;
+% PBS.l.walltime = '70:00:00' ;
+% sow(['mcmc_' base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
+% 
+% sow(['greed_' base_str],@()greedy_cones(cone_map)) ;
