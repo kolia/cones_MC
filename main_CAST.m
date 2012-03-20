@@ -30,6 +30,7 @@ imagesc(cone_map.NICE)
 
 cone_map.N_iterations  = 5e5 ;
 cone_map.max_time      = 2e5 ;
+cone_map.profile_every = 1e5 ;
 cone_map.min_delta = 0.1 ;
 cone_map.min_beta  = 0.2 ;
 cone_map.betas  = make_deltas( cone_map.min_beta, 1, 1, 20 ) ;
