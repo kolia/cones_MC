@@ -10,6 +10,7 @@ default( cone_map , 'plot_every'    , 0      )
 default( cone_map , 'plot_skip'     , 100    )
 default( cone_map , 'display_every' , 50     )
 default( cone_map , 'save_every'    , 5000   )
+default( cone_map , 'profile_every' , 0      )
 default( cone_map , 'ID'            , 0      )
 default( cone_map , 'max_time'      , 200000 )
 default( cone_map , 'deltas' , ones(1,length(cone_map.betas))) ;
@@ -121,7 +122,18 @@ while 1
             drawnow ; hold off
         end
     end
-
+    
+    if profile_every
+        if jj==1
+            profile clear
+            profile on
+        elseif ~mod(jj,profile_every)
+            p = profile('info');
+            save(sprintf('profdat_%d',floor(jj/profile_every)),'p')
+            profile clear
+        end
+    end
+    
     if ~mod(jj,save_every) || jj>N_iterations || cputime-t>max_time
         to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
 %         cone_map.X          = X{1} ;
