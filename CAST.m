@@ -32,7 +32,7 @@ fprintf('%4.2f  ',cone_map.deltas)
 
 % initializing variables
 X = cell(2,1) ;
-for i=1:1+cone_map.N_fast ,  X{i} = cone_map.initX ; end
+for i=1:1+cone_map.N_fast ,  X{i} = remake_X(cone_map,cone_map.initX) ; end
 
 X{1}.swap = logical( sparse([],[],[],N_iterations,1) ) ;
 X{1}.dX   = sparse([],[],[],N_iterations,3*X{1}.maxcones) ;
