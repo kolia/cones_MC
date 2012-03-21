@@ -26,7 +26,7 @@ R = overlap_relation( otherX , X ) ;
 % RR = logical( [ EO R ; R' EX ] ) ;
 % RR = transitive_closure(RR,[i ; N+j],1) ;
 
-clear i j
+% clear i j
 
 % get equivalence classes / connected components
 % classes_old = equivalence_classes(RR,20) ;
