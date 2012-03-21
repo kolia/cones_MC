@@ -11,4 +11,5 @@ base_str  = sprintf('%s_NROI%d_ROI%d%d_support%d_SS%d_beta%.1f_delta%.1f_%.0eite
                      cone_map.N_iterations) ;
 
 base_str(base_str=='+') = '' ;
+base_str(base_str=='.') = '' ;
 end
