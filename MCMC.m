@@ -26,7 +26,7 @@ tic
 
 n_runs = 1 ;
 
-X           = cone_map.initX ;
+X           = remake_X(cone_map,cone_map.initX) ;
 runbest     = X ;
 runbest.i   = 1 ;
 jj          = 1 ;
