@@ -1,7 +1,7 @@
 % PREPARE cone_map
 
 warning off
-type = 0 ;
+type = 1 ;
 
 if type==1
     type = 'peach' ;
@@ -28,7 +28,7 @@ cone_map = exact_LL_setup(stas,cone_params) ; % cone_map, aka PROB or data
 
 imagesc(cone_map.NICE)
 
-cone_map.N_iterations  = 1e6 ;
+cone_map.N_iterations  = 5e5 ;
 cone_map.max_time      = 2e5 ;
 cone_map.profile_every = 0 ;
 cone_map.min_delta = 0.1 ;
@@ -67,13 +67,13 @@ cone_map.initX = greed.X ;
 N = 30 ;
 ids = cell(1,N) ;
 for i=1:length(ids) , ids{i} = {i} ; end
-
+% 
 PBS.l.mem = '1500mb' ;
 PBS.l.walltime = '70:00:00' ;
 sow(['cast_' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
 
-% PBS.l.mem = '1500mb' ;
-% PBS.l.walltime = '70:00:00' ;
-% sow(['mcmc_' base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
+PBS.l.mem = '1500mb' ;
+PBS.l.walltime = '70:00:00' ;
+sow(['mcmc_' base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
 
 % % sow(['greed_' base_str],@()greedy_cones(cone_map)) ;
