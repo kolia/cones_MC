@@ -12,10 +12,12 @@ c   = X.state(ox,oy) ;
 
 % delete old cone
 X = flip_LL( X , [ox oy 0] , PROB , T ) ;
+% check_X(X)
 
 % if new cone location is within bounds, add new cone
 if x>0 && x<=X.M0 && y>0 && y<=X.M1
     X = flip_LL( X , [x y c] , PROB , T ) ;
+%     check_X(X)
 end
 
 end

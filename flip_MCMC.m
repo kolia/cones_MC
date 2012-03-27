@@ -6,6 +6,8 @@ function X = flip_MCMC( X , trials , PROB, temps )
 % then the metropolis-hastings rule is used. For more than one trial, the
 % symmetric MC rule is used.
 
+% old_X = X ;
+
 if ~isempty(trials)
     
     % prepend current X to samples
@@ -51,13 +53,20 @@ if ~isempty(trials)
     end
 else
     if numel(temps)<2
-        X = update_X( {X} , 1 ) ;
+        X = update_X( {X} , 1, false ) ;
     else
         X = update_swap( {X} , 1 ) ;
     end
 end
 
-
+% if isfield(X,'state')
+%     check_X(old_X)
+%     check_X(trials{i})
+%     check_X(X)
+% else
+%     check_X(X.X)
+%     check_X(X.with)
+% end
 
 % else                % metropolis_hastings
 %     i = rand() < ( (L(2) * flip_me{1}.backward_prob) / ...

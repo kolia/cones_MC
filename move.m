@@ -17,6 +17,8 @@ function samples = move( X , PROB , T , n )
 % For speed, backward probabilities are not calculated: this sampler should
 % only be used with the symmetric rule, not with metropolis-hastings.
 
+% check_X(X)
+
 if nargin<4 ,  n = 1 ; end
 
 M0 = PROB.M0 * PROB.SS ;
@@ -57,7 +59,6 @@ if X.N_cones > 0
                 ns = ns+1 ;
 %                 samples{ns} = move_cone( X , i , j , d , PROB , T ) ;                
                 samples{ns} = propagate_action(X,i+(j-1)*X.M0,d,PROB,T) ;
-
                 samples{ns}.forward_prob   = p/nforward ;
             end
         end
@@ -66,6 +67,7 @@ if X.N_cones > 0
         ns = ns+1 ;
         samples{ns} = flip_LL( X , [i j 0] , PROB , T ) ;
         samples{ns}.forward_prob    = p/nforward ;
+%         check_X(samples{ns})
 
         % change of color, without moving
         deleted = ns ;
@@ -74,6 +76,7 @@ if X.N_cones > 0
             ns = ns+1 ;
             if ne && ~isempty(PROB.sparse_struct{i,j,cc})
                 samples{ns} = flip_LL( samples{deleted} , [i j cc] , PROB , T ) ;
+%                 check_X(samples{ns})
             else
                 samples{ns}    = samples{deleted} ;
                 samples{ns}.ll = -Inf ;
@@ -108,6 +111,7 @@ while ns <= n - n_moved
             ns = ns+1 ;
             if ne && ~isempty(PROB.sparse_struct{i,j,c})
                 samples{ns} = flip_LL( X , [i j c] , PROB , T ) ;
+%                 check_X(samples{ns})
             else
                 samples{ns}    = X ;
                 samples{ns}.ll = -Inf ;                

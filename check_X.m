@@ -15,14 +15,14 @@ end
 
 
 % % check X.contact
-% for d=1:4
+% for d=1:2
 %     X.contact{d} = X.contact{d} * 0 ;
 %     
 %     for i=1:length(x)
 %         X = make_contacts( X , [x(i) y(i) c(i)]) ;
 %     end    
 %     
-%     dX = find( xor( Y.contact{d} , X.contact{d}) ) ;
+%     dX = Y.contact{d} - X.contact{d} ;
 %     if dX
 % %         X.diff.added
 % %         X.diff.deleted
@@ -76,7 +76,6 @@ for i=1:length(x)
         [x(i) y(i) c(i)]
     end
 end
-
 
 % % check that localLL is consistent with LL(inds)
 % [Xx,Xy,Xc] = find(Y.state) ;
