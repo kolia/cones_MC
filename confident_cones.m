@@ -28,7 +28,7 @@ end
 function r = accumulate_stas( r , X , selector )
 
 % only accumulate when selector is true
-if selector(r{4})
+if selector(r{3})
     for c=1:3
         r{1}(:,:,c) = r{1}(:,:,c) + (X.state==c) ;
     end
@@ -38,4 +38,9 @@ if selector(r{4})
 end
 % update number of samples replayed so far
 r{3} = r{3} + 1 ;
+
+if ~mod(r{3},1000)
+    fprintf('.')
+end
+
 end
