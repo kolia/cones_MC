@@ -1,7 +1,8 @@
+function [greed,cone_map,base_str] = main_CAST( type )
+
 % PREPARE cone_map
 
 warning off
-type = 1 ;
 
 if type==1
     type = 'peach' ;
@@ -64,16 +65,16 @@ cone_map.initX = greed.X ;
 
 % % OR THIS to run 50 MCMC instances and 50 CAST on the hpc cluster:
 % %            INSTALL AGRICOLA FIRST
-N = 30 ;
-ids = cell(1,N) ;
-for i=1:length(ids) , ids{i} = {i} ; end
+% N = 30 ;
+% ids = cell(1,N) ;
+% for i=1:length(ids) , ids{i} = {i} ; end
+% % 
+% PBS.l.mem = '1500mb' ;
+% PBS.l.walltime = '70:00:00' ;
+% sow(['cast_' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
 % 
-PBS.l.mem = '1500mb' ;
-PBS.l.walltime = '70:00:00' ;
-sow(['cast_' base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
-
-PBS.l.mem = '1500mb' ;
-PBS.l.walltime = '70:00:00' ;
-sow(['mcmc_' base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
+% PBS.l.mem = '1500mb' ;
+% PBS.l.walltime = '70:00:00' ;
+% sow(['mcmc_' base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
 
 % % sow(['greed_' base_str],@()greedy_cones(cone_map)) ;
