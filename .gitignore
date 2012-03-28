@@ -9,6 +9,7 @@ figs
 *.m~
 .unison.*
 cluster__*
+plots_for_*
 LL_ncones.svg
 evidence.png
 Best_Greed_MCMC_CAST.svg
