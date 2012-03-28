@@ -17,10 +17,11 @@ cd(filename)
 
 try load(['../confident_' folder_name])
 catch
-    selector = @(n) (n>100000) && (mod(n,20) == 0) ;
-    confident = confident_cones( greed.initX , cast{find(ll==max(ll),1)}.X.dX , cone_map , selector ) ;
-    save(['../confident_' folder_name], confident) ;
+    selector = @(n) (n>100) && (mod(n,20) == 0) ;
+    dX = cast{find(ll==max(ll),1)}.X.dX(1:1000,:) ;
+    confident = confident_cones( greed.initX , dX , cone_map , selector ) ;
 end
+save(['../confident_' folder_name], 'confident') ;
 plot_cone_field( confident , cone_map )
 
 plot_LL_ncones( greed , mcmc , cast , cone_map )
