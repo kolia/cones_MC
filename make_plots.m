@@ -19,7 +19,7 @@ try load(['../confident_' folder_name])
 catch
     selector = @(n) (n>10000) && (mod(n,20) == 0) ;
     dX = cast{find(ll==max(ll),1)}.X.dX ;
-    confident = confident_cones( greed.initX , dX , cone_map , selector ) ;
+    confident = confident_cones( greed.X , dX , cone_map , selector ) ;
 end
 save(['../confident_' folder_name], 'confident') ;
 plot_cone_field( confident , cone_map )
