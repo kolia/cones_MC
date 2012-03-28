@@ -9,7 +9,7 @@
 <g transform="translate(30,80)scale(3,3)">
   <g transform="translate(5,-13)">
     <text font-size="8">
-      <tspan baseline-shift="-50%">Inferred cones as sampled using CAST</tspan>
+      <tspan baseline-shift="-50%">Cones sampled using CAST</tspan>
     </text>
   </g>
                                          
