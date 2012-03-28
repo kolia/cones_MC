@@ -17,6 +17,7 @@ cd(filename)
 
 try load(['../confident_' folder_name])
 catch
+    ['making ../confident_' folder_name]
     selector = @(n) (n>10000) && (mod(n,20) == 0) ;
     dX = cast{find(ll==max(ll),1)}.X.dX ;
     confident = confident_cones( greed.X , dX , cone_map , selector ) ;

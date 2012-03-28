@@ -17,20 +17,20 @@
 %             mcmc_peach_NROI2_ROI12_support3_SS4_5e05iters,...
 %             cast_peach_NROI2_ROI12_support3_SS4_5e05iters ) ; 
 % % catch e, cd(this) ; end
-% 
-% try
-%     load('george/cast_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters')
-%     load('george/mcmc_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters')
-% catch
-%     addpath('../agricola')
-%     reap
-% 
-%     save('george/cast_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters',...
-%          'cast_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters')
-% 
-%     save('george/mcmc_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters',...
-%          'mcmc_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters')
-% end
+
+try
+    load('george/cast_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters')
+    load('george/mcmc_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters')
+catch
+    addpath('../agricola')
+    reap
+
+    save('george/cast_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters',...
+         'cast_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters')
+
+    save('george/mcmc_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters',...
+         'mcmc_george_NROI2_ROI12_support3_SS4_beta02_delta01_5e05iters')
+end
 % 
 % clear *_peach_*
 
