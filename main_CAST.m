@@ -38,9 +38,12 @@ cone_map.betas  = make_deltas( cone_map.min_beta, 1, 1, 20 ) ;
 cone_map.deltas = make_deltas( cone_map.min_delta, 1, 1, length(cone_map.betas) ) ;
 
 cone_map.initX.rois   = [roi roj] ;
-cone_map.initX.NROI   = numel(ROIs) ;
+cone_map.rois         = [roi roj] ;
+cone_map.initX.NROIs  = numel(ROIs) ;
+cone_map.NROIs        = numel(ROIs) ;
 cone_map.initX.ROI    = {ROIs{roi} ; ROIs{roj}} ;
 cone_map.initX.type   = type ;
+cone_map.type         = type ;
 cone_map.initX.supersample  = cone_params.supersample ;
 cone_map.initX.support_radius = cone_params.support_radius ;
 cone_map.initX.N_iterations   = cone_map.N_iterations ;
