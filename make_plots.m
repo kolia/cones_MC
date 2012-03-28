@@ -17,8 +17,8 @@ cd(filename)
 
 try load(['../confident_' folder_name])
 catch
-    selector = @(n) (n>100) && (mod(n,20) == 0) ;
-    dX = cast{find(ll==max(ll),1)}.X.dX(1:1000,:) ;
+    selector = @(n) (n>10000) && (mod(n,20) == 0) ;
+    dX = cast{find(ll==max(ll),1)}.X.dX ;
     confident = confident_cones( greed.initX , dX , cone_map , selector ) ;
 end
 save(['../confident_' folder_name], 'confident') ;
