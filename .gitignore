@@ -4,6 +4,7 @@
 *.png
 *.eps
 *.jar
+*.log
 batik
 figs
 *.m~
