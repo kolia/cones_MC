@@ -20,6 +20,8 @@ r{3} = 0 ;
 
 r = fold_X(X,dX,PROB,[1 1],r,@(r,x)accumulate_stas(r,x,selector)) ;
 
+fprintf(' done\n')
+
 cc = r{1}/r{2} ;
 
 end
