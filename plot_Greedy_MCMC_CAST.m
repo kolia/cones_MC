@@ -24,16 +24,14 @@ for i=1:numel(c)
 end
 
 evidence = print_evidence( NICE ) ;
+scale    = 470/max([size(NICE,1) size(NICE,2)]) ;
 
 svg = sprints('<use xlink:href="#%d" transform="translate(%f %f)" stroke="%s"/>\n', ...
                id,[y1(:);y2(:);yG],[x1(:);x2(:);xG],c) ;
+                     
+fid = fopen('plot_Greedy_MCMC_CAST_stub.svg') ;
+svg = sprintf(fread(fid,'*char'),scale,scale,evidence,svg) ;
 
-width  = 3*size(NICE,2)+ 50 ;
-height = 3*size(NICE,1)+ 85 ;
-
-svg = insert_string([evidence svg],'plot_Greedy_MCMC_CAST_stub.svg',-40) ;
-svg = [svg(1:5) sprintf('width="%d" height="%d" viewBox="%d %d %d %d" ',...
-                         width,height,5,20,width,height) svg(6:end)] ;
 save_svg_plot(svg,'Best_Greed_MCMC_CAST.svg')
 
 end

@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" 
+<svg width="500" height="500" viewBox="0 0 500 500" 
+    xmlns="http://www.w3.org/2000/svg" version="1.1" 
 	xmlns:xlink="http://www.w3.org/1999/xlink"
 >
 
@@ -8,22 +9,21 @@
   <circle id="2" cx="0" cy="0" r="4.5" stroke-width="0.3" fill="none"/>
 </defs>
 
-<g transform="translate(30,80)scale(3,3)">
-  <g transform="translate(5,-13)">
+  <g transform="translate(5,12)scale(2.2,2.2)">
     <text font-size="8">
-      <tspan baseline-shift="-50%">Greedy</tspan>
-      <tspan baseline-shift="-50%" dx="42">MCMC</tspan>
-      <tspan baseline-shift="-50%" dx="49">CAST</tspan>
+      <tspan baseline-shift="-50%%">Greedy</tspan>
+      <tspan baseline-shift="-50%%" dx="42">MCMC</tspan>
+      <tspan baseline-shift="-50%%" dx="49">CAST</tspan>
     </text>
     <use xlink:href="#0" transform="translate(33 1)" stroke="red"/>
     <use xlink:href="#1" transform="translate(105 1)" stroke="red"/>
     <use xlink:href="#2" transform="translate(175 1)" stroke="red"/>
   </g>
-  <text x="38" y="17" font-size="6" fill="white">1</text>
-  <text x="95" y="70" font-size="6" fill="white">2</text>
+<!-- <text x="38" y="17" font-size="6" fill="white">1</text>
+  <text x="95" y="70" font-size="6" fill="white">2</text>  -->
                                          
-    <!--  -->
-                                         
-                                                                     
+<g transform="translate(5,30)scale(%f,%f)">
+%s
+%s                                                                     
 </g>
 </svg>
