@@ -27,7 +27,7 @@ plot_cone_field( confident , cone_map )
 
 plot_LL_ncones( greed , mcmc , cast , cone_map )
 plot_LL_ncones( {}    , mcmc , cast , cone_map )
-plot_Greedy_MCMC_CAST( greed , mcmc , cast , cone_map.NICE )
+plot_Greedy_MCMC_CAST( greed , mcmc , cast , cone_map )
 
 
 % [sta,invww] = denoised_sta( greed.initX , cast{1}.X.dX , cone_map, selector ) ;
