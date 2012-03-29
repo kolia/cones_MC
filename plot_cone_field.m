@@ -17,8 +17,8 @@ svg = sprints('<use xlink:href="#1" transform="translate(%f %f)" stroke="rgb(%d,
                y,x,r,g,b,alpha) ;
 
 scale  = 500/max([size(PROB.NICE,1) size(PROB.NICE,2)]) ;
-width  = min([500 500*size(PROB.NICE,2)/size(PROB.NICE,1)]) ;
-height = min([500 500*size(PROB.NICE,1)/size(PROB.NICE,2)]) ;
+width  = min([500 500*size(PROB.NICE,2)/size(PROB.NICE,1)])+20 ;
+height = min([500 500*size(PROB.NICE,1)/size(PROB.NICE,2)])+20 ;
 
 % width  = scale*(size(PROB.NICE,2)+ 17) ;
 % height = scale*(size(PROB.NICE,1)+ 85) ;

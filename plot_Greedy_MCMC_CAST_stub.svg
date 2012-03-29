@@ -9,7 +9,7 @@
   <circle id="2" cx="0" cy="0" r="4.5" stroke-width="0.3" fill="none"/>
 </defs>
 
-  <g transform="translate(5,12)scale(2.2,2.2)">
+  <g transform="translate(10,12)scale(2.2,2.2)">
     <text font-size="8">
       <tspan baseline-shift="-50%%">Greedy</tspan>
       <tspan baseline-shift="-50%%" dx="42">MCMC</tspan>
@@ -22,7 +22,7 @@
 <!-- <text x="38" y="17" font-size="6" fill="white">1</text>
   <text x="95" y="70" font-size="6" fill="white">2</text>  -->
                                          
-<g transform="translate(5,30)scale(%f,%f)">
+<g transform="translate(9,40)scale(%f,%f)">
 %s
 %s                                                                     
 </g>

@@ -11,7 +11,7 @@
   <tspan x="15" y="30">Cones sampled using CAST</tspan>
 </text> -->
 
-<g transform="translate(0,0)scale(%f,%f)">
+<g transform="translate(10,10)scale(%f,%f)">
 %s
 %s
 </g>

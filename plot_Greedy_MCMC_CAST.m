@@ -24,9 +24,9 @@ for i=1:numel(c)
 end
 
 evidence = print_evidence( PROB.NICE ) ;
-scale    = 470/max([size(PROB.NICE,1) size(PROB.NICE,2)]) ;
-width    = min([470 470*size(PROB.NICE,2)/size(PROB.NICE,1)]) ;
-height   = min([470 470*size(PROB.NICE,1)/size(PROB.NICE,2)]) ;
+scale    = 480/max([size(PROB.NICE,1) size(PROB.NICE,2)]) ;
+width    = min([500 500*size(PROB.NICE,2)/size(PROB.NICE,1)]) ;
+height   = min([500 500*size(PROB.NICE,1)/size(PROB.NICE,2)])+40 ;
 
 svg = sprints('<use xlink:href="#%d" transform="translate(%f %f)" stroke="%s"/>\n', ...
                id,[y1(:);y2(:);yG],[x1(:);x2(:);xG],c) ;
