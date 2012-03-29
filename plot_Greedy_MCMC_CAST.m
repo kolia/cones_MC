@@ -1,4 +1,4 @@
-function svg = plot_Greedy_MCMC_CAST( greed , mcmc , cast , NICE )
+function svg = plot_Greedy_MCMC_CAST( greed , mcmc , cast , PROB )
 
 [~,ll,states,keep] = get_best( [mcmc ; cast ; {greed}] ) ;
 id = [ones(numel(mcmc),1) ; 2*ones(numel(cast),1) ; 0] ;
@@ -23,15 +23,17 @@ for i=1:numel(c)
     end
 end
 
-evidence = print_evidence( NICE ) ;
-scale    = 470/max([size(NICE,1) size(NICE,2)]) ;
+evidence = print_evidence( PROB.NICE ) ;
+scale    = 470/max([size(PROB.NICE,1) size(PROB.NICE,2)]) ;
+width    = min([470 470*size(PROB.NICE,2)/size(PROB.NICE,1)]) ;
+height   = min([470 470*size(PROB.NICE,1)/size(PROB.NICE,2)]) ;
 
 svg = sprints('<use xlink:href="#%d" transform="translate(%f %f)" stroke="%s"/>\n', ...
                id,[y1(:);y2(:);yG],[x1(:);x2(:);xG],c) ;
                      
 fid = fopen('plot_Greedy_MCMC_CAST_stub.svg') ;
-svg = sprintf(fread(fid,'*char'),scale,scale,evidence,svg) ;
+svg = sprintf(fread(fid,'*char'),width,height,width,height,scale,scale,evidence,svg) ;
 
-save_svg_plot(svg,'Best_Greed_MCMC_CAST.svg')
+save_svg_plot(svg,sprintf('Best_Greed_MCMC_CAST_%s.svg',PROB.type))
 
 end

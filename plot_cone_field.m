@@ -15,8 +15,11 @@ b = floor( 255*cc(2*M0*M1 + x+M0*(y-1)) ./ alpha ) ;
 
 svg = sprints('<use xlink:href="#1" transform="translate(%f %f)" stroke="rgb(%d,%d,%d)" opacity="%.2f"/>\n', ...
                y,x,r,g,b,alpha) ;
-           
+
 scale  = 500/max([size(PROB.NICE,1) size(PROB.NICE,2)]) ;
+width  = min([500 500*size(PROB.NICE,2)/size(PROB.NICE,1)]) ;
+height = min([500 500*size(PROB.NICE,1)/size(PROB.NICE,2)]) ;
+
 % width  = scale*(size(PROB.NICE,2)+ 17) ;
 % height = scale*(size(PROB.NICE,1)+ 85) ;
 
@@ -27,8 +30,8 @@ evidence = print_evidence( PROB.NICE ) ;
 % evidence = [sprintf('<g transform="scale(%f,%f)">',scale,scale) evidence '</g>'] ;
 
 fid = fopen('plot_cones_field_stub.svg') ;
-svg = sprintf(fread(fid,'*char'),scale,scale,evidence,svg) ;
+svg = sprintf(fread(fid,'*char'),width,height,width,height,scale,scale,evidence,svg) ;
 
-save_svg_plot(svg,'cones_field.svg')
+save_svg_plot(svg,sprintf('cones_field_%s.svg',PROB.type))
 
 end
