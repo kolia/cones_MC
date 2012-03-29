@@ -17,14 +17,13 @@ evidence = print_evidence( PROB.NICE ) ;
 
 svg = sprints('<use xlink:href="#1" transform="translate(%f %f)" stroke="rgb(%d,%d,%d)" opacity="%.2f"/>\n', ...
                y,x,r,g,b,alpha) ;
+           
+scale  = 3 ;
+width  = scale*(size(PROB.NICE,2)+ 17) ;
+height = scale*(size(PROB.NICE,1)+ 85) ;
 
-svg = insert_string([evidence svg],'plot_cones_field_stub.svg',-40) ;
-
-width  = 3*size(PROB.NICE,2)+ 50 ;
-height = 3*size(PROB.NICE,1)+ 85 ;
-
-svg = [svg(1:5) sprintf('width="%d" height="%d" viewBox="%d %d %d %d" ',...
-                         width,height,5,20,width,height) svg(6:end)] ;
+fid = fopen('plot_cones_field_stub.svg') ;
+svg = sprintf(fread(fid,'*char'),width,height,5,20,width,height,scale,scale,evidence,svg) ;
 
 save_svg_plot(svg,'cones_field.svg')
 
