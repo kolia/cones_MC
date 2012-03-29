@@ -26,6 +26,7 @@ save(['../confident_' folder_name], 'confident') ;
 plot_cone_field( confident , cone_map )
 
 plot_LL_ncones( greed , mcmc , cast , cone_map )
+plot_LL_ncones( {}    , mcmc , cast , cone_map )
 plot_Greedy_MCMC_CAST( greed , mcmc , cast , cone_map.NICE )
 
 
