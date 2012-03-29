@@ -16,7 +16,10 @@ cone_params.support_radius = X.support_radius ;
 cone_map = exact_LL_setup(stas,cone_params) ; % cone_map, aka PROB or data
 
 cone_map.initX.rois   = X.rois  ;
+cone_map.rois         = X.rois  ;
 cone_map.initX.NROI   = X.NROI  ;
+cone_map.initX.NROIs  = numel(X.ROI) ;
+cone_map.NROIs        = numel(X.ROI) ;
 cone_map.initX.ROI    = X.ROI   ;
 cone_map.initX.type   = X.type  ;
 cone_map.type         = X.type  ;
