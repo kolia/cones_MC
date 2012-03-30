@@ -1,7 +1,9 @@
 function evidence = plotable_evidence( evidence )
 
 infinite = ~isfinite(evidence) ;
-evidence(~isfinite(evidence)) = 1e-6 ;
+evidence(~isfinite(evidence)) = 1e-10 ;
+
+evidence(evidence<0) = 0 ;
 
 z = max(evidence,[],3) ;
 inds  = logical(z<=0) ;
@@ -13,7 +15,7 @@ evidence(inds3) = 0 ;
 evidence = evidence-min(evidence(:)) ;
 evidence = evidence / max(evidence(:)) ;
 
-evidence(inds3) = 0.001 ;
+evidence(inds3) = 0.05 ;
 evidence(infinite) = 0 ;
 
 end

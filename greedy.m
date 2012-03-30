@@ -43,7 +43,7 @@ else
 %     fprintf('changed greedy_ll min %f median %f max %f',min(ll(:)), median(ll(:)), max(ll(:)))
 end
 
-% if mod( X.N_cones, 20 ) == 1
+% if mod( X.N_cones, 840 ) == 1
 %     fprintf('   LL min %f max %f',min(X.greedy_ll(isfinite(X.greedy_ll))), max(X.greedy_ll(:)))
 %     figure(1)
 %     pe = plotable_evidence(X.greedy_ll) ; 
@@ -57,13 +57,12 @@ end
 [mm,I] = max(X.greedy_ll(:)) ;
 [mx,my,mc] = ind2sub(size(PROB.LL),I) ;
 
-done = true ;
 if mm>0
+    done = false ;
     
     newX = flip_LL( X , [mx my mc] , PROB , [1 1]) ;
     if newX.ll>=X.ll
         X = update_X({newX},1,false) ;
-        done = false ;
     end
 
     try
@@ -91,9 +90,8 @@ if mm>0
     X.last_x    = mx ;
     X.last_y    = my ;
     X.last_c    = mc ;
-end
-
-if done
+else
+    done = true ;
     X = rmfield(X,{'changed_x','changed_y','last_x','last_y'}) ;
 end
 
