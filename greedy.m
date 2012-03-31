@@ -16,34 +16,14 @@ oldll = X.ll ;
 if ~isfield(X,'changed_x')
     X.greedy_ll = PROB.LL ;
 else
-    used = 0 ;
-    inds = zeros(PROB.N_colors*numel(X.changed_x),1) ;
-    gree = zeros(PROB.N_colors*numel(X.changed_x),1) ;
-    for i=1:numel(X.changed_x)
-        x = X.changed_x(i) ;
-        y = X.changed_y(i) ;
-        ne = not_excluded( X, x, y ) ;
-        for c=1:PROB.N_colors
-            used = used + 1 ;
-            inds(used) = x + (y-1)*M0 + (c-1)*M0*M1 ;
-            if ne && ~isempty(PROB.sparse_struct{x,y,c})
-                sample = flip_LL( X , [x y c] , PROB , [1 1]) ;
-                gree(used) = sample.ll - X.ll ;
-            else
-                gree(used) = -Inf ;
-            end
-        end
-    end
-
-    X.greedy_ll(inds(1:used)) = gree(1:used) ;
-
+    X = update_changed(X,PROB) ;
 %     figure(3)
 %     ll = X.greedy_ll{1}(min(X.changed_x)+2:max(X.changed_x)-2,min(X.changed_y)+2:max(X.changed_y)-2) ;
 %     imagesc(ll/max(ll(:)))
 %     fprintf('changed greedy_ll min %f median %f max %f',min(ll(:)), median(ll(:)), max(ll(:)))
 end
 
-% if mod( X.N_cones, 840 ) == 1
+% if X.N_cones == 1688
 %     fprintf('   LL min %f max %f',min(X.greedy_ll(isfinite(X.greedy_ll))), max(X.greedy_ll(:)))
 %     figure(1)
 %     pe = plotable_evidence(X.greedy_ll) ; 
@@ -59,17 +39,6 @@ end
 
 if mm>0
     done = false ;
-    
-    newX = flip_LL( X , [mx my mc] , PROB , [1 1]) ;
-    if newX.ll>=X.ll
-        X = update_X({newX},1,false) ;
-    end
-
-    try
-        fprintf('   #keep_cones %d, #keep_GCs %d    mm-dll %f   mm-PROB.ll %f',...
-            nnz(X.keep_cones),numel(X.keep_GCs),mm-newX.ll+oldll,mm-PROB.LL(mx,my,mc)) ;
-    end
-
 
     sx = mod(mx-1,PROB.SS)+1 ;
     sy = mod(my-1,PROB.SS)+1 ;
@@ -90,9 +59,47 @@ if mm>0
     X.last_x    = mx ;
     X.last_y    = my ;
     X.last_c    = mc ;
+    
+    newX = flip_LL( X , [mx my mc] , PROB , [1 1]) ;
+    if newX.ll>=X.ll
+        X = update_X({newX},1,false) ;
+    else
+        X = update_changed(X,PROB) ;
+    end
+
+    try
+        fprintf('   #keep_cones %d, #keep_GCs %d    mm-dll %f   mm-PROB.ll %f',...
+            nnz(X.keep_cones),numel(X.keep_GCs),mm-newX.ll+oldll,mm-PROB.LL(mx,my,mc)) ;
+    end
 else
     done = true ;
     X = rmfield(X,{'changed_x','changed_y','last_x','last_y'}) ;
 end
+
+end
+
+function X = update_changed(X,PROB)
+
+M0 = PROB.M0 * PROB.SS ;
+M1 = PROB.M1 * PROB.SS ;
+used = 0 ;
+inds = zeros(PROB.N_colors*numel(X.changed_x),1) ;
+gree = zeros(PROB.N_colors*numel(X.changed_x),1) ;
+for i=1:numel(X.changed_x)
+    x = X.changed_x(i) ;
+    y = X.changed_y(i) ;
+    ne = not_excluded( X, x, y ) ;
+    for c=1:PROB.N_colors
+        used = used + 1 ;
+        inds(used) = x + (y-1)*M0 + (c-1)*M0*M1 ;
+        if ne && ~isempty(PROB.sparse_struct{x,y,c})
+            sample = flip_LL( X , [x y c] , PROB , [1 1]) ;
+            gree(used) = sample.ll - X.ll ;
+        else
+            gree(used) = -Inf ;
+        end
+    end
+end
+X.greedy_ll(inds(1:used)) = gree(1:used) ;
 
 end
