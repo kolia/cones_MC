@@ -20,14 +20,6 @@ if isfield(X,'dX')
     end
 end
 
-%% track all changes
-if isfield(X,'LL_history')
-    if X.iteration>length(X.LL_history)
-       X.LL_history = [X.LL_history ; zeros(500,1)] ;
-    end
-    X.LL_history(X.iteration) = X.ll ;
-end
-
 if track_contacts && ~isempty(X.diff)
         
     %% update contacts
@@ -58,6 +50,15 @@ if track_contacts && ~isempty(X.diff)
             X = make_contacts(X , X.diff(added(i),:)) ;
         end
     end
+end
+
+
+%% track all changes
+if isfield(X,'LL_history')
+    if X.iteration>length(X.LL_history)
+       X.LL_history = [X.LL_history ; zeros(500,1)] ;
+    end
+    X.LL_history(X.iteration) = X.ll ;
 end
 
 if X.iteration>numel(X.cputime)
