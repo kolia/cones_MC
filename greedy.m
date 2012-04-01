@@ -23,7 +23,7 @@ else
 %     fprintf('changed greedy_ll min %f median %f max %f',min(ll(:)), median(ll(:)), max(ll(:)))
 end
 
-% if X.N_cones == 1688
+% if mod(X.N_cones , 100) == 99
 %     fprintf('   LL min %f max %f',min(X.greedy_ll(isfinite(X.greedy_ll))), max(X.greedy_ll(:)))
 %     figure(1)
 %     pe = plotable_evidence(X.greedy_ll) ; 
@@ -39,7 +39,7 @@ end
 
 if mm>0
     done = false ;
-
+    
     sx = mod(mx-1,PROB.SS)+1 ;
     sy = mod(my-1,PROB.SS)+1 ;
 
@@ -59,7 +59,7 @@ if mm>0
     X.last_x    = mx ;
     X.last_y    = my ;
     X.last_c    = mc ;
-    
+        
     newX = flip_LL( X , [mx my mc] , PROB , [1 1]) ;
     if newX.ll>=X.ll
         X = update_X({newX},1,false) ;
@@ -89,7 +89,7 @@ for i=1:numel(X.changed_x)
     x = X.changed_x(i) ;
     y = X.changed_y(i) ;
     ne = not_excluded( X, x, y ) ;
-    for c=1:PROB.N_colors
+    for c=1:3
         used = used + 1 ;
         inds(used) = x + (y-1)*M0 + (c-1)*M0*M1 ;
         if ne && ~isempty(PROB.sparse_struct{x,y,c})
