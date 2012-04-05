@@ -15,7 +15,7 @@ evidence(inds3) = 0 ;
 evidence = evidence-min(evidence(:)) ;
 evidence = evidence / max(evidence(:)) ;
 
-evidence(inds3) = 0.05 ;
+evidence(inds3) = 0.15 ;
 evidence(infinite) = 0 ;
 
 end
