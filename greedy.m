@@ -1,4 +1,4 @@
-function [X,done] = greedy( X , PROB , update_X )
+function [X,done] = greedy( X , PROB )
 
 % if X.N_cones == 0
 %     profile clear
