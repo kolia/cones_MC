@@ -10,21 +10,25 @@ else
     load george/cone_params   % contains 'cone_params'
 end
 
-stas = restrict_ROI( stas, X.ROI{1}, X.ROI{2} ) ;
+% stas = restrict_ROI( stas, X.ROI{1}, X.ROI{2} ) ;
 
-cone_params.support_radius = X.support_radius ;
 cone_map = exact_LL_setup(stas,cone_params) ; % cone_map, aka PROB or data
 
 cone_map.initX.rois   = X.rois  ;
 cone_map.rois         = X.rois  ;
 cone_map.initX.NROI   = X.NROI  ;
-cone_map.initX.NROIs  = numel(X.ROI) ;
-cone_map.NROIs        = numel(X.ROI) ;
-cone_map.initX.ROI    = X.ROI   ;
+try
+    cone_map.initX.NROIs  = numel(X.ROI) ;
+    cone_map.NROIs        = numel(X.ROI) ;
+    cone_map.initX.ROI    = X.ROI   ;
+catch
+    cone_map.initX.NROIs  = 2 ;
+    cone_map.NROIs        = 2 ;
+end
 cone_map.initX.type   = X.type  ;
 cone_map.type         = X.type  ;
-cone_map.initX.supersample = X.supersample ;
-cone_map.initX.support_radius = X.support_radius ;
+cone_map.initX.supersample = cone_params.supersample ;
+cone_map.initX.support_radius = cone_params.support_radius ;
 cone_map.min_beta     = min(X.betas) ;
 cone_map.min_delta    = min(X.deltas) ;
 cone_map.initX.betas  = X.betas  ;
