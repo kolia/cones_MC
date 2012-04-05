@@ -1,7 +1,7 @@
 function make_plots(greed,mcmc,cast,cone_map)
 
 if nargin<4
-    cone_map = remake_cone_map(greed.initX) ;
+    cone_map = remake_cone_map(mcmc{1}) ;
 end
 
 folder_name = cone_map_string(cone_map);
@@ -20,7 +20,7 @@ catch
     ['making ../confident_' folder_name]
     selector = @(n) (n>10000) && (mod(n,20) == 0) ;
     dX = cast{find(ll==max(ll),1)}.X.dX ;
-    confident = confident_cones( greed.X , dX , cone_map , selector ) ;
+    confident = confident_cones( cone_map.initX , dX , cone_map , selector ) ;
 end
 save(['../confident_' folder_name], 'confident') ;
 plot_cone_field( confident , cone_map )
