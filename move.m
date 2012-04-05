@@ -91,8 +91,12 @@ end
 
 % sample unoccupied locations, propose cone additions
 while ns <= n - n_moved
-    i       = randi( M0 , 1 ) ;
-    j       = randi( M1 , 1 ) ;
+    ex = find(~X.excluded & PROB.has_evidence) ;
+    [i,j] = ind2sub([M0 M1],ex(randi(numel(ex)))) ;
+%     i = ij(1) ;
+%     j = ij(2) ;
+%     i       = randi( M0 , 1 ) ;
+%     j       = randi( M1 , 1 ) ;
     
     if ~X.state(i+M0*(j-1))
         % probability of choosing this location & color

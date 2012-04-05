@@ -2,6 +2,7 @@ function to_save = MCMC( cone_map , ID )
 
 if nargin>1 ,   cone_map.ID = ID ;     end
 
+cone_map.has_evidence = logical(squeeze(sum(abs(cone_map.LL),3))>0) ;
 cone_map = rmfield(cone_map,{'LL','NICE'})
 cone_map.code.string    = file2str('MCMC.m') ;
 
