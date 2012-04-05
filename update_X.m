@@ -20,15 +20,19 @@ if isfield(X,'dX')
     end
 end
 
-if track_contacts && ~isempty(X.diff)
+if ~isempty(X.diff)
         
     %% update contacts
-    if isfield(X,'contact')
         
-        deleted = find( ~X.diff(:,3) ) ;
-        if ~isempty(deleted)
-            deleted = X.diff(deleted,1) + (X.diff(deleted,2)-1)*X.M0 ;
-            
+    deleted = find( ~X.diff(:,3) ) ;
+    if ~isempty(deleted)
+        if track_contacts && isfield(X,'contact')
+            for ii=1:numel(deleted)
+                [~,indices] = not_excluded( X, X.diff(deleted(ii),1), X.diff(deleted(ii),2) ) ;
+                X.excluded(indices) = false ;
+            end
+
+            deleted = X.diff(deleted,1) + (X.diff(deleted,2)-1)*X.M0 ;            
             for d=1:2
                 X.contact{d}(deleted,:) = false ;
 %                 test = X.contact{d} ;
@@ -44,11 +48,15 @@ if track_contacts && ~isempty(X.diff)
                 X.contact{d}(:,deleted) = false ;
             end
         end
-        
-        added   = find( X.diff(:,3) ) ;
-        for i=1:numel(added)
-            X = make_contacts(X , X.diff(added(i),:)) ;
+    end
+
+    added   = find( X.diff(:,3) ) ;
+    for ii=1:numel(added)
+        if track_contacts && isfield(X,'contact')
+            X = make_contacts(X , X.diff(added(ii),:)) ;
         end
+        [~,indices] = not_excluded( X, X.diff(added(ii),1), X.diff(added(ii),2) ) ;
+        X.excluded(indices) = true ;
     end
 end
 
@@ -56,13 +64,20 @@ end
 %% track all changes
 if isfield(X,'LL_history')
     if X.iteration>length(X.LL_history)
-       X.LL_history = [X.LL_history ; zeros(500,1)] ;
+       X.LL_history = [X.LL_history ; zeros(numel(X.LL_history)+500,1)] ;
     end
     X.LL_history(X.iteration) = X.ll ;
 end
 
+if isfield(X,'N_cones_history')
+    if X.iteration>length(X.N_cones_history)
+       X.N_cones_history = [X.N_cones_history ; zeros(numel(X.N_cones_history)+500,1)] ;
+    end
+    X.N_cones_history(X.iteration) = X.N_cones ;
+end
+
 if X.iteration>numel(X.cputime)
-    X.cputime = [X.cputime ; zeros(numel(X.cputime,1))] ;
+    X.cputime = [X.cputime ; zeros(numel(X.cputime)+500,1)] ;
 end
 X.cputime(X.iteration) = cputime ;
 X.diff    = [] ;

@@ -1,6 +1,9 @@
-function cone_map = greedy_cones( cone_map )
+function cone_map = greedy_cones( cone_map , speed )
 
 warning off
+if nargin<2
+    speed = 0 ;
+end
 
 % cone_map    = rmfield(cone_map,{'ROI'}) ;
 
@@ -34,7 +37,7 @@ X       = initialize_X(M0,M1,N_colors,SS,cone_map.cone_params.replusion_radii,..
                        cone_map.naive_LL,1,1) ;
 X       = rmfield(X,'contact') ;
 X.SS    = cone_map.cone_params.supersample ;
-X.LL_history = [] ;
+% X.LL_history = ones(ceil(M0*M1/10),1) ;
 
 if plot_every
 scrsz = get(0,'ScreenSize');
@@ -45,7 +48,11 @@ end
 t = cputime ;
 tic
 for jj=1:maxcones
-    [X,done] = greedy(X,cone_map,@update_X) ;
+    if speed
+        [X,done] = greedy_fast(X,cone_map) ;
+    else
+        [X,done] = greedy(X,cone_map) ;
+    end
     N_cones = numel(find(X.state>0)) ;
      
     % DISPLAY stdout
@@ -62,6 +69,7 @@ for jj=1:maxcones
         drawnow
     end
     
+    done = done | jj/(N_cones+1)>1.1 ;
     if ~mod(jj,save_every) || done
         to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
         try to_save.X = rmfield(X,{'invWW'}) ; end

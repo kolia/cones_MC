@@ -67,6 +67,9 @@ for m=1:length(XS)
         XX.diff  = X.diff ;
         XX.beta  = X.beta ;
         XX.delta = X.delta ;
+        XX.LL_history = X.LL_history ;
+        XX.N_cones_history = X.N_cones_history ;
+        XX.cputime    = X.cputime ;
         
         OX       = struct ;
         OX.state = otherX.state ;
@@ -89,6 +92,9 @@ for m=1:length(XS)
         OX.diff  = otherX.diff ;
         OX.beta  = otherX.beta ;
         OX.delta = otherX.delta ;
+        OX.LL_history = otherX.LL_history ;
+        OX.N_cones_history = otherX.N_cones_history ;
+        OX.cputime    = otherX.cputime ;
     else
         XX = X ;
         OX = otherX ;

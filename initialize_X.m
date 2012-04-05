@@ -19,6 +19,7 @@ X.n_moves   = 0 ;
 X.diff      = [] ;
 X.version   = 0 ;
 X.naive_LL  = naive_LL ;
+X.excluded  = false(X.M0,X.M1) ;
 
 X.beta      = beta  ;
 X.delta     = delta ;
@@ -39,6 +40,8 @@ for d=1:2
 end
 
 X.cputime = zeros(100,1) ;
+X.LL_history= zeros(ceil(M0*M1/10),1) ;
+X.N_cones_history = zeros(100,1) ;
 X.T = [1 1] ;
 
 % FROM old flip_color_LL.m !!!

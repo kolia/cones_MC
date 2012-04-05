@@ -26,6 +26,9 @@ if i>1
     X.X.diff    = trials{i}.X.diff ;
     X.X.beta    = trials{i}.X.beta ;
     X.X.delta   = trials{i}.X.delta ;
+    X.X.LL_history = trials{i}.X.LL_history ;
+    X.X.N_cones_history = trials{i}.X.N_cones_history ;
+    X.X.cputime    = trials{i}.X.cputime ;
     
     X.with         = trials{1}.with ;
     X.with.state   = trials{i}.with.state ;
@@ -48,6 +51,10 @@ if i>1
     X.with.diff    = trials{i}.with.diff ;
     X.with.beta    = trials{i}.with.beta ;
     X.with.delta   = trials{i}.with.delta ;
+    X.with.LL_history = trials{i}.with.LL_history ;
+    X.with.N_cones_history = trials{i}.with.N_cones_history ;
+    X.with.cputime    = trials{i}.with.cputime ;
+
     
 %     check_X(X.X)
 %     check_X(X.with)
