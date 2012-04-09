@@ -48,8 +48,8 @@ while 1
     % reinitialize if stuck
     if jj - runbest.i > cone_map.M0*cone_map.M1/3
         runbest = rmfield(runbest,{'masks','contact'}) ;
-        try runbest = rmfield(runbest,{'invWW'}) ; end
-        try runbest = rmfield(runbest,{'WW'})    ; end
+        try runbest = rmfield(runbest,{'invWW','LL_history','cputime','N_cones_history','dX','excluded','sparse_STA_W_state'}) ; end
+        try runbest = rmfield(runbest,{'WW'   ,'LL_history','cputime','N_cones_history','dX','excluded','sparse_STA_W_state'}) ; end
         cone_map.bestX{n_best} = runbest ;
         n_best  = n_best + 1 ;
         X       = cone_map.initX ;

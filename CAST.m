@@ -143,7 +143,7 @@ while 1
 %         try to_save.X = rmfield(X{1},{'WW'})    ; end
 %         cone_map.bestX      = bestX ;
         to_save.bestX = rmfield(bestX,{'contact'}) ;
-        try to_save.bestX = rmfield(bestX,{'invWW'}) ; end
+        try to_save.bestX = rmfield(bestX,{'invWW','LL_history','cputime','N_cones_history','dX','excluded','sparse_STA_W_state','swap'}) ; end
 %         try to_save.bestX = rmfield(bestX,{'WW'})    ; end
         to_save.ST         = ST ;
         save(sprintf('result_%d',ID), 'to_save' )
