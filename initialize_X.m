@@ -39,9 +39,10 @@ for d=1:2
     X.contact{d} = logical(X.contact{d}) ;
 end
 
-X.cputime = zeros(100,1) ;
-X.LL_history= zeros(ceil(M0*M1/10),1) ;
-X.N_cones_history = zeros(100,1) ;
+nn = ceil(M0*M1/10) ;
+X.cputime = zeros(nn,1) ;
+X.LL_history= zeros(nn,1) ;
+X.N_cones_history = zeros(nn,1) ;
 X.T = [1 1] ;
 
 % FROM old flip_color_LL.m !!!
