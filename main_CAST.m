@@ -1,5 +1,5 @@
 % function main_CAST( type )
-% type = 1 ;
+type = 0 ;
 
 cone_map = make_cone_map( type ) ;
 

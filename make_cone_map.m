@@ -26,7 +26,7 @@ cone_map = exact_LL_setup(stas,cone_params) ; % cone_map, aka PROB or data
 
 imagesc(cone_map.NICE)
 
-cone_map.N_iterations  = 5e5 ;
+cone_map.N_iterations  = 1e6 ;
 cone_map.max_time      = 4e5 ;
 cone_map.profile_every = 0 ;
 cone_map.min_delta = 0.1 ;
