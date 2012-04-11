@@ -16,14 +16,17 @@
   <text id="4" fill="red" font-size="20" font-weight="bolder" text-anchor="middle" baseline-shift="-35%%" stroke="white" stroke-width="0.2">C</text>-->
 </defs>
 
-
-<text x="400" y="450" fill="black" font-size="40" baseline-shift="-35%%" font-family="Helvetica">cpu time</text>
+<text x="390" y="470" fill="black" font-size="34" baseline-shift="-35%%" font-family="Helvetica">cpu time</text>
+<!-- <text x="320" y="470" fill="black" font-size="34" baseline-shift="-35%%" font-family="Helvetica">cpu time</text>
+<text x="470" y="470" fill="black" font-size="26" baseline-shift="-35%%" font-family="Helvetica">(seconds)</text> -->
 <g transform="translate(50 300) rotate(-90)">
-    <text fill="black" font-size="40" baseline-shift="-35%%" font-family="Helvetica">log-likelihood</text>
+    <text fill="black" font-size="34" baseline-shift="-35%%" font-family="Helvetica">log-likelihood</text>
+</g>
+<g transform="translate(100 260) rotate(-90)">
+    <text fill="black" font-size="26" baseline-shift="-35%%" font-family="Helvetica">(bits/spike)</text>
 </g>
 
 <g transform="translate(90 410)scale(4 4)">
-<text x="-10" y="5" fill="black" font-size="8" baseline-shift="-35%%" font-family="Helvetica">0</text>
 %s
 </g>
 
