@@ -1,5 +1,5 @@
-function ll = bits_per_spike( ll, cone_map )
+function ll = bits_per_spike( ll, total_spikes )
 
-ll = ll / ( sum( cone_map.N_spikes ) * log(2) ) ;
+ll = ll / ( total_spikes * log(2) ) ;
 
 end
