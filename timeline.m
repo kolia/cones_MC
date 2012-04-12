@@ -25,6 +25,10 @@ end
 
 maxcast = 0 ;
 for i=1:numel(cast)
+    if max(cast{i}.X.LL_history) > maxcast
+        index = find(cast{i}.X.LL_history >= max(cast{i}.X.LL_history),1) ;
+        cast{i}.X.cputime(index)
+    end
     maxcast = max(maxcast,max(cast{i}.X.LL_history)) ;
     n = find(cast{i}.X.cputime > maxtime,1) ;
     cputimes = reshift_cputime(cast{i}.X.cputime,fast) ;
