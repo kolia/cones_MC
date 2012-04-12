@@ -60,7 +60,6 @@
 type = 0 ;
 main_CAST
 
-this = pwd ;
 make_plots( greed_george_NROI2_ROI12_support3_SS4_beta02_delta01_1e06iters,...
             mcmc_george_NROI2_ROI12_support3_SS4_beta02_delta01_1e06iters,...
             cast_george_NROI2_ROI12_support3_SS4_beta02_delta01_1e06iters, cone_map ) ;
