@@ -4,9 +4,9 @@
 >
 
 <defs>
-  <circle id="0" cx="0" cy="0" r="0.7" stroke-width="0.6" fill="white" />
-  <circle id="1" cx="0" cy="0" r="4.4" stroke-width="0.7" fill="none" stroke-dasharray="0.5 1.5"/>
-  <circle id="2" cx="0" cy="0" r="4.5" stroke-width="0.3" fill="none"/>
+  <circle id="0" cx="0" cy="0" r="1.0" stroke-width="1.1" fill="white" />
+  <circle id="1" cx="0" cy="0" r="3.1" stroke-width="1.4" fill="none" stroke-dasharray="3.5 2.5"/>
+  <circle id="2" cx="0" cy="0" r="4.5" stroke-width="1." fill="none"/>
 </defs>
 
   <g transform="translate(10,12)scale(2.2,2.2)">
