@@ -8,7 +8,7 @@ else
     id = [ones(numel(mcmc),1) ; 2*ones(numel(cast),1) ] ;
 end
 
-y = bits_per_spike( y, cone_map ) ;
+y = bits_per_spike( y, sum(cone_map.N_spikes) ) ;
 
 minx = min(x) ;
 maxx = max(x) ;
