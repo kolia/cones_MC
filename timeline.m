@@ -82,7 +82,7 @@ svg = [svg plot_line(gr(3,:),gr(4,:),'<line x1="%f" x2="%f" y1="%f" y2="%f" stro
 fid = fopen('timeline_stub.svg') ;
 svg = sprintf(fread(fid,'*char'), svg) ;
 
-save_svg_plot(svg,sprintf('timeline__%s.svg','test'))
+save_svg_plot(svg,sprintf('timeline__%s.svg','george'))
 
 end
 
