@@ -49,7 +49,7 @@ t = cputime ;
 tic
 for jj=1:maxcones
     if speed
-        [X,done] = greedy_fast(X,cone_map) ;
+        [X,done] = greedy_hot(X,cone_map) ;
     else
         [X,done] = greedy(X,cone_map) ;
     end
