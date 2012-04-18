@@ -43,17 +43,18 @@ cone_map.betas  = make_deltas( cone_map.min_beta, 1, 1, 20 ) ;
 cone_map.deltas = make_deltas( cone_map.min_delta, 1, 1, length(cone_map.betas) ) ;
 
 % plot, display, and save every N iterations (0 = never)
-cone_map.plot_every    = 100 ;
+cone_map.plot_every    = 0   ;
 cone_map.display_every = 20  ;
 cone_map.save_every    = 0   ;
 
 
+
 %% GREEDY
-greed = greedy_cones(cone_map) ;  save('greed','greed') ;
+% greed = greedy_cones(cone_map) ;  save('greed','greed') ;
 
 
 
-%% MCMC and CAST
+%% MCMC and CAST initialization
 
 % track contacts during 'hot' greedy method
 cone_map.track_contacts = true ;
@@ -64,8 +65,14 @@ greed_hot = greedy_cones(cone_map, 'hot') ;
 % initialize MCMC and CAST with 'hot' greedy configuration
 cone_map.initX = greed_hot.X ;
 
-% run MCMC
-mcmc = MCMC(cone_map) ;           save('mcmc' ,'mcmc' ) ;
+% plots are nice for MCMC and CAST
+cone_map.plot_every    = 0   ;
+
+
+%% MCMC or CAST
+
+% % run MCMC
+% mcmc = MCMC(cone_map) ;           save('mcmc' ,'mcmc' ) ;
 
 % run CAST
 cast = CAST(cone_map) ;           save('cast' ,'cast' ) ;
