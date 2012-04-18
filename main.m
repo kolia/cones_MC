@@ -1,3 +1,7 @@
+% add subfolders to path
+addpath(genpath(pwd))
+
+
 %% LOAD DATA
 
 load george/stas       

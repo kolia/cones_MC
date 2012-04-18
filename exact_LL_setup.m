@@ -5,7 +5,6 @@ function cone_map = exact_LL_setup( GC_stas , cone_params , cone_map )
 %  applied to the STAs, and the convolution of the STAs with the cone
 %  receptive fields is stored in STA_W.
 
-addpath(genpath(pwd))
 
 if nargin < 3  ,   cone_map = struct ; end
 
