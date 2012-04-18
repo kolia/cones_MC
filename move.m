@@ -48,7 +48,7 @@ if X.N_cones > 0
         % probability of choosing this location
         p = 1/X.N_cones * PROB.q ;
         
-        % number of legal moves for this cone, being careful with borders
+        % number of legal moves for this cone, being careful about borders
         nforward    = 4 - PROB.outofbounds(i,j) + PROB.N_colors ;
 
         % for each adjacent location, add trial move to that location
