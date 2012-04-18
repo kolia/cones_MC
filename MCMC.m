@@ -18,8 +18,8 @@ default( cone_map , 'save_every'    , 5000   )
 default( cone_map , 'ID'            , 0      )
 default( cone_map , 'max_time'      , 200000 )
 
-% reduce memory footprint: LL is only used by greedy, NICE for plots only
-cone_map = rmfield(cone_map,{'LL','NICE'})
+% reduce memory footprint: LL is only used by greedy
+cone_map = rmfield(cone_map,'LL')
 
 % Initialize figure
 if plot_every
