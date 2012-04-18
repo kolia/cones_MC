@@ -23,8 +23,6 @@ scrsz = get(0,'ScreenSize');
 h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*1]) ;
 end
 
-N_iterations    = cone_map.N_iterations ;
-
 fprintf('\n\nSTARTING CAST with' )
 fprintf('\n\n+ different inverse temperatures beta:\n')
 fprintf('%4.2f  ',cone_map.betas )
