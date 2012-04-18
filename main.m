@@ -1,12 +1,12 @@
 %% LOAD DATA
 
-% load george/stas       
-load peach/peach_data 
+load george/stas       
+% load peach/peach_data 
 % stas(i).spikes  : the list of spike times of cell i
 % stas(i).spatial : the spatial component of the STA of cell i
 
-% load george/cone_params   
-load peach/cone_params   
+load george/cone_params   
+% load peach/cone_params   
 % cone_params.stimulus_variance : variance of each stim pixel color chanel
 %                                 (usually 1)
 %
