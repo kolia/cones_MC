@@ -1,5 +1,6 @@
 function ST = SimTempMCMC( X, PROB, LL, ST , j )
-%simTempMCMC : We update the state, and then update the temperature
+% Simulated Tempering + Wang-Landau update
+% simTempMCMC : We update the state, and then update the temperature
 %   ST (Simulated Tempering) is a structure that contains fields:
 %       T : cell array of temperatures
 %       i : index of current temperature
