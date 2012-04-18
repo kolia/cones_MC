@@ -73,8 +73,6 @@ cone_map.NROI           = NROI ;
 cone_map.N_spikes       = N_spikes ;
 cone_map.SS             = SS ;
 
-cone_map.naive_LL       = 0 ;
-
 coneConv = zeros( 2*R+SS , 2*R+SS , SS , SS ) ;
 WW = zeros(SS,SS) ;
 
@@ -134,7 +132,7 @@ cone_map.N_fast         = 1     ;
 cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.N_colors, cone_map.SS, ...
                                cone_map.cone_params.replusion_radii, ...
-                               cone_map.naive_LL, 1, 1) ;
+                               1, 1) ;
 if ~isfield(cone_map.initX,'connections')
     cone_map.init.connections = zeros(N_GC,1) ;
 end

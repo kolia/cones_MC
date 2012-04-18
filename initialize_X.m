@@ -18,7 +18,6 @@ X.dll       = 0 ;
 X.n_moves   = 0 ;
 X.diff      = [] ;
 X.version   = 0 ;
-X.naive_LL  = naive_LL ;
 X.excluded  = false(X.M0,X.M1) ;
 
 X.beta      = beta  ;
