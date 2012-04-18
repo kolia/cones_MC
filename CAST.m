@@ -119,7 +119,7 @@ while 1
             iters = max(1,X{1}.iteration-2000)+(1:2000) ;
             subplot(5,1,1:3)
             plot_cones( X{1}.state , cone_map ) ;
-            title( sprintf('After %d MCMC iterations',jj),'FontSize' , 21 )
+            title( sprintf('After %d CAST iterations',jj),'FontSize' , 21 )
             subplot(5,1,4) ;
             plot(iters,X{1}.LL_history(iters))
             ylabel( sprintf('X(1) LL'),'FontSize' , 18 )
@@ -130,7 +130,7 @@ while 1
                 plotme(j,:) = X{1+j}.STi_history(iters) ;
             end
             plot( repmat(iters,cone_map.N_fast,1)' , plotme' )
-            ylabel( sprintf('fast Temps'),'FontSize' , 18 )
+            ylabel( sprintf('fast temp.'),'FontSize' , 18 )
             xlabel('Iterations','FontSize' , 18)
             drawnow ; hold off
         end
