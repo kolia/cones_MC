@@ -11,7 +11,7 @@ M1          = cone_map.M1 ;
 cone_map.SS = cone_map.cone_params.supersample ;
 SS          = cone_map.SS ;
 N_colors    = cone_map.N_colors ;
-maxcones      = cone_map.maxcones ;
+maxcones    = cone_map.initX.maxcones ;
 
 % plot, display, and save every N iterations (0 = never)
 display_every = 1 ;
@@ -19,8 +19,7 @@ default( cone_map , 'plot_every'    , 0      )
 default( cone_map , 'save_every'    , 500    )
 
 % no need to track_contacts, greedy does not shift cones, it just adds them
-default( cone_map , 'track_contacts', false  )
-
+if ~isfield(cone_map , 'track_contacts'), cone_map.track_contacts = false ; end
 
 fprintf('\n\nSTARTING greedy search')
 
