@@ -21,8 +21,8 @@ default( cone_map , 'max_time'      , 200000 )
 default( cone_map , 'deltas' , ones(1,length(cone_map.betas))) ;
 default( cone_map , 'N_fast'        , 1      )
 
-% reduce memory footprint: LL is only used by greedy, NICE for plots only
-cone_map = rmfield(cone_map,{'LL','NICE'})
+% reduce memory footprint: LL is only used by greedy
+cone_map = rmfield(cone_map,'LL')
 
 % Initialize figure
 if plot_every
