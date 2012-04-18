@@ -97,7 +97,7 @@ while ns <= n - n_moved
 %     j = ij(2) ;
 %     i       = randi( M0 , 1 ) ;
 %     j       = randi( M1 , 1 ) ;
-    
+
     if ~X.state(i+M0*(j-1))
         % probability of choosing this location & color
         p = (1-PROB.q)/((M0*M1 - X.N_cones)*PROB.N_colors) ;
@@ -108,7 +108,7 @@ while ns <= n - n_moved
             X    = flip_LL( X, [cx(cone) cy(cone) 0], PROB, T ) ;
             p    = p/X.N_cones ;
         end
-        
+
         % propose addition of new cone of each color
         ne = not_excluded(X,i,j) ;
         for c=1:PROB.N_colors

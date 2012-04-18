@@ -1,12 +1,11 @@
 function cone_map = greedy_cones( cone_map , speed )
 
 warning off
-if nargin<2
+if nargin<2     % default is regular greedy (anything but 0: 'hot' version)
     speed = 0 ;
 end
 
-% cone_map    = rmfield(cone_map,{'ROI'}) ;
-
+%% PARAMS from cone_map
 M0          = cone_map.M0 ;
 M1          = cone_map.M1 ;
 cone_map.SS = cone_map.cone_params.supersample ;
@@ -14,15 +13,13 @@ SS          = cone_map.SS ;
 N_colors    = cone_map.N_colors ;
 maxcones      = cone_map.maxcones ;
 
-% sparse int matrix, with number of out-of-border adjacencies
-cone_map.outofbounds = sparse([],[],[],M0*SS,M1*SS,2*(M0+M1)*SS) ;
-cone_map.outofbounds(:,[1 M1*SS]) = 1 ;
-cone_map.outofbounds([1 M0*SS],:) = cone_map.outofbounds([1 M0*SS],:) + 1 ;
-
-%% plot and display info every ?
+% plot, display, and save every N iterations (0 = never)
 display_every = 1 ;
 default( cone_map , 'plot_every'    , 0      )
 default( cone_map , 'save_every'    , 500    )
+
+% no need to track_contacts, greedy does not shift cones, it just adds them
+default( cone_map , 'track_contacts', false  )
 
 
 fprintf('\n\nSTARTING greedy search')
@@ -30,21 +27,22 @@ fprintf('\n\nSTARTING greedy search')
 
 % initializing variables
 N_cones = 0 ;
-X       = initialize_X(M0,M1,N_colors,SS,cone_map.cone_params.replusion_radii,...
-                       cone_map.naive_LL,1,1) ;
-X       = rmfield(X,'contact') ;
-X.SS    = cone_map.cone_params.supersample ;
-% X.LL_history = ones(ceil(M0*M1/10),1) ;
+X = cone_map.initX ;
+
+% if not tracking contacts, contact field is not needed
+if ~cone_map.track_contacts, try X   = rmfield(X,'contact') ; end ; end
 
 if plot_every
 scrsz = get(0,'ScreenSize');
 h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*0.5]) ;
 end
 
-% MAIN MCMC LOOP
+% GREEDY addition of cones, one at a time
 t = cputime ;
 tic
 for jj=1:maxcones
+
+    % try adding a cone
     if speed
         [X,done] = greedy_hot(X,cone_map) ;
     else
@@ -66,15 +64,16 @@ for jj=1:maxcones
         drawnow
     end
     
-    done = done | jj/(N_cones+1)>1.1 ;
-    if ~mod(jj,save_every) || done
+    % SAVE to disk
+    save_now = done | jj/(N_cones+1)>1.1 ;
+    if ~mod(jj,save_every) || save_now
+        % use less disk space: remove large data structures
         to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
         try X = rmfield(X,'excluded') ; end
         X = remake_X(cone_map,X) ;
         try to_save.X = rmfield(X,{'invWW'}) ; end
-%         try to_save.X = rmfield(X,{'WW'})    ; end
         save('result', 'to_save' )
-        if done ,  break ;
+        if save_now ,  break ;
         else clear to_save; end
     end
 end
