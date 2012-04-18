@@ -62,7 +62,7 @@ if mm>0
         
     newX = flip_LL( X , [mx my mc] , PROB , [1 1]) ;
     if newX.ll>=X.ll
-        X = update_X({newX},1,false) ;
+        X = update_X({newX},1,PROB.track_contacts) ;
     else
         X = update_changed(X,PROB) ;
     end
