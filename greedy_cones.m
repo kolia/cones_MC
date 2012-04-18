@@ -72,6 +72,8 @@ for jj=1:maxcones
     done = done | jj/(N_cones+1)>1.1 ;
     if ~mod(jj,save_every) || done
         to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
+        try X = rmfield(X,'excluded') ; end
+        X = remake_X(cone_map,X) ;
         try to_save.X = rmfield(X,{'invWW'}) ; end
 %         try to_save.X = rmfield(X,{'WW'})    ; end
         save('result', 'to_save' )
