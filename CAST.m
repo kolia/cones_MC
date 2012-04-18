@@ -71,7 +71,7 @@ for j=1:cone_map.N_fast
 end
 
 % MAIN MCMC LOOP
-fprintf('\n\nMCMC progress:')
+fprintf('\n\nCAST progress:')
 t = cputime ;
 tic
 
@@ -158,7 +158,7 @@ while 1
         try to_save.bestX = rmfield(bestX,{'invWW','LL_history','cputime',...
             'N_cones_history','dX','excluded','sparse_STA_W_state','swap'}) ; end
         to_save.ST         = ST ;
-        save(sprintf('result_%d',ID), 'to_save' )
+        save(sprintf('cast_result_%d',ID), 'to_save' )
         if jj>N_iterations || cputime-t>max_time, break ; 
         else clear to_save
         end
