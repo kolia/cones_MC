@@ -66,7 +66,7 @@ greed_hot = greedy_cones(cone_map, 'hot') ;
 cone_map.initX = greed_hot.X ;
 
 % plots are nice for MCMC and CAST
-cone_map.plot_every    = 0   ;
+cone_map.plot_every    = 100   ;
 
 
 %% MCMC or CAST
