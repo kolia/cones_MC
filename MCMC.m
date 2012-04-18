@@ -72,6 +72,7 @@ while 1
         n_best  = n_best + 1 ;
         
         % reinitialize
+        fprintf('reinitializing...\n')
         runbest = cone_map.initX ;
         runbest.LL_history = X.LL_history ;
         runbest.N_cones_history = X.N_cones_history ;
