@@ -12,6 +12,7 @@ M1          = cone_map.M1 ;
 cone_map.SS = cone_map.cone_params.supersample ;
 SS          = cone_map.SS ;
 N_colors    = cone_map.N_colors ;
+maxcones      = cone_map.maxcones ;
 
 % sparse int matrix, with number of out-of-border adjacencies
 cone_map.outofbounds = sparse([],[],[],M0*SS,M1*SS,2*(M0+M1)*SS) ;
@@ -24,10 +25,6 @@ default( cone_map , 'plot_every'    , 0      )
 default( cone_map , 'save_every'    , 500    )
 
 
-%% PARAMETERS
-% maxcones
-  maxcones      = 3000 ;
-  
 fprintf('\n\nSTARTING greedy search')
 
 
