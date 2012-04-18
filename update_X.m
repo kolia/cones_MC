@@ -26,25 +26,16 @@ if ~isempty(X.diff)
         
     deleted = find( ~X.diff(:,3) ) ;
     if ~isempty(deleted)
+        for ii=1:numel(deleted)
+            [~,indices] = not_excluded( X, X.diff(deleted(ii),1), X.diff(deleted(ii),2) ) ;
+            X.excluded(indices) = false ;
+        end
+        
         if track_contacts && isfield(X,'contact')
-            for ii=1:numel(deleted)
-                [~,indices] = not_excluded( X, X.diff(deleted(ii),1), X.diff(deleted(ii),2) ) ;
-                X.excluded(indices) = false ;
-            end
 
             deleted = X.diff(deleted,1) + (X.diff(deleted,2)-1)*X.M0 ;            
             for d=1:2
                 X.contact{d}(deleted,:) = false ;
-%                 test = X.contact{d} ;
-%                 test(deleted,:) = false ;
-%                 for del=deleted
-%                     inds = X.contact{d}(del,:) ;
-%                     X.contact{d}(del,inds) = false ;
-%                 end
-%                 try X.contact{d} - test ;
-%                 catch                    
-%                     'oups'
-%                 end
                 X.contact{d}(:,deleted) = false ;
             end
         end
