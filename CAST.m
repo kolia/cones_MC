@@ -19,8 +19,6 @@ default( cone_map , 'profile_every' , 0      )
 default( cone_map , 'ID'            , 0      )
 default( cone_map , 'N_fast'        , 1      )
 
-% reduce memory footprint: LL is only used by greedy
-cone_map = rmfield(cone_map,'LL')
 
 % Initialize figure
 if plot_every
@@ -34,6 +32,9 @@ fprintf('\n\n+ different inverse temperatures beta:\n')
 fprintf('%4.2f  ',cone_map.betas )
 fprintf('\n\n+ different powers delta:\n')
 fprintf('%4.2f  ',cone_map.deltas)
+
+% reduce memory footprint: LL is only used by greedy
+cone_map = rmfield(cone_map,'LL')
 
 % initialize slow chain X{1} and fast chain X{2}
 X = cell(1+cone_map.N_fast,1) ;
