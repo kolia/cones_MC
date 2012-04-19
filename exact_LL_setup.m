@@ -71,6 +71,10 @@ cone_map.M0             = M0 ;
 cone_map.M1             = M1 ;
 cone_map.N_GC           = N_GC ;
 cone_map.SS             = SS ;
+cone_map.R              = R ;
+cone_map.STA            = single( STA ) ;
+cone_map.min_STA_W      = -0.2 ; %min(STA_W(:)) ;
+cone_map.colorDot       = cone_params.colors * cone_params.colors' ;
 
 %% make lookup table for dot products of cone RFs in all possible positions
 cone_map.coneConv = zeros( 2*R+SS , 2*R+SS , SS , SS ) ;
@@ -104,30 +108,21 @@ end
 
 % calculate sparsity structure and map of LL increases
 [cone_map.sparse_struct,cone_map.LL] = ...
-    make_sparse_struct(cone_map,STA,WW,gaus_in_box_memo) ;
+    make_sparse_struct(cone_map,STA,WW,cone_map.gaus_boxed) ;
 
-% 
+% cone_map.NICE is a pretty visualizable version of cone_map.LL
 IC = inv(cone_params.colors) ;
 QC = reshape( reshape(cone_map.LL,[],3) * IC', size(cone_map.LL) ) ;
 cone_map.NICE = plotable_evidence( QC ) ;
-
 % imagesc( cone_map.NICE )
 
 
-cone_map.R              = R ;
-cone_map.STA            = single( STA ) ;
-cone_map.min_STA_W      = -0.2 ; %min(STA_W(:)) ;
-cone_map.colorDot       = cone_params.colors * cone_params.colors' ;
-
 % Some default values
 cone_map.N_iterations   = 100000;
-cone_map.q              = 0.5   ;
-cone_map.plot_every     = 0     ;
-cone_map.plot_skip      = 100   ;
-cone_map.display_every  = 500   ;
-cone_map.ID             = 0     ;
 cone_map.max_time       = 200000;
 cone_map.N_fast         = 1     ;
+cone_map.q              = 0.5   ;
+cone_map.ID             = 0     ;
 
 cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.N_colors, cone_map.SS, ...
