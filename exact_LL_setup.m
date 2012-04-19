@@ -106,18 +106,18 @@ for xx=1:2*R+SS
     end
 end
 
-% calculate sparsity structure and map of LL increases
+%% calculate sparsity structure and map of LL increases
 [cone_map.sparse_struct,cone_map.LL] = ...
     make_sparse_struct(cone_map,STA,WW,cone_map.gaus_boxed) ;
 
-% cone_map.NICE is a pretty visualizable version of cone_map.LL
+%% cone_map.NICE is a pretty visualizable version of cone_map.LL
 IC = inv(cone_params.colors) ;
 QC = reshape( reshape(cone_map.LL,[],3) * IC', size(cone_map.LL) ) ;
 cone_map.NICE = plotable_evidence( QC ) ;
 % imagesc( cone_map.NICE )
 
 
-% Some default values
+%% some default values
 cone_map.N_iterations   = 100000;
 cone_map.max_time       = 200000;
 cone_map.N_fast         = 1     ;
