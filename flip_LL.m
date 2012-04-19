@@ -54,7 +54,6 @@ for i=1:size(flips,1)
         end
         
         X.sparse_STA_W_state = X.sparse_STA_W_state(:, inds ) ;
-%         X.STA_W_state = X.STA_W_state(:, inds ) ;
         
         keep_cones = sum(X.sparse_STA_W_state(keep_GCs,:),1)>0 ;
         X.contributions(keep_GCs) = ...
@@ -104,23 +103,6 @@ for i=1:size(flips,1)
             end
             X.invWW(j,j)       = q ;
         else
-%             X.WW = [X.WW(1:j-1,1:j-1) Wkstate(1:j-1)'  X.WW(1:j-1,j:end) ; 
-%                    Wkstate(1:j-1)    Wkkc             Wkstate(j:end)    ;
-%                    X.WW(j:end,1:j-1) Wkstate(j:end)'  X.WW(j:end,j:end)] ;
-
-%             X.WW = [X.WW     Wkstate' ; 
-%                     Wkstate  Wkkc   ] ;
-%             X.order = [1:j-1 X.N_cones j:X.N_cones-1] ;
-%             X.WW = X.WW(order,order) ;
-
-%             WW(j,j)       = Wkkc ;
-%             if numel(inds)>0
-%                 WW(inds,inds) = X.WW ;
-%                 WW(inds,j)    = Wkstate ;
-%                 WW(j,inds)    = Wkstate ;
-%             end
-%             X.WW          = WW ;
-
             if ~issparse(X.WW) ;
                 X.WW = sparse(double(X.WW)) ;
             end 
@@ -129,17 +111,6 @@ for i=1:size(flips,1)
             wwy = [inds(wwy) inds j*ones(1,numel(Wkstate)+1)] ;
             wwv = [wwv' Wkstate Wkkc Wkstate] ;
             X.WW            = sparse(wwx,wwy,wwv,X.N_cones,X.N_cones) ;            
-
-%             norm(WW - X.WW)
-
-%             WW            = single(zeros(X.N_cones)) ;
-%             WW(j,j)       = Wkkc ;
-%             if numel(inds)>0
-%                 WW(inds,inds) = X.WW ;
-%                 WW(inds,j)    = Wkstate ;
-%                 WW(j,inds)    = Wkstate ;
-%             end
-%             X.WW          = WW ;
         end
         
         sparse_STA_W_state = X.sparse_STA_W_state ;
