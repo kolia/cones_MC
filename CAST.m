@@ -19,6 +19,11 @@ default( cone_map , 'profile_every' , 0      )
 default( cone_map , 'ID'            , 0      )
 default( cone_map , 'N_fast'        , 1      )
 
+% default progression of inverse temperatures
+cone_map.min_delta = 0.1 ;
+cone_map.min_beta  = 0.2 ;
+cone_map.betas  = make_deltas( cone_map.min_beta , 1, 1, 20 ) ;
+cone_map.deltas = make_deltas( cone_map.min_delta, 1, 1, 20 ) ;
 
 % Initialize figure
 if plot_every
