@@ -1,5 +1,13 @@
 function to_save = MCMC( cone_map , ID )
 
+% defaults
+default( cone_map , 'N_iterations'  , 1000000)
+default( cone_map , 'plot_every'    , 0      )
+default( cone_map , 'display_every' , 50     )
+default( cone_map , 'save_every'    , 0      )
+default( cone_map , 'ID'            , 0      )
+default( cone_map , 'max_time'      , 200000 )
+
 % IDs for each chain on the cluster; not useful for single local execution
 if nargin>1 ,   cone_map.ID = ID ;     end
 
@@ -8,15 +16,6 @@ cone_map.has_evidence = logical(squeeze(sum(abs(cone_map.LL),3))>0) ;
 
 % archive this file into saved result, for future reference
 cone_map.code.string    = file2str('MCMC.m') ;
-
-% defaults
-default( cone_map , 'N_iterations'  , 1000000)
-default( cone_map , 'plot_every'    , 0      )
-default( cone_map , 'plot_skip'     , 100    )
-default( cone_map , 'display_every' , 50     )
-default( cone_map , 'save_every'    , 5000   )
-default( cone_map , 'ID'            , 0      )
-default( cone_map , 'max_time'      , 200000 )
 
 % reduce memory footprint: LL is only used by greedy
 cone_map = rmfield(cone_map,'LL')
