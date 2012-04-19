@@ -37,13 +37,21 @@ fprintf('\n\n+ different inverse temperatures beta:\n')
 fprintf('%4.2f  ',cone_map.betas )
 fprintf('\n\n+ different powers delta:\n')
 fprintf('%4.2f  ',cone_map.deltas)
+%% initializations
+
+% initialize with  'hot' greedy configuration
+cone_map.track_contacts = true ;
+greed_hot = greedy_cones(cone_map, 'hot') ;
+cone_map.initX = greed_hot.X ;
 
 % reduce memory footprint: LL is only used by greedy
 cone_map = rmfield(cone_map,'LL')
 
 % initialize slow chain X{1} and fast chain X{2}
 X = cell(1+cone_map.N_fast,1) ;
-for i=1:1+cone_map.N_fast ,  X{i} = remake_X(cone_map,cone_map.initX) ; end
+for i=1:1+cone_map.N_fast ,  X{i} = cone_map.initX ; end
+
+initial_iterations = cone_map.initX.iteration ;
 
 % initialize current best configuration
 bestX = X{1} ;

@@ -33,8 +33,10 @@ tic
 
 n_runs = 1 ;
 
-% repair some data structures in cone_map.initX, in case they were deleted
-cone_map.initX = remake_X(cone_map,cone_map.initX) ;
+%% initialization with  'hot' greedy configuration
+cone_map.track_contacts = true ;
+greed_hot = greedy_cones(cone_map, 'hot') ;
+cone_map.initX = greed_hot.X ;
 
 % initialize MCMC loop
 X           = cone_map.initX ;
