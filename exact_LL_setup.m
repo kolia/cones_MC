@@ -128,9 +128,6 @@ cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.N_colors, cone_map.SS, ...
                                cone_map.cone_params.replusion_radii, ...
                                1, 1) ;
-if ~isfield(cone_map.initX,'connections')
-    cone_map.init.connections = zeros(N_GC,1) ;
-end
 
 
 % sanity check: compare cone_map.make_STA_W with make_LL

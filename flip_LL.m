@@ -14,10 +14,6 @@ function X = flip_LL( X , flips , PROB , T )
 
 M0 = PROB.M0 * PROB.SS ;
 
-if ~isfield(X,'connections')
-    X.connections = zeros(PROB.N_GC,1) ;
-end
-
 for i=1:size(flips,1)
     
     x = flips(i,1) ;
