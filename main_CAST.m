@@ -1,22 +1,34 @@
-% function main_CAST( type )
-type = 0 ;
+type = 1 ;
 
-cone_map = make_cone_map( type ) ;
+warning off
 
+if type==1
+    type = 'peach' ;
+    load peach/peach_data     % contains 'stas'
+    load peach/cone_params
+else
+    type = 'george' ;
+    load george/stas          % contains 'stas'
+    load george/cone_params   % contains 'cone_params'
+    cone_params.stimulus_variance = 1 ;
+end
+
+cone_map = exact_LL_setup(stas,cone_params) ; % cone_map, aka PROB or data
+
+cone_map.N_iterations  = 1e3 ;
+cone_map.max_time      = 4e5 ;
+
+cone_map.initX.type   = type ;
+cone_map.type         = type ;
+cone_map.initX.N_iterations   = cone_map.N_iterations ;
+
+cone_map.plot_every    = 0 ;
 base_str = cone_map_string( cone_map ) ;
 
 % THEN RUN THIS to run on your own computer:
-% try   
-%     load(['greed_' base_str])
-% catch e
-%     greed = greedy_cones(cone_map) ;  save(['greed_' base_str],'greed') ;
-% end
-
-greed_fast = greedy_cones(cone_map, 'fast') ;
-cone_map.initX = greed_fast.X ;
-
-% mcmc = MCMC(cone_map) ;           save(['mcmc_'  base_str],'mcmc' )
-% cast = CAST(cone_map) ;           save(['cast_'  base_str],'cast' )
+greed = greedy_cones(cone_map) ;  save(['greed_' base_str],'greed') ;
+mcmc = MCMC(cone_map) ;           save(['mcmc_'  base_str],'mcmc' )
+cast = CAST(cone_map) ;           save(['cast_'  base_str],'cast' )
 
 % OR THIS to run 50 MCMC instances and 50 CAST on the hpc cluster:
 %            INSTALL AGRICOLA FIRST
