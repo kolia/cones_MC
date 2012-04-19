@@ -5,14 +5,6 @@ if nargin<2     % default is regular greedy (anything but 0: 'hot' version)
     speed = 0 ;
 end
 
-%% PARAMS from cone_map
-M0          = cone_map.M0 ;
-M1          = cone_map.M1 ;
-cone_map.SS = cone_map.cone_params.supersample ;
-SS          = cone_map.SS ;
-N_colors    = cone_map.N_colors ;
-maxcones    = cone_map.initX.maxcones ;
-
 % plot, display, and save every N iterations (0 = never)
 display_every = 1 ;
 default( cone_map , 'plot_every'    , 0      )
@@ -21,11 +13,13 @@ default( cone_map , 'save_every'    , 500    )
 % no need to track_contacts, greedy does not shift cones, it just adds them
 if ~isfield(cone_map , 'track_contacts'), cone_map.track_contacts = false ; end
 
-fprintf('\n\nSTARTING greedy search')
-
+if speed
+    fprintf('\n\nSTARTING ''hot'' greedy search')
+else
+    fprintf('\n\nSTARTING greedy search')
+end
 
 % initializing variables
-N_cones = 0 ;
 X = cone_map.initX ;
 
 % if not tracking contacts, contact field is not needed
@@ -39,7 +33,7 @@ end
 % GREEDY addition of cones, one at a time
 t = cputime ;
 tic
-for jj=1:maxcones
+for jj=1:cone_map.initX.maxcones
 
     % try adding a cone
     if speed
