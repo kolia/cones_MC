@@ -17,9 +17,6 @@ cone_map.has_evidence = logical(squeeze(sum(abs(cone_map.LL),3))>0) ;
 % archive this file into saved result, for future reference
 cone_map.code.string    = file2str('MCMC.m') ;
 
-% reduce memory footprint: LL is only used by greedy
-cone_map = rmfield(cone_map,'LL')
-
 % Initialize figure
 if plot_every
 scrsz = get(0,'ScreenSize');
@@ -37,6 +34,9 @@ n_runs = 1 ;
 cone_map.track_contacts = true ;
 greed_hot = greedy_cones(cone_map, 'hot') ;
 cone_map.initX = greed_hot.X ;
+
+% reduce memory footprint: LL is only used by greedy
+cone_map = rmfield(cone_map,'LL')
 
 % initialize MCMC loop
 X           = cone_map.initX ;
