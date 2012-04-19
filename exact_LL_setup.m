@@ -29,14 +29,12 @@ cone_map.cone_params = cone_params ;
 if ~isfield(cone_map,'ROI')
     x = repmat( 1/(2*SS):1/SS:M0-1/(2*SS) , 1 , M1*SS ) ;
     y = repmat( 1/(2*SS):1/SS:M1-1/(2*SS) , M0*SS , 1 ) ;
-    ROI = [x' y(:)] ;
+    cone_map.ROI = [x' y(:)] ;
     clear x y
-else
-    ROI = cone_map.ROI ;
 end
 
 % total number of possible cone positions
-cone_map.NROI  = size(ROI,1) ;
+cone_map.NROI  = size(cone_map.ROI,1) ;
 
 % unpack GC_stas into: supersampled STAs, norms of STAs and N_spikes
 N_GC = length(GC_stas) ;
@@ -124,13 +122,13 @@ cone_map.N_fast         = 1     ;
 cone_map.q              = 0.5   ;
 cone_map.ID             = 0     ;
 
+%% initial empty X
 cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.N_colors, cone_map.SS, ...
                                cone_map.cone_params.replusion_radii, ...
                                1, 1) ;
 
-
-% sanity check: compare cone_map.make_STA_W with make_LL
+%% quick sanity check: compare cone_map.make_STA_W with make_LL
 mLL = max(cone_map.LL(:)) ;
 mx = 63 ;
 my = 32 ;
@@ -155,7 +153,11 @@ fprintf('\n')
                            
 end
 
+
 function [sparse_struct, LL] = make_sparse_struct(cone_map,STA,WW,gaus_boxed)
+% calculate sparsity structure of connections between all possible cone
+% locations and GCs, as well as the map of log-likelihoods of all
+% single-cone configurations
 
 M0 = cone_map.M0 ;
 M1 = cone_map.M1 ;
@@ -169,6 +171,7 @@ supersamples = 1/(2*SS):1/SS:1 ;
 gs = cell(SS) ;
 sparse_struct = cell( M0*SS, M1*SS, cone_map.N_colors ) ;
 
+% for every supersampled location within one pixel, calculate the cone RF
 for ii=1:SS
     for jj=1:SS
         i = supersamples(ii) ;
@@ -181,6 +184,7 @@ end
 fprintf('making sparse struct and LL for GC number')
 for gc=1:cone_map.N_GC
     gcLL = zeros(M0*SS,M1*SS,cone_map.N_colors) ;
+    % convolve all cone RFs with all GC STAs
     for ii=1:SS
         for jj=1:SS    
             CC = zeros(M0*M1,cone_map.N_colors) ;
@@ -190,11 +194,13 @@ for gc=1:cone_map.N_GC
                 CC(:,color) = CCC(:) ;
             end
             C = 0.5 * cone_map.quad_factors(gc) * (CC * colors').^2 / WW(ii,jj) ;
+            % the max here defines the sparsity
             C = max(0,C+0.5*cone_map.N_cones_terms(gc)) ;
             gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) = ...
                 gcLL( ii:SS:M0*SS, jj:SS:M1*SS, :) + reshape(C,[M0 M1 3]) ;
         end
     end
+    % record sparsity in sparse_struct
     [x,yc] = find( gcLL>0 ) ;
     y = 1+mod(yc-1,M1*SS) ;
     c = ceil( yc/(M1*SS) ) ;
@@ -208,6 +214,8 @@ end
 
 
 function filter = make_filter_new(M0,M1,i,j,gaus_boxed, support)
+% make cone RF centered at (i,j), being careful about boundaries
+
 filter = zeros(M0,M1) ;
 [g,t,r,b,l] = filter_bounds( i, j, M0, M1, gaus_boxed, support) ;
 filter(t:b,l:r) = g ;   
