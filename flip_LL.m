@@ -1,7 +1,8 @@
 function X = flip_LL( X , flips , PROB , T )
 % X = flip_LL( X , flips , PROB , T )
 %
-% pardon my appearance, i've been optimized for speed, not prettiness
+% This is where most cpu time is spent,
+% pardon my appearance, i've been optimized for speed, not prettiness.
 %
 % Apply flips to configuration X, and update log-likelihood of X.
 % Bits in X.state are flipped, and the inverse X.invWW of WW is updated.
