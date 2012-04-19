@@ -31,12 +31,6 @@ scrsz = get(0,'ScreenSize');
 h = figure('Position',[1 scrsz(4)*0.7*0.5 1500*0.5 1200*1]) ;
 end
 
-% MAIN CAST LOOP
-fprintf('\n\nSTARTING CAST with' )
-fprintf('\n\n+ different inverse temperatures beta:\n')
-fprintf('%4.2f  ',cone_map.betas )
-fprintf('\n\n+ different powers delta:\n')
-fprintf('%4.2f  ',cone_map.deltas)
 %% initializations
 
 % initialize with  'hot' greedy configuration
@@ -82,7 +76,13 @@ for j=1:cone_map.N_fast
     X{1+j}.STi_history = zeros(cone_map.N_iterations,1) ;
 end
 
-% MAIN MCMC LOOP
+
+%% MAIN CAST LOOP
+fprintf('\n\nSTARTING CAST with' )
+fprintf('\n\n+ different inverse temperatures beta:\n')
+fprintf('%4.2f  ',cone_map.betas )
+fprintf('\n\n+ different powers delta:\n')
+fprintf('%4.2f  ',cone_map.deltas)
 fprintf('\n\nCAST progress:')
 t = cputime ;
 tic
@@ -95,7 +95,8 @@ while 1
 
     % regular MCMC move at temperature ST.T{ST.i(j)} for fast chain X{2}
     for j=1:cone_map.N_fast
-        X{1+j} = flip_MCMC( X{1+j}, move( X{1+j}, cone_map , ST.T{ST.i(j)}), cone_map, {ST.T{ST.i(j)}} ) ;
+        X{1+j} = flip_MCMC( X{1+j}, move( X{1+j}, cone_map , ST.T{ST.i(j)}), ...
+                            cone_map, {ST.T{ST.i(j)}} ) ;
     end
 
     for j=1:cone_map.N_fast

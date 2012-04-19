@@ -46,7 +46,7 @@ jj          = 1 ;
 cone_map.bestX = {} ;
 n_best      = 1 ;
 
-% main MCMC loop
+%% main MCMC loop
 while 1
     
     % trials{i} is a proposed new configuration; each contains a new ll
