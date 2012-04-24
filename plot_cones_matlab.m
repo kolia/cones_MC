@@ -1,4 +1,5 @@
-function h = plot_cones( states , cone_map )
+function h = plot_cones_matlab( states , cone_map )
+% matlab plot of a cone configuration, using states and cone_map.NICE
 
 if isnumeric(states)
     states = { states } ;
@@ -22,10 +23,15 @@ colors  = {'r' ; 'g' ; 'b' } ;
 NN = numel(states) ;
 h  = cell(3,NN) ;
 
+close all
+figure('visible','off')
+
 if nargin>1 && isfield( cone_map ,'NICE' )
     colormap('pink')
     imagesc( cone_map.NICE.^(0.6) ) ;
 end
+
+roughsize = max(size(cone_map.NICE)) ;
 
 hold on
 for ii=1:numel(states)
@@ -34,7 +40,7 @@ for ii=1:numel(states)
         c = colors{cc} ;
         
         [ix,iy] = find(states{ii} == cc) ;
-        h{cc,ii} = plot(iy,ix,sprintf('%s%s',c,s),'MarkerSize',6) ;
+        h{cc,ii} = plot(iy,ix,sprintf('%s%s',c,s),'MarkerSize',ceil(6*640/roughsize)) ;
     end
 end
 
