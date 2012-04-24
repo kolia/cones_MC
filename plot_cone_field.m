@@ -32,6 +32,6 @@ evidence = print_evidence( PROB.NICE ) ;
 fid = fopen('plot_cones_field_stub.svg') ;
 svg = sprintf(fread(fid,'*char'),width,height,width,height,scale,scale,evidence,svg) ;
 
-save_svg_plot(svg,sprintf('cones_field_%s.svg',PROB.type))
+save_svg_plot(svg,'cones_field.svg')
 
 end

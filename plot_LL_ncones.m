@@ -81,9 +81,9 @@ end
 svg = insert_string(svg,'plot_LL_ncones_stub.svg',-40) ;
 
 if ~isempty(greed)
-    save_svg_plot(svg,sprintf('LL_ncones_%s.svg',cone_map.type))
+    save_svg_plot(svg,'LL_ncones.svg')
 else
-    save_svg_plot(svg,sprintf('LL_ncones_nogreed_%s.svg',cone_map.type))
+    save_svg_plot(svg,'LL_ncones_nogreed.svg')
 end
 
 end

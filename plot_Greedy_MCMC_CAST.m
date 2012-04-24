@@ -34,6 +34,6 @@ svg = sprints('<use xlink:href="#%d" transform="translate(%f %f)" stroke="%s"/>\
 fid = fopen('plot_Greedy_MCMC_CAST_stub.svg') ;
 svg = sprintf(fread(fid,'*char'),width,height,width,height,scale,scale,evidence,svg) ;
 
-save_svg_plot(svg,sprintf('Best_Greed_MCMC_CAST_%s.svg',PROB.type))
+save_svg_plot(svg,'Best_Greed_MCMC_CAST.svg')
 
 end
