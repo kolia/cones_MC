@@ -24,3 +24,21 @@ such as `peach/`:
       - `repulsion_radii`
 
 see `fullstas2stas.m` for an example of how to make `stas(i).spatial` from raw data
+
+
+OUTPUTS
+-------
+
+the current `main.m` saves results from GREEDY.m, MCMC.m and CAST.m
+to the current folder.
+
+a new folder is created by `make_plots.m` reflecting the name of the 
+dataset;  all appropriate plots are placed in it.
+
+some plots are in .svg format; in order for these plots to be automatically 
+converted to pdf, there must be a folder called `batik/` containing a working
+version of [Apache Batik](http://xmlgraphics.apache.org/batik/download.cgi) 
+in the same directory as `main.m`.
+
+one of the plots for MCMC and CAST output is `dancing_cones_movie.svg`; 
+this movie can be viewed by openning it in a modern browser.
