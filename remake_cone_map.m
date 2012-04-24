@@ -1,38 +1,9 @@
 function cone_map = remake_cone_map( X )
+% Use information in X to reconstruct cone_map.
 
-if strcmp(X.type,'peach')
-    type = 'peach' ;
-    load peach/peach_data    % contains 'stas'
-    load peach/cone_params
-else
-    type = 'george' ;
-    load george/stas   % contains 'stas'
-    load george/cone_params   % contains 'cone_params'
-end
-
-% stas = restrict_ROI( stas, X.ROI{1}, X.ROI{2} ) ;
-
-cone_map = exact_LL_setup(stas,cone_params) ; % cone_map, aka PROB or data
-
-cone_map.initX.rois   = X.rois  ;
-cone_map.rois         = X.rois  ;
-cone_map.initX.NROI   = X.NROI  ;
-try
-    cone_map.initX.NROIs  = numel(X.ROI) ;
-    cone_map.NROIs        = numel(X.ROI) ;
-    cone_map.initX.ROI    = X.ROI   ;
-catch
-    cone_map.initX.NROIs  = 2 ;
-    cone_map.NROIs        = 2 ;
-end
-cone_map.initX.type   = X.type  ;
-cone_map.type         = X.type  ;
-cone_map.initX.supersample = cone_params.supersample ;
-cone_map.initX.support_radius = cone_params.support_radius ;
-cone_map.min_beta     = min(X.betas) ;
-cone_map.min_delta    = min(X.deltas) ;
-cone_map.initX.betas  = X.betas  ;
-cone_map.initX.deltas = X.deltas ;
-cone_map.initX.N_iterations  = X.N_iterations ;
+load(sprintf('%s/stas', X.datafolder))
+load(sprintf('%s/cone_params', X.datafolder))
+cone_map = transfer_info( X, struct ) ;
+cone_map = exact_LL_setup(stas,cone_params,cone_map) ;
 
 end

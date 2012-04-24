@@ -116,17 +116,21 @@ cone_map.NICE = plotable_evidence( QC ) ;
 
 
 %% some default values
-cone_map.N_iterations   = 100000;
-cone_map.max_time       = 200000;
-cone_map.N_fast         = 1     ;
-cone_map.q              = 0.5   ;
-cone_map.ID             = 0     ;
+cone_map.N_iterations    = 100000 ;
+cone_map.max_time        = 200000 ;
+cone_map.N_fast          = 1      ;
+cone_map.q               = 0.5    ;
+cone_map.ID              = 0      ;
+cone_map.save_disk_space = false  ;
 
 %% initial empty X
 cone_map.initX = initialize_X( cone_map.M0, cone_map.M1, ...
                                cone_map.N_colors, cone_map.SS, ...
                                cone_map.cone_params.replusion_radii, ...
                                1, 1) ;
+
+%% transfer all info from cone_map to cone_map.initX
+cone_map.initX = transfer_info( cone_map, cone_map.initX ) ;
 
 %% quick sanity check: compare cone_map.make_STA_W with make_LL
 mLL = max(cone_map.LL(:)) ;
@@ -150,7 +154,7 @@ disp(test(range_x,range_y))
 disp(cone_map.LL(range_x,range_y,1))
 disp( test(range_x,range_y) - cone_map.LL(range_x,range_y,1) )
 fprintf('\n')
-                           
+
 end
 
 
