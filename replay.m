@@ -88,7 +88,7 @@ for i=1:N
 
         figure(hf)
         
-        h = plot_cones( states , greedy ) ;
+        h = plot_cones_matlab( states , greedy ) ;
 
         title(sprintf('Iteration %d',i),'FontSize',16)
         drawnow expose

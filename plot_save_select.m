@@ -11,7 +11,7 @@ T = [1 1] ;
 do = @plot_save ;
     function plot_save(X,PROB,i)
         save(sprintf('X_iteration_%d',i),'X')
-        plot_cones({X},PROB) ;
+        plot_cones_matlab({X},PROB) ;
         title(sprintf('Iteration %d   LL%8d',i,floor(X.ll)),'FontSize',22)
         drawnow
         saveas(gcf,sprintf('X_at_iteration_%d',i),'fig')        

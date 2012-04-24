@@ -133,7 +133,7 @@ while 1
             iters = max(initial_iterations,X{1}.iteration-2000)+(1:2000) ;
             iters = iters(X{1}.LL_history(iters)>0) ;
             subplot(5,1,1:3)
-            plot_cones( X{1}.state , cone_map ) ;
+            plot_cones_matlab( X{1}.state , cone_map ) ;
             title( sprintf('After %d CAST iterations',jj),'FontSize' , 21 )
             subplot(5,1,4) ;
             plot(iters,X{1}.LL_history(iters))

@@ -30,7 +30,7 @@ end
 %     imagesc(pe)
 % 
 %     figure(2)
-%     plot_cones(X.state,PROB) ;
+%     plot_cones_matlab(X.state,PROB) ;
 %     'word'
 % end
 

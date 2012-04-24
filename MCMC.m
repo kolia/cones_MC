@@ -99,7 +99,7 @@ while 1
     % PLOT
     if ~mod(jj,plot_every)
         figure(h)
-        plot_cones( X.state , cone_map ) ;
+        plot_cones_matlab( X.state , cone_map ) ;
         title( sprintf('After %d MCMC iterations',jj),'FontSize' , 24 )
         % set(get(gca,'Title'),'Visible','on')
         drawnow
