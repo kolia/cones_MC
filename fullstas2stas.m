@@ -2,7 +2,7 @@ load george/full_stas
 load george/time_courses
 load george/datarun
 
-rf = zeros( 160, 160, 3 ) ; %0 * squeeze(full_stas{1}(:,:,:,1)) ;
+rf = zeros( 160, 160, 3 ) ;
 
 k = 0 ;
 r = struct ;
