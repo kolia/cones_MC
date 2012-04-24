@@ -13,7 +13,7 @@ if iscell(result)
 end
 
 bestX = [] ;
-if isfield(result,bestX)
+if isfield(result,'bestX')
     bestX = result.bestX ;
 end
 
