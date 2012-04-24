@@ -34,7 +34,7 @@ for ii=1:numel(states)
         c = colors{cc} ;
         
         [ix,iy] = find(states{ii} == cc) ;
-        h{cc,ii} = plot(iy,ix,sprintf('%s%s',c,s),'MarkerSize',12) ;
+        h{cc,ii} = plot(iy,ix,sprintf('%s%s',c,s),'MarkerSize',6) ;
     end
 end
 
