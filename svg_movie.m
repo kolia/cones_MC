@@ -54,7 +54,7 @@ fclose(fid) ;
 %             return
 %     end
 % end
-fid = fopen('dancing_cones.svg','w') ;
+fid = fopen('dancing_cones_movie.svg','w') ;
 fwrite(fid,svg) ; fclose(fid) ;
 
 end
