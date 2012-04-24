@@ -60,12 +60,11 @@ try
 
     if ~isempty(bestX)
         for k=1:numel(bestX)
-            plot_cones( bestX{k}.state, cone_map ) ;
-            saveas(gcf,sprintf('best_cone_configuration_%d',k),'jpg')
+            plot_cones_matlab( bestX{k}.state, cone_map ) ;
         end
     else
-        plot_cones( X.state, cone_map ) ;
-        saveas(gcf,'final_cone_configuration','jpg')
+        plot_cones_matlab( X.state, cone_map ) ;
+        saveas(gcf,'final_cone_configuration_matlab','jpg')
     end
 
     % % [sta,invww] = denoised_sta( X.initX , X.dX , cone_map, selector ) ;

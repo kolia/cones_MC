@@ -53,7 +53,7 @@ for jj=1:cone_map.initX.maxcones
     % DISPLAY plot
     if plot_every && ~mod(jj,plot_every)
         figure(h)
-        plot_cones( X.state , cone_map ) ;
+        plot_cones_matlab( X.state , cone_map ) ;
         title(sprintf('Iteration %d',jj),'FontSize',16)        
         drawnow
     end
