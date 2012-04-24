@@ -7,6 +7,7 @@ default( cone_map , 'display_every' , 50     )
 default( cone_map , 'save_every'    , 0      )
 default( cone_map , 'ID'            , 0      )
 default( cone_map , 'max_time'      , 200000 )
+default( cone_map , 'save_disk_space', false  )
 
 % IDs for each chain on the cluster; not useful for single local execution
 if nargin>1 ,   cone_map.ID = ID ;     end
@@ -32,11 +33,11 @@ n_runs = 1 ;
 
 %% initialization with  'hot' greedy configuration
 cone_map.track_contacts = true ;
-greed_hot = greedy_cones(cone_map, 'hot') ;
+greed_hot = GREEDY(cone_map, 'hot') ;
 cone_map.initX = greed_hot.X ;
 
-% reduce memory footprint: LL is only used by greedy
-cone_map = rmfield(cone_map,'LL')
+% % reduce memory footprint: LL is only used by greedy
+% cone_map = rmfield(cone_map,'LL') ;
 
 % initialize MCMC loop
 X           = cone_map.initX ;
@@ -45,6 +46,9 @@ runbest.i   = 1 ;
 jj          = 1 ;
 cone_map.bestX = {} ;
 n_best      = 1 ;
+
+% tell update_X to record accepted moves; used to replay chain and plots
+X.dX   = sparse([],[],[],N_iterations,3*X.maxcones) ;
 
 %% main MCMC loop
 while 1
@@ -103,11 +107,18 @@ while 1
     
     % SAVE to disk
     if ~mod(jj,save_every) || jj>N_iterations || cputime-t>max_time
-        % use less disk space: remove large data structures
-        to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
-        to_save.X = rmfield(X,{'contact'}) ;
-        try to_save.X = rmfield(X,{'invWW'}) ; end
-        save(sprintf('result_%d',ID), 'to_save' )
+        if save_disk_space
+            % use less disk space: remove large data structures
+            to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
+            to_save.X = rmfield(X,{'contact'}) ;
+            try to_save.X = rmfield(X,{'invWW'}) ; end
+        else
+            to_save   = cone_map ;
+            to_save.X = X ;
+        end
+        if ~mod(jj,save_every)
+            save(sprintf('result_%d',ID), 'to_save' )
+        end
         if jj>N_iterations || cputime-t>max_time, break ; 
         else clear to_save
         end

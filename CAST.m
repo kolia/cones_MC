@@ -10,14 +10,15 @@ cone_map.has_evidence = logical(squeeze(sum(abs(cone_map.LL),3))>0) ;
 cone_map.code.string    = file2str('CAST.m') ;
 
 % defaults
-default( cone_map , 'N_iterations'  , 1000000)
-default( cone_map , 'max_time'      , 200000 )
-default( cone_map , 'plot_every'    , 1000   )
-default( cone_map , 'display_every' , 50     )
-default( cone_map , 'save_every'    , 0      )
-default( cone_map , 'profile_every' , 0      )
-default( cone_map , 'ID'            , 0      )
-default( cone_map , 'N_fast'        , 1      )
+default( cone_map , 'N_iterations'   , 1000000)
+default( cone_map , 'max_time'       , 200000 )
+default( cone_map , 'plot_every'     , 1000   )
+default( cone_map , 'display_every'  , 50     )
+default( cone_map , 'save_every'     , 0      )
+default( cone_map , 'profile_every'  , 0      )
+default( cone_map , 'ID'             , 0      )
+default( cone_map , 'N_fast'         , 1      )
+default( cone_map , 'save_disk_space', false  )
 
 % default progression of inverse temperatures
 cone_map.min_delta = 0.1 ;
@@ -35,11 +36,11 @@ end
 
 % initialize with  'hot' greedy configuration
 cone_map.track_contacts = true ;
-greed_hot = greedy_cones(cone_map, 'hot') ;
+greed_hot = GREEDY(cone_map, 'hot') ;
 cone_map.initX = greed_hot.X ;
 
-% reduce memory footprint: LL is only used by greedy
-cone_map = rmfield(cone_map,'LL')
+% % reduce memory footprint: LL is only used by greedy
+% cone_map = rmfield(cone_map,'LL')
 
 % initialize slow chain X{1} and fast chain X{2}
 X = cell(1+cone_map.N_fast,1) ;
@@ -164,15 +165,22 @@ while 1
     
     % SAVE to disk
     if ~mod(jj,save_every) || jj>N_iterations || cputime-t>max_time
-        % use less disk space: remove large data structures
-        to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
-        to_save.X = rmfield(X{1},{'contact'}) ;
-        try to_save.X = rmfield(X{1},{'invWW'}) ; end
+        if save_disk_space
+            % use less disk space: remove large data structures
+            to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
+            to_save.X = rmfield(X{1},{'contact'}) ;
+            try to_save.X = rmfield(X{1},{'invWW'}) ; end
+        else
+            to_save = cone_map ;
+            to_save.X = X ;
+        end
         to_save.bestX = rmfield(bestX,{'contact'}) ;
         try to_save.bestX = rmfield(bestX,{'invWW','LL_history','cputime',...
             'N_cones_history','dX','excluded','sparse_STA_W_state','swap'}) ; end
         to_save.ST         = ST ;
-        save(sprintf('cast_result_%d',ID), 'to_save' )
+        if ~mod(jj,save_every)
+            save(sprintf('cast_result_%d',ID), 'to_save' )
+        end
         if jj>N_iterations || cputime-t>max_time, break ; 
         else clear to_save
         end
