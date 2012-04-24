@@ -7,8 +7,9 @@ end
 
 % plot, display, and save every N iterations (0 = never)
 display_every = 1 ;
-default( cone_map , 'plot_every'    , 0      )
-default( cone_map , 'save_every'    , 500    )
+default( cone_map , 'plot_every'     , 0      )
+default( cone_map , 'save_every'     , 0      )
+default( cone_map , 'save_disk_space', false  )
 
 % no need to track_contacts, greedy does not shift cones, it just adds them
 if ~isfield(cone_map , 'track_contacts'), cone_map.track_contacts = false ; end
@@ -58,22 +59,29 @@ for jj=1:cone_map.initX.maxcones
     end
     
     % SAVE to disk
-    save_now = done | jj/(N_cones+1)>1.1 ;
-    if ~mod(jj,save_every) || save_now
-        % use less disk space: remove large data structures
-        to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
+    really_done = done | jj/(N_cones+1)>1.1 ;
+    if ~mod(jj,save_every) || really_done
         try X = rmfield(X,'excluded') ; end
         X = remake_X(cone_map,X) ;
-        try to_save.X = rmfield(X,{'invWW'}) ; end
-        save('result', 'to_save' )
-        if save_now ,  break ;
+        if save_disk_space
+            % use less disk space: remove large data structures
+            to_save = rmfield(cone_map,{'STA','initX','sparse_struct'}) ;
+            try to_save.X = rmfield(X,{'invWW'}) ; end
+        else
+            to_save = cone_map ;
+            to_save.X = X ;
+        end
+        if ~mod(jj,save_every)
+            save('result', 'to_save' )
+        end
+        if really_done ,  break ;
         else clear to_save; end
     end
 end
 fprintf('\ndone in %.1f sec\n\n',cputime - t) ;
 
 cone_map.X              = X ;
-cone_map.code           = file2str('greedy_cones.m') ;
+cone_map.code           = file2str('GREEDY.m') ;
 cone_map.N_cones        = N_cones ;
 % save('results','cone_map','X')
 
