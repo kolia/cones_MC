@@ -35,7 +35,8 @@ to the current folder.
 a new folder is created by `make_plots.m` reflecting the name of the 
 dataset;  all appropriate plots are placed in it.
 
-some plots are in .svg format; in order for these plots to be automatically 
+some plots are in .svg format; these files need `evidence.png` to live 
+alongside them in the same folder;  in order for these plots to be automatically
 converted to pdf, there must be a folder called `batik/` containing a working
 version of [Apache Batik](http://xmlgraphics.apache.org/batik/download.cgi) 
 in the same directory as `main.m`.
@@ -47,4 +48,5 @@ this movie can be viewed by opening it in a modern browser.
 DOCUMENTATION
 -------------
 
-most important files are commented; [M2HTML](http://www.artefact.tk/software/matlab/m2html/) is your friend
+most important files are commented; [M2HTML](http://www.artefact.tk/software/matlab/m2html/) 
+is your friend
