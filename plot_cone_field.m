@@ -1,4 +1,20 @@
-function svg = plot_cone_field( cc , PROB )
+function svg = plot_cone_field( cc , PROB , filename )
+% plot_cone_field( X, cone_map )
+% plot_cone_field( X, cone_map, filename )
+% plot_cone_field( confidence, cone_map )
+% plot_cone_field( confidence, cone_map, filename )
+
+if nargin<3
+    filename = 'cones_field.svg' ;
+end
+
+if isstruct( cc )
+    X = cc ;
+    cc = zeros(PROB.M0 * PROB.SS, PROB.M1 * PROB.SS, 3) ;
+    for c=1:3
+        cc(:,:,c) = cc(:,:,c) + (X.state==c) ;
+    end
+end
 
 alpha = sqrt(sum(cc.^2,3)) ;
 [x,y,alpha] = find( alpha ) ;
@@ -32,6 +48,6 @@ evidence = print_evidence( PROB.NICE ) ;
 fid = fopen('plot_cones_field_stub.svg') ;
 svg = sprintf(fread(fid,'*char'),width,height,width,height,scale,scale,evidence,svg) ;
 
-save_svg_plot(svg,'cones_field.svg')
+save_svg_plot(svg,filename)
 
 end
