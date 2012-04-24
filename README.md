@@ -42,3 +42,10 @@ in the same directory as `main.m`.
 
 one of the plots for MCMC and CAST output is `dancing_cones_movie.svg`; 
 this movie can be viewed by opening it in a modern browser.
+
+
+DOCUMENTATION
+-------------
+
+most important files are commented;  
+[M2HTML](http://www.artefact.tk/software/matlab/m2html/) is your friend
