@@ -7,7 +7,7 @@
 *.log
 batik
 figs
-*.m~
+*.*~
 .unison.*
 cluster__*
 plots_for_*
