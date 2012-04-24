@@ -41,4 +41,4 @@ version of [Apache Batik](http://xmlgraphics.apache.org/batik/download.cgi)
 in the same directory as `main.m`.
 
 one of the plots for MCMC and CAST output is `dancing_cones_movie.svg`; 
-this movie can be viewed by openning it in a modern browser.
+this movie can be viewed by opening it in a modern browser.
