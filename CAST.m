@@ -18,6 +18,7 @@ default( cone_map , 'save_every'     , 0      )
 default( cone_map , 'profile_every'  , 0      )
 default( cone_map , 'ID'             , 0      )
 default( cone_map , 'N_fast'         , 1      )
+default( cone_map , 'swap_N_times'   , 50     )
 default( cone_map , 'save_disk_space', false  )
 
 % default progression of inverse temperatures
