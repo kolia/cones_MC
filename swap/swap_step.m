@@ -1,14 +1,34 @@
-function [X1,X2] = swap_step(X1,T1,X2,T2,PROB)
+function [slowX,fastX] = swap_step(slowX,fastX,PROB,N_times,fastT)
 
-% check_X(X1)
-% check_X(X2)
-swapX = swap_closure( X1, T1, X2 , T2, PROB) ;
-% for i=1:numel(swapX)
-%     check_X(swapX{i}.X)
-%     check_X(swapX{i}.with)
-% end
-swapX = flip_MCMC( swapX{1}, swapX(2:end), PROB, {T1 T2} ) ;
-X1  = swapX.X ;
-X2  = swapX.with ;
+% check_X(slowX)
+% check_X(fastX)
+
+% calculate overlaps of slowX cones on fastX exclusion disks
+R = overlap_relation( fastX , slowX ) ;
+
+% calculate at most N_times classes
+classes  = equivalence_classes_direct(R,N_times) ;
+
+if numel(classes)>0
+    % propose swap moves N_times, choosing a different class every time
+    for i=1:numel(classes)
+        while 1
+            ii = randi(numel(classes)) ;
+            class = classes{ii} ;
+            [proposed_slowX,proposed_fastX,class] = ...
+                swap_closure( slowX, [1 1], fastX, fastT, PROB, class ) ;
+            if ~isempty(proposed_slowX), break ; end
+        end
+        accept = metropolis_hastings(          slowX.ll+         fastX.ll,...
+                                      proposed_slowX.ll+proposed_fastX.ll, 1) ;
+%         if accept
+%             fprintf('  swapdll: %.2f, slowdll: %.2f',...
+%                 proposed_slowX.ll+proposed_fastX.ll-slowX.ll-fastX.ll,...
+%                 proposed_slowX.ll-slowX.ll) ;  
+%         end
+        [slowX,fastX] = update_swap(slowX,fastX,proposed_slowX,proposed_fastX,accept) ;
+        if accept, classes{ii} = class ; end
+    end
+end
 
 end
