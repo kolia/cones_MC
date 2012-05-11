@@ -24,7 +24,7 @@ load(sprintf('%s/cone_params', cone_map.datafolder)) % cone_params struct fields
 cone_map = exact_LL_setup(stas,cone_params,cone_map) ;
 
 % How many MCMC/CAST iterations?
-cone_map.N_iterations  = 2e4 ;
+cone_map.N_iterations  = 5e5 ;
 cone_map.max_time      = 4e5 ;  % in seconds
 
 % % override defaults: plot, display, and save every ? iterations (0 = never)
