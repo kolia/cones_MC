@@ -94,24 +94,34 @@ jj = 1 ;
 while 1
 
     % regular MCMC move at temperature [1 1] for slow chain X{1}
-    X{1} = flip_MCMC( X{1}, move( X{1}, cone_map , [1 1]), cone_map, {[1 1]} ) ;
+    proposal = move( X{1}, cone_map , [1 1]) ;
+    accept   = metropolis_hastings( X{1}.ll, proposal.ll, proposal.proposal_bias ) ;
+    X{1} = update_X( {X{1}; proposal}, accept+1 ) ;
 
     % regular MCMC move at temperature ST.T{ST.i(j)} for fast chain X{2}
     for j=1:cone_map.N_fast
-        X{1+j} = flip_MCMC( X{1+j}, move( X{1+j}, cone_map , ST.T{ST.i(j)}), ...
-                            cone_map, {ST.T{ST.i(j)}} ) ;
+        proposal = move( X{1+j}, cone_map , ST.T{ST.i(j)}) ;
+        accept   = metropolis_hastings( X{1}.ll, proposal.ll, proposal.proposal_bias ) ;
+        X{1+j} = update_X( {X{1+j}; proposal}, accept+1 ) ;
     end
-
+    
     for j=1:cone_map.N_fast
         % swap move if X{1+j} is at T=1
-        if ST.i(j)==1 && X{1}.N_cones>10  && X{1+j}.N_cones>10
-            old_ll      = X{1}.ll ;
-            [X{1},X{1+j}] = swap_step( X{1}, [1 1], X{1+j}, [1 1], cone_map ) ;
-            if old_ll ~= X{1}.ll , fprintf(' swap dll : %.2f',X{1}.ll-old_ll) ; end
+        if isfield(ST,'k') && ST.k>1 && ST.i(j)==1 && X{1}.N_cones>10  && X{1+j}.N_cones>10
+            old_ll   = X{1}.ll ;
+            old_fast = X{2}.ll ;
+            [X{1},X{1+j}] = swap_step(X{1},X{1+j},cone_map, swap_N_times, ST.T{1}) ;
+%             if old_ll ~= X{1}.ll
+%                 fprintf(' dLL : %.2f',X{1}.ll-old_ll) ;
+%             end
+%             fprintf('  old_ll: %.2f  slow : %.2f  fast : %.2f  ',old_ll,X{1}.ll,X{2}.ll) ; 
+            fprintf('  SWAPDLL: %.2f, SLOWDLL: %.2f',...
+                X{1}.ll+X{2}.ll-old_ll-old_fast,...
+                X{1}.ll-old_ll) ;
         end
         
         % update temperature step
-        ST = SimTempMCMC( X{1+j}, cone_map, @get_LL, ST , j ) ;
+        [X{1+j},ST] = SimTempMCMC( X{1+j}, cone_map, ST , j ) ;
 
         % save current ST.STi to X{2}.STi_history
         X{1+j}.STi_history(X{1+j}.iteration) = ST.i(j) ;
@@ -125,6 +135,10 @@ while 1
                      jj,N_iterations,numel(find(X{1}.state>0)),X{1}.ll)
         fprintf('%2d ',ST.i)
         fprintf('%6.2f sec',toc)
+        props = numel(ST.f)*ST.f/sum(ST.f) ;
+%         fprintf('\nST.lg:') ; fprintf(' %g',ST.lg)
+%         fprintf('\nST.f:') ;  fprintf(' %g',props)
+        fprintf('   min ST.f %g >? 0.8',min(props))
         tic
     end
 

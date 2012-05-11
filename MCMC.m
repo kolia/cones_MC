@@ -54,10 +54,11 @@ X.dX   = sparse([],[],[],N_iterations,3*X.maxcones) ;
 while 1
     
     % trials{i} is a proposed new configuration; each contains a new ll
-    trials = move(X, cone_map, [1 1]) ;
+    proposal = move(X, cone_map, [1 1]) ;
     
-    % choose one of the candidates, update_X its data structures
-    X = flip_MCMC( X, trials, cone_map, {[1 1]} ) ;
+    % accept or reject move, update_X
+    accept = metropolis_hastings( X.ll, proposal.ll, proposal.proposal_bias ) ;
+    X = update_X( {X; proposal}, accept+1 ) ;
 
     % keep track of best configuration encountered
     if X.ll>runbest.ll
