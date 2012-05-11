@@ -72,7 +72,7 @@ for i=1:N_temp
 end
 
 % ST.g is used by Wang-Landau scheme in SimTempMCMC.m
-ST.g = exp(-3.1035+0.2268*(1:N_temp)) ; % from converged g of previous runs
+ST.lg = ones(1,N_temp) ; %exp(100*(1:N_temp)/N_temp) ; %((1:N_temp)/N_temp*(1-cone_map.min_beta)*1e5) .^ 0.3 ; 
 
 % X{2}.STi_history records the complete history of ST.i
 for j=1:cone_map.N_fast
