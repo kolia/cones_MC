@@ -22,10 +22,11 @@ default( cone_map , 'swap_N_times'   , 50     )
 default( cone_map , 'save_disk_space', false  )
 
 % default progression of inverse temperatures
-cone_map.min_delta = 0.1 ;
-cone_map.min_beta  = 0.2 ;
-cone_map.betas  = make_deltas( cone_map.min_beta , 1, 1, 20 ) ;
-cone_map.deltas = make_deltas( cone_map.min_delta, 1, 1, 20 ) ;
+cone_map.min_delta = 0.2 ;
+cone_map.min_beta  = 0.3 ;
+% cone_map.betas  = -0.1 + make_deltas( cone_map.min_beta  , 1, 4, 20 ) ;
+cone_map.betas  = make_deltas( cone_map.min_beta  , 1, 4, 100 ) ;
+cone_map.deltas = make_deltas( cone_map.min_delta , 1, 4, 100 ) ;
 
 % Initialize figure
 if plot_every
