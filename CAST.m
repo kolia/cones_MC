@@ -10,23 +10,22 @@ cone_map.has_evidence = logical(squeeze(sum(abs(cone_map.LL),3))>0) ;
 cone_map.code.string    = file2str('CAST.m') ;
 
 % defaults
-default( cone_map , 'N_iterations'   , 1000000)
-default( cone_map , 'max_time'       , 200000 )
-default( cone_map , 'plot_every'     , 1000   )
-default( cone_map , 'display_every'  , 50     )
-default( cone_map , 'save_every'     , 0      )
-default( cone_map , 'profile_every'  , 0      )
-default( cone_map , 'ID'             , 0      )
-default( cone_map , 'N_fast'         , 1      )
-default( cone_map , 'swap_N_times'   , 50     )
-default( cone_map , 'save_disk_space', false  )
+default( cone_map , 'N_iterations'      , 1000000)
+default( cone_map , 'max_time'          , 200000 )
+default( cone_map , 'plot_every'        , 1000   )
+default( cone_map , 'display_every'     , 50     )
+default( cone_map , 'save_every'        , 0      )
+default( cone_map , 'profile_every'     , 0      )
+default( cone_map , 'ID'                , 0      )
+default( cone_map , 'N_fast'            , 1      )
+default( cone_map , 'swap_N_times'      , 50     )
+default( cone_map , 'save_disk_space'   , false  )
 
-% default progression of inverse temperatures
-cone_map.min_delta = 0.2 ;
-cone_map.min_beta  = 0.3 ;
-% cone_map.betas  = -0.1 + make_deltas( cone_map.min_beta  , 1, 4, 20 ) ;
-cone_map.betas  = make_deltas( cone_map.min_beta  , 1, 4, 100 ) ;
-cone_map.deltas = make_deltas( cone_map.min_delta , 1, 4, 100 ) ;
+% default hottest inverse temperature, max number of temps, and curvature
+default( cone_map , 'min_beta'          , 0.2    )
+default( cone_map , 'min_delta'         , 0.2    )
+default( cone_map , 'max_temps'         , 130    )
+default( cone_map , 'curvature'         , 0.1    ) % how do temps fall off?
 
 % Initialize figure
 if plot_every
@@ -63,16 +62,16 @@ X{1}.dX   = sparse([],[],[],N_iterations,3*X{1}.maxcones) ;
 X{1}.LL_history  = zeros(cone_map.N_iterations,1) ;
 
 % ST.T = the fixed progression of temperatures, ST.i = current temps
-N_temp = length(cone_map.betas) ;
-ST.T = cell(N_temp,1) ;
+ST.T = cell(2,1) ;
 ST.i = ones(cone_map.N_fast,1) ;
 ST.n = 1 ;
-for i=1:N_temp
-    ST.T{i} = [cone_map.betas(i) cone_map.deltas(i)] ;
-end
+ST.curvature = curvature ;
+ST.T{1} = [1 1] ;
+ST.T{2} = [min_beta min_delta] ;
 
 % ST.g is used by Wang-Landau scheme in SimTempMCMC.m
-ST.lg = ones(1,N_temp) ; %exp(100*(1:N_temp)/N_temp) ; %((1:N_temp)/N_temp*(1-cone_map.min_beta)*1e5) .^ 0.3 ; 
+ST.lg = ones(1,2) ;
+ST.max_temps = max_temps ;
 
 % X{2}.STi_history records the complete history of ST.i
 for j=1:cone_map.N_fast
@@ -81,11 +80,9 @@ end
 
 
 %% MAIN CAST LOOP
-fprintf('\n\nSTARTING CAST with' )
-fprintf('\n\n+ different inverse temperatures beta:\n')
-fprintf('%4.2f  ',cone_map.betas )
-fprintf('\n\n+ different powers delta:\n')
-fprintf('%4.2f  ',cone_map.deltas)
+fprintf('\nSTARTING CAST with' )
+fprintf('\n+ hottest inverse temperature beta: %f\n',min_beta )
+fprintf('+ smallest power delta            : %f\n',min_delta)
 fprintf('\n\nCAST progress:')
 t = cputime ;
 tic
@@ -107,7 +104,8 @@ while 1
     
     for j=1:cone_map.N_fast
         % swap move if X{1+j} is at T=1
-        if isfield(ST,'k') && ST.k>1 && ST.i(j)==1 && X{1}.N_cones>10  && X{1+j}.N_cones>10
+        if isfield(ST,'k') && 2*numel(ST.T)-1>max_temps && ...
+                   ST.i(j)==1 && X{1}.N_cones>10  && X{1+j}.N_cones>10
             old_ll   = X{1}.ll ;
             old_fast = X{2}.ll ;
             [X{1},X{1+j}] = swap_step(X{1},X{1+j},cone_map, swap_N_times, ST.T{1}) ;
