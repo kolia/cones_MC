@@ -37,20 +37,20 @@ cone_map.description = cone_map_string( cone_map ) ;
 
 %% run GREEDY, MCMC or CAST locally
 % result = GREEDY(cone_map) ;  save(['greed_' cone_map.description],'result') ;
-result = MCMC(cone_map) ;           save(['mcmc_'  cone_map.description], 'result') ;
+% result = MCMC(cone_map) ;           save(['mcmc_'  cone_map.description], 'result') ;
 % result = CAST(cone_map) ;           save(['cast_'  cone_map.description], 'result') ;
 
 %% some plots
-make_plots( result )
+% make_plots( result )
 
-%% %% or RUN 1 greedy instance, N MCMC instances and N CAST on the hpc cluster:
-% %  start by cloning AGRICOLA from https://github.com/kolia/agricola
-% addpath('../agricola')
-% N = 30 ;  ids = cell(1,N) ; for i=1:length(ids) , ids{i} = {i} ; end
-% cone_map.save_disk_space = true ;  % strip results of large fields
-% 
-% PBS.l.mem = '1500mb' ;
-% PBS.l.walltime = '70:00:00' ;
-% sow(['cast_'  base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
-% sow(['mcmc_'  base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
-% sow(['greed_' base_str],@(  )GREEDY(cone_map)) ;
+% %% or RUN 1 greedy instance, N MCMC instances and N CAST on the hpc cluster:
+%  start by cloning AGRICOLA from https://github.com/kolia/agricola
+addpath('../agricola')
+N = 30 ;  ids = cell(1,N) ; for i=1:length(ids) , ids{i} = {i} ; end
+cone_map.save_disk_space = true ;  % strip results of large fields
+
+PBS.l.mem = '1500mb' ;
+PBS.l.walltime = '70:00:00' ;
+sow(['cast_'  base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
+sow(['mcmc_'  base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
+sow(['greed_' base_str],@(  )GREEDY(cone_map)) ;
