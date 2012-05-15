@@ -51,6 +51,6 @@ cone_map.save_disk_space = true ;  % strip results of large fields
 
 PBS.l.mem = '1500mb' ;
 PBS.l.walltime = '70:00:00' ;
-sow(['cast_'  base_str],@(ID)CAST(cone_map,ID),ids,PBS) ;
-sow(['mcmc_'  base_str],@(ID)MCMC(cone_map,ID),ids,PBS) ;
-sow(['greed_' base_str],@(  )GREEDY(cone_map)) ;
+sow(['cast_'  cone_map.description],@(ID)CAST(cone_map,ID),ids,PBS) ;
+sow(['mcmc_'  cone_map.description],@(ID)MCMC(cone_map,ID),ids,PBS) ;
+sow(['greed_' cone_map.description],@(  )GREEDY(cone_map)) ;
