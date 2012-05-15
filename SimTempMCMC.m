@@ -67,13 +67,13 @@ if numel(ST.f)*ST.f/sum(ST.f)>0.8
 
         ST.Q(2:end-1)= 0.5 ;
         ST.i = 2*ST.i-1 ;
+        
+        fprintf('\n\n+ %d inverse temperatures beta:\n',size(T,1))
+        fprintf('%4.2f  ',T(:,1)' )
+        fprintf('\n\n+ %d powers delta:\n',size(T,1))
+        fprintf('%4.2f  ',T(:,2)')
     end
-    fprintf('\n\nNEW GAMMA: %g  (k=%d)\n',ST.gamma,ST.k)
-    fprintf('\n+ %d inverse temperatures beta:\n',size(T,1))
-    fprintf('%4.2f  ',T(:,1)' )
-    fprintf('\n\n+ %d powers delta:\n',size(T,1))
-    fprintf('%4.2f  ',T(:,2)')
-    fprintf('\n')
+    fprintf('\nNEW GAMMA: %g  (k=%d)\n',ST.gamma,ST.k)
 end
 
 ST.lg(ST.i(j)) = ST.lg(ST.i(j)) + log(1 + ST.gamma) ;
